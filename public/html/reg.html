@@ -4,21 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="../public/css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
 <body>
-<h1> Реєстрація нового користувача: </h1>
-<form action = "reg.php" onsubmit="return validateForm(this)">
-    <input type = "text" name = "first_name_reg" placeholder = "Введіть ім'я" required>
-    <input type = "text" name = "last_name_reg" placeholder = "Введіть прізвище"  required>
-    <input type = "text" name = "email_reg" placeholder = "Введіть пошту" required>
-    <input type = "text" name = "username_reg" placeholder = "Придумайте логін" required>
-    <input type = "password" name = "password_reg" placeholder = "Придумайте пароль" required>
-    <input type = "password" name = "password_reg_check" placeholder = "Пітдверіть введений пароль" required>
 
-    <span id = "error_massage"></span>
-    <button class = "btn1>"> Зареєструватися</button>
-    
-    <script src = "../src/js/reg.js"></script>
-</form>
+
+<div class="container">
+    <h1 class="regHeader">Реєстрація</h1>
+
+    <form action="/src/php/reg.php" method="post" autocomplete="on" onsubmit="return validateForm()" id="registrationForm"> 
+        <div class="form-row">
+            <div class="input-container">
+                <label for="firstNid" class="iftaLabel">Ім'я</label>
+                <input type="text" id="firstNid" class="inputField" name="firstName" placeholder="Кевін" autofocus required>
+                <small class="error-message"></small> 
+            </div>
+
+            <div class="input-container">
+                <label for="lastNid" class="iftaLabel">Прізвище</label>
+                <input type="text" id="lastNid" class="inputField" name="lastName" placeholder="Джексон" required>
+                <small class="error-message"></small> 
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="input-container">
+                <label for="emailId" class="iftaLabel">Пошта</label>
+                <input type="email" id="emailId" class="inputField" name="email" placeholder="kevinj@mail.com" required>
+                <small class="error-message"></small> 
+            </div>
+            <div class="input-container">
+                <label for="userId" class="iftaLabel">Придумайте юзернейм</label>
+                <input type="text" id="userId" class="inputField" name="username" placeholder="jackSON47" required>
+                <small class="error-message"></small> 
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="input-container">
+                <label for="passId" class="iftaLabel">Придумайте пароль</label>
+                <input type="password" id="passId" class="inputField" name="userPassword" placeholder="Від 8 символів" required>
+                <small class="error-message"></small> 
+            </div>
+
+            <div class="input-container">
+                <label for="passCheckId" class="iftaLabel">Повторіть пароль</label>
+                <input type="password" id="passCheckId" class="inputField" name="checkPassword" placeholder="********" required>
+                <small class="error-message"></small> 
+            </div>
+        </div>
+        
+        <div class="password-rules">
+            <p>Пароль має містити:</p>
+            <ul>
+                <li>Мінімум 8 символів</li>
+                <li>Принаймні одну велику літеру (A-Z)</li>
+                <li>Принаймні одну маленьку літеру (a-z)</li>
+                <li>Принаймні одну цифру (0-9)</li>
+            </ul>
+        </div>
+
+        <div class="agreement-container">
+            <input type="checkbox" id="policyAgreement" name="policyAgreement" value="agreed" required>
+            <label for="policyAgreement"> 
+                Я погоджуюся з <a href="/policy.html" target="_blank" rel="noopener noreferrer">політикою конфіденційності компанії</a>.
+            </label>
+            <small class="error-message policy-error-message"></small> 
+        </div>
+
+        <button type="submit" class="submit-button">Створити акаунт</button>
+        <span id="alreadyHave">Вже маєте акаунт? <a href="login.html">Увійти</a></span>
+    </form>
+</div>
+
+<script src = "../../src/js/regg.js"></script>
 </body>
 </html>

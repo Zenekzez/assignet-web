@@ -1,12 +1,199 @@
-.btn1{
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
+*{
+  font-family: Tahoma, Verdana, sans-serif;
+  box-sizing: border-box;
+  color: var(--black);
+  margin: 0;
+}
+
+:root{
+  --blue: rgb(0, 89, 255);
+  --blue2: rgb(0, 65, 187);
+  --black: black;
+  --white: white;
+  --grey: grey;
+  --red: rgb(255, 35, 64);
+  --green: rgb(19, 168, 81);
+  --gradientBg: linear-gradient(to right, #3d81ff, #0051ff, #0023ff);
+}
+
+body{
+  display: flex;
+  justify-content: center;
+  background-image: var(--gradientBg);
+}
+
+.regHeader {
+  display: inline-block;
+  position: relative; 
+  text-align: start;
+  margin: 20px;
+}
+.regHeader::after {
+  content: '';
+  display: block; 
+  width: 50px;    
+  height: 6px;    
+  background-image: var(--gradientBg);
+  margin-top: 5px; 
+  border-radius: 2px;
+}
+
+.container {
+  background-color: var(--white);
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  margin: 30px;
+  border-radius: 15px;
+}
+
+.input-container { position: relative; margin: 10px 10px 15px 10px; }
+.input-container:focus-within .iftaLabel { color: var(--blue); }
+
+.iftaLabel {
+  position: absolute;
+  top: 8px;
+  left: 7px;
+  font-size: 12px;
+  color: var(--black);
+  pointer-events: none; 
+}
+
+.inputField{
+  border: 2px solid var(--black);
+  border-radius: 5px;
+  width: 100%;
+  padding: 25px 0px 5px 5px;
+  font-size: 16px;
+}
+.inputField:hover { box-shadow: 0 0 5px var(--grey); outline: none; }
+.inputField:focus{ border-color: var(--blue); outline: none; }
+.inputField::placeholder{ color: var(--grey); opacity: 0.5; }
+.inputField:focus::placeholder{ color: var(--blue); opacity: 0.5;}
+
+.submit-button{
+  background-color: var(--blue);
+  color: var(--white);
+  border-radius: 8px;
+  border: none;
+  font-size: 18px;
+  padding: 15px 40px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  transition: background-color 0.2s ease;
+}
+.submit-button:hover{
+  background-color: var(--blue2);
+  box-shadow: 0 0 5px var(--grey);
+}
+
+.agreement-container {
+  display: flex; 
+  align-items: center; 
+  margin: 15px 10px; 
+  font-size: 12px; 
+}
+
+.agreement-container input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px; 
+  cursor: pointer;
+}
+
+.agreement-container label { color: var(--black); cursor: pointer; }
+.agreement-container label a { color: var(--blue); text-decoration: underline; }
+.agreement-container label a:hover { text-decoration: none; }
+
+.form-row {
+  display: flex;
+  gap: 20px; 
+  margin-left: 10px; 
+  margin-right: 10px; 
+}
+
+.form-row > .input-container {
+  flex: 1; 
+  margin-left: 0;
+  margin-right: 0;
+}
+
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column; 
+    gap: 0; 
+    margin-left: 0; 
+    margin-right: 0;
+  }
+
+  .form-row > .input-container {
+    flex: none; 
+    width: auto; 
+    margin: 10px 10px 15px 10px;
+  }
+}
+
+.input-container.error .inputField { border-color: var(--red);}
+.input-container.error .inputField::placeholder { color: var(--red);}
+.input-container.error .iftaLabel { color: var(--red); }
+
+.error-message {
+  display: none; 
+  color: var(--red); 
+  font-size: 12px; 
+  margin-top: 5px; 
+}
+
+.input-container.error .error-message { display: block;}
+.agreement-container.error .error-message { display: block; width: 100%; margin-left: 0; }
+
+.input-container.success .inputField { border-color: var(--green);}
+.input-container.success .inputField::placeholder { color: var(--green);}
+.input-container.success .iftaLabel { color: var(--green); }
+
+#alreadyHave {
+  display: block;
+  text-align: center;
+  margin: 25px 0px 20px 0px;
+  color: var(--black);
+  font-size: 14px;
+}
+#alreadyHave a { color: var(--blue); font-weight: bold; text-decoration: none; }
+#alreadyHave a:hover { text-decoration: underline; }
+
+/* === Стилі для підказок пароля === */
+.password-rules {
+  font-size: 0.875em; /* ~14px */
+  color: #444; /* Темно-сірий для читабельності */
+  /* Зовнішні відступи будуть оброблені загальним правилом для блоків форми, якщо воно у вас є: */
+  /* Наприклад, якщо у вас є: */
+  /* .input-container, .form-row, .password-rules, .agreement-container { margin: 0 10px 20px 10px; } */
+  /* Тоді ці margin застосуються і до .password-rules. */
+  /* Якщо такого загального правила немає, додайте відступи сюди: */
+  margin: 0 10px 20px 10px; /* Верхній 0 (або маленький, напр. 5px), Горизонтальні 10px, Нижній 20px */
+
+  padding: 10px 15px; /* Внутрішні відступи */
+  background-color: #f0f0f0; /* Світло-сірий фон для легкого виділення */
+  border: 1px solid #e0e0e0; /* Тонка рамка */
+  border-radius: 5px;      /* Заокруглені кути */
+  display: none;             /* ВАЖЛИВО: Приховано за замовчуванням, JavaScript буде показувати */
+}
+
+.password-rules p {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.password-rules ul {
+  list-style-type: disc; /* Маркери списку */
+  margin: 0 0 0 20px;    /* Відступ зліва для маркерів */
+  padding-left: 0;
+}
+
+.password-rules li {
+  margin-bottom: 5px;  /* Відстань між пунктами списку */
+  line-height: 1.4;
 }

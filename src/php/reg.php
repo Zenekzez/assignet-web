@@ -1,1 +1,0 @@
-require 'reg.html';
