@@ -1,0 +1,160 @@
+/* public/css/home_layout_styles.css - скрол сторінки, фіксовані сайдбари */
+
+body.home-layout-final-proto {
+    margin: 0;
+    /* display: flex; БІЛЬШЕ НЕ ПОТРІБЕН ТУТ, оскільки лівий сайдбар position:fixed */
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    font-family: Tahoma, Verdana, sans-serif; /* */
+    padding-left: 240px; /* Місце для лівого фіксованого сайдбару */
+    padding-right: 280px; /* Місце для правого фіксованого сайдбару з віджетами */
+    box-sizing: border-box;
+}
+
+/* --- Лівий Сайдбар (Меню) --- */
+.app-sidebar-final {
+    width: 240px;
+    background-color: #ffffff;
+    height: 100vh;
+    position: fixed; /* Фіксований зліва */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 15px;
+    box-sizing: border-box;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto; 
+}
+/* ... (внутрішні стилі .app-sidebar-final залишаються такими ж) ... */
+.app-sidebar-final .logo-container {
+    padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #e0e0e0; text-align: center;
+}
+.app-sidebar-final .logo-container h2 { margin: 0; font-size: 1.7em; color: var(--blue); /* */ }
+.app-sidebar-final nav { flex-grow: 1; }
+.app-sidebar-final nav ul { list-style-type: none; padding: 0; margin: 0; }
+.app-sidebar-final nav li a {
+    display: flex; align-items: center; padding: 11px 15px;
+    text-decoration: none; color: #333740; border-radius: 5px;
+    margin-bottom: 7px; font-weight: 500; font-size: 0.95em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.app-sidebar-final nav li a:hover, .app-sidebar-final nav li a.active {
+    background-color: #e9f2ff; color: var(--blue); /* */ font-weight: 600;
+}
+.app-sidebar-final .logout-link { margin-top: auto; padding-top: 15px; border-top: 1px solid #e0e0e0; }
+.app-sidebar-final .logout-link ul { margin: 0; padding: 0; }
+.app-sidebar-final .logout-link a {
+    font-size: 0.95em; background-color: transparent; color: var(--grey); /* */ font-weight: 500;
+}
+.app-sidebar-final .logout-link a:hover { background-color: #f8f9fa; color: var(--red); /* */ }
+
+
+/* --- Обгортка для контенту праворуч від лівого сайдбару (тепер це body з padding) --- */
+/* .page-content-area-final більше не потрібен як окремий flex-контейнер для цього */
+
+/* --- Центральна колонка (Курси) --- */
+.courses-column-final {
+    /* flex-grow: 1; БІЛЬШЕ НЕ ПОТРІБЕН, бо не є flex-елементом */
+    background-color: #fff; 
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    /* overflow-y: auto; БІЛЬШЕ НЕ ПОТРІБЕН, скрол на body */
+    margin-bottom: 20px; /* Відступ від віджетів, якщо вони переносяться на мобільних */
+}
+
+.column-title-final { 
+    font-size: 1.3em;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+}
+
+.courses-placeholder-final {
+    text-align: left;
+    color: #555;
+}
+.courses-placeholder-final p {
+    font-size: 1em;
+    margin-bottom: 8px;
+}
+
+/* --- Права колонка (Віджети) --- */
+.widgets-column-final {
+    width: 280px; 
+    /* flex-shrink: 0; БІЛЬШЕ НЕ ПОТРІБЕН */
+    position: fixed; /* Фіксований справа */
+    top: 20px; /* Відступ зверху (може бути рівний padding-top для body) */
+    right: 20px; /* Відступ справа (може бути рівний padding-right для body) */
+    height: calc(100vh - 40px); /* Висота мінус відступи зверху/знизу */
+    overflow-y: auto; /* Додаємо скрол сюди, якщо віджетів більше, ніж вміщається по висоті */
+                       /* АБО overflow-y: hidden; якщо вони точно не мають скролитися */
+    box-sizing: border-box;
+    /* background-color: #f9f9f9; -- Якщо потрібен фон для всієї колонки віджетів */
+}
+
+.widget-item-final {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+.widget-item-final:last-child {
+    margin-bottom: 0;
+}
+.widget-item-final h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+    color: #444;
+    font-weight: 600;
+}
+.widget-item-final p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #666;
+}
+.widget-item-final .widget-content .value {
+    display: block; margin: 0 0 5px 0; font-size: 1.7em; font-weight: bold; color: var(--blue); /* */
+}
+.widget-item-final .widget-content .description { font-size: 0.8em; font-weight: normal; color: #777; }
+
+
+/* --- Адаптивність --- */
+@media (max-width: 1200px) { /* Коли правий сайдбар починає заважати */
+    body.home-layout-final-proto {
+        padding-right: 20px; /* Зменшуємо або прибираємо правий padding, щоб віджети могли перенестися */
+    }
+    .widgets-column-final {
+        position: static; /* Скасовуємо фіксацію */
+        width: 100%; /* Віджети на всю ширину */
+        height: auto; /* Висота за контентом */
+        margin-top: 20px; /* Відступ від блоку курсів */
+        overflow-y: visible; /* Скрол не потрібен */
+    }
+    .courses-column-final {
+        /* Можливо, тут не потрібно змін, або можна задати width: 100% */
+    }
+}
+
+@media (max-width: 768px) {
+    body.home-layout-final-proto {
+        padding-left: 20px; /* Зменшуємо лівий padding, бо сайдбар ховається */
+        /* padding-right залишається 20px або можна теж зменшити */
+    }
+    .app-sidebar-final {
+        transform: translateX(-100%);
+        /* Або display: none; якщо не буде JS для відкриття */
+    }
+    .app-sidebar-final.open {
+        transform: translateX(0);
+    }
+    /* Якщо .courses-column-final та .widgets-column-final вже один під одним,
+       то тут, можливо, не потрібно додаткових змін для них, крім загальних відступів. */
+}
