@@ -229,21 +229,180 @@ if (checkPasswordInput) {
 if (policyAgreementCheckbox) policyAgreementCheckbox.addEventListener('change', () => validatePolicyAgreement());
 
 // --- Головна функція валідації для події onsubmit ---
+// function validateForm() {
+//     const isFirstNameValid = validateNameField(firstNameInput, "Ім'я", true);
+//     const isLastNameValid = validateNameField(lastNameInput, "Прізвище", true);
+//     const isEmailValid = validateEmail(true);
+//     const isUsernameValid = validateUsername(true);
+//     const isPasswordValid = validateUserPassword(true);
+//     const isCheckPasswordValid = validateCheckPassword(true);
+//     const isPolicyAgreed = validatePolicyAgreement(true);
+
+//     if (isFirstNameValid && isLastNameValid && isEmailValid && isUsernameValid && isPasswordValid && isCheckPasswordValid && isPolicyAgreed) {
+//         return true;
+//     } else {
+//         const firstErrorField = document.querySelector('.input-container.error input, .agreement-container.error input');
+//         if (firstErrorField) {
+//             firstErrorField.focus();
+//         }
+//         return false;
+//     }
+// }
+
+// --- AJAX-перевірка унікальності ---
+
+// Функція для "дебaунсу" - щоб не відправляти запит на кожну натиснуту літеру
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+async function checkUniqueness(inputElement, fieldName, apiUrl) {
+    const value = inputElement.value.trim();
+    // Не відправляємо запит, якщо поле порожнє або не пройшло базову JS-валідацію формату
+    // (щоб уникнути зайвих запитів, якщо юзернейм/email очевидно невалідні)
+    if (value === '') {
+        // Якщо поле стало порожнім, прибираємо помилку унікальності, якщо вона була
+        // Але setError/setSuccess для порожнього поля вже обробляється основними валідаторами
+        // Тут можна просто переконатися, що стара помилка унікальності прибрана, якщо вона була
+        const container = inputElement.closest('.input-container');
+        const errorMessageElement = container.querySelector('small.error-message');
+        if (errorMessageElement.textContent.includes("вже використовується")) {
+             // Можливо, тут варто викликати setSuccess, якщо інші валідації пройдені
+             // або просто очистити, якщо інші валідації теж не пройдені.
+             // Для простоти, покладемося на стандартні validateUsername/validateEmail
+        }
+        return; // Не перевіряємо порожнє поле на унікальність
+    }
+
+    // Базова перевірка формату перед відправкою (опціонально, але корисно)
+    if (inputElement.id === 'userId' && !/^[a-zA-Z0-9_]{3,15}$/.test(value)) {
+        // validateUsername вже покаже помилку формату, тому тут можна нічого не робити
+        // або повернути, щоб не робити зайвий запит
+        return;
+    }
+    if (inputElement.id === 'emailId' && !/^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/.test(value)) {
+        // validateEmail вже покаже помилку формату
+        return;
+    }
+
+
+    try {
+        const formData = new FormData();
+        formData.append(fieldName.toLowerCase(), value); // 'username' або 'email'
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            // Помилка мережі або сервера (не 2xx статус)
+            setError(inputElement, `Помилка сервера (${response.status}) при перевірці ${fieldName}.`);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.is_available === false) {
+            setError(inputElement, data.message); // Повідомлення з сервера
+        } else {
+            // Якщо сервер сказав, що доступно, але є інші помилки формату,
+            // setSuccess їх не прибере. Це добре.
+            // Якщо інших помилок немає, setSuccess спрацює.
+            // Тут важливо, щоб setError/setSuccess не конфліктували.
+            // Можливо, варто просто прибирати ТІЛЬКИ помилку унікальності.
+            const container = inputElement.closest('.input-container');
+            const errorMessageElement = container.querySelector('small.error-message');
+            if (errorMessageElement.textContent === data.message || errorMessageElement.textContent.includes("вже використовується")) {
+                 // Якщо помилка була саме про унікальність, і тепер все ОК,
+                 // то викликаємо основний валідатор, щоб він встановив Success, якщо все інше теж ОК.
+                 if(inputElement.id === 'userId') validateUsername();
+                 if(inputElement.id === 'emailId') validateEmail();
+                 // Або просто:
+                 // setSuccess(inputElement); // Це може бути занадто агресивно, якщо інші помилки є
+            }
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+        setError(inputElement, `Помилка мережі при перевірці ${fieldName}.`);
+    }
+}
+
+// Оновлені обробники подій
+if (usernameInput) {
+    // Debounce, щоб не слати запит на кожну літеру
+    usernameInput.addEventListener('input', debounce(() => {
+        if (validateUsername()) { // Спочатку базова валідація формату JS
+            checkUniqueness(usernameInput, 'username', '../php/api_check_username.php');
+        }
+    }, 700)); // Затримка 700 мс
+    usernameInput.addEventListener('blur', () => { // Також при втраті фокусу, якщо інпут не відпрацював
+        if(validateUsername()){
+            checkUniqueness(usernameInput, 'username', '../php/api_check_username.php');
+        }
+    });
+}
+
+if (emailInput) {
+    emailInput.addEventListener('input', debounce(() => {
+        if (validateEmail()) { // Спочатку базова валідація формату JS
+            checkUniqueness(emailInput, 'email', '../php/api_check_email.php');
+        }
+    }, 700));
+     emailInput.addEventListener('blur', () => {
+        if(validateEmail()){
+            checkUniqueness(emailInput, 'email', '../php/api_check_email.php');
+        }
+    });
+}
+
+// ВАЖЛИВО: у функції validateForm() треба додати перевірку,
+// чи немає активних повідомлень про те, що юзернейм/email зайняті,
+// перед тим як дозволити відправку форми.
+
+// Приклад доповнення для validateForm:
 function validateForm() {
     const isFirstNameValid = validateNameField(firstNameInput, "Ім'я", true);
     const isLastNameValid = validateNameField(lastNameInput, "Прізвище", true);
-    const isEmailValid = validateEmail(true);
-    const isUsernameValid = validateUsername(true);
+    const isEmailValidBasic = validateEmail(true); // Базова валідація
+    const isUsernameValidBasic = validateUsername(true); // Базова валідація
     const isPasswordValid = validateUserPassword(true);
     const isCheckPasswordValid = validateCheckPassword(true);
     const isPolicyAgreed = validatePolicyAgreement(true);
 
-    if (isFirstNameValid && isLastNameValid && isEmailValid && isUsernameValid && isPasswordValid && isCheckPasswordValid && isPolicyAgreed) {
+    // Додаткова перевірка на помилки унікальності, які показує JS
+    let уникальністьEmailОк = true;
+    const emailErrorMsg = emailInput.closest('.input-container').querySelector('small.error-message').textContent;
+    if (emailErrorMsg.includes("вже використовується")) {
+        унікальністьEmailОк = false;
+    }
+
+    let унікальністьЮзернеймаОк = true;
+    const usernameErrorMsg = usernameInput.closest('.input-container').querySelector('small.error-message').textContent;
+    if (usernameErrorMsg.includes("вже використовується")) {
+        унікальністьЮзернеймаОк = false;
+    }
+
+    if (isFirstNameValid && isLastNameValid && isEmailValidBasic && isUsernameValidBasic &&
+        isPasswordValid && isCheckPasswordValid && isPolicyAgreed &&
+        унікальністьEmailОк && унікальністьЮзернеймаОк) { // Додано перевірки унікальності
         return true;
     } else {
-        const firstErrorField = document.querySelector('.input-container.error input, .agreement-container.error input');
-        if (firstErrorField) {
-            firstErrorField.focus();
+        // ... (твій код фокусування на першій помилці)
+        // Переконайся, що якщо помилка саме в унікальності, то фокус теж туди потрапить
+        if (!унікальністьEmailОк && emailInput.closest('.input-container').classList.contains('error')) {
+            emailInput.focus();
+        } else if (!унікальністьЮзернеймаОк && usernameInput.closest('.input-container').classList.contains('error')) {
+            usernameInput.focus();
+        } else {
+            const firstErrorField = document.querySelector('.input-container.error input, .agreement-container.error input');
+            if (firstErrorField) {
+                firstErrorField.focus();
+            }
         }
         return false;
     }
