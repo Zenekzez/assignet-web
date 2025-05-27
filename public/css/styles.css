@@ -45,6 +45,7 @@ body{
   height: auto;
   margin: 30px;
   border-radius: 15px;
+  box-shadow: 0 0 5px var(--grey);
 }
 
 .input-container { position: relative; margin: 10px 10px 15px 10px; }
