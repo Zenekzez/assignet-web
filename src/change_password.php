@@ -29,9 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt_user->execute();
     $result_user = $stmt_user->get_result();
     if ($user_db_data = $result_user->fetch_assoc()) {
-        if (password_verify($currentPassword, <span class="math-inline">user\_db\_data\['password\_hash'\]\)\) \{
-// Валідація нового пароля \(серверна\)
-if \(\!preg\_match\("/^\(?\=\.\*\[a\-z\]\)\(?\=\.\*\[A\-Z\]\)\(?\=\.\*\\d\)\[A\-Za\-z\\d@</span>!%*?&]{8,}$/", $newPassword)) {
+        if (password_verify($currentPassword, $user_db_data['password_hash'])) {
+            // Валідація нового пароля (серверна)
+            // Цей регулярний вираз тут правильний для PHP
+            if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/", $newPassword)) {
                 $response['message'] = 'Новий пароль не відповідає вимогам безпеки.';
                 echo json_encode($response);
                 exit();

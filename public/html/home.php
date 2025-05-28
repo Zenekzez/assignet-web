@@ -254,7 +254,7 @@
             <nav>
                  <ul>
                     <li><a href="#">Головна</a></li>
-                    <li><a href="#">Налаштування</a></li>
+                    <li><a href="settings.php">Налаштування</a></li>
                     <li><a href="#">Завдання</a></li>
                     <li><a href="#">Оцінки</a></li>
                     <li>

@@ -220,56 +220,48 @@
         <aside class="left-sidebar" id="leftSidebar">
             <nav>
                  <ul>
-                    <li><a href="home.php">Головна</a></li> <li><a href="settings.php">Налаштування</a></li> <li><a href="#">Завдання</a></li> <li><a href="#">Оцінки</a></li> <li>
-                        <div class="collapsible-header active">Як викладач</div>
-                        <ul class="sub-menu default-visible" id="teacherCoursesList">
-                            <li><a href="#" id="createCourseFromSidebar">+ Створити</a></li>
+                    <li><a href="home.php">Головна</a></li>
+                    <li><a href="settings.php">Налаштування</a></li> <li><a href="#">Завдання</a></li> <li><a href="#">Оцінки</a></li> <li>
+                        <div class="collapsible-header">Як викладач</div> <ul class="sub-menu" id="teacherCoursesList"> <li><a href="#" id="createCourseFromSidebar">+ Створити</a></li>
                         </ul>
                     </li>
                     <li>
-                        <div class="collapsible-header active">Як студент</div>
-                        <ul class="sub-menu default-visible" id="studentCoursesList">
-                            </ul>
+                        <div class="collapsible-header">Як студент</div> <ul class="sub-menu" id="studentCoursesList"> </ul>
                     </li>
                 </ul>
             </nav>
         </aside>
-        ```
-
-**1.2. Створіть `public/html/templates/footer.php`:**
-(Для JavaScript, який має бути на всіх сторінках, та закриваючих тегів)
-```php
-    </div> <script>
+        <script>
     // Глобальний JavaScript, який керує хедером, сайдбаром тощо.
-    // Скопіюйте сюди JavaScript з home.php, що відповідає за:
-    // - Роботу випадаючих меню (collapsibles у сайдбарі)
-    // - Роботу основного меню (headerMenuToggle, leftSidebar, applyResponsiveBehavior)
-    // - Роботу випадаючого меню "Додати курс" (якщо воно глобальне)
-
-    const CURRENT_USER_USERNAME_GLOBAL = "<?php echo $current_username_for_js; // Використовуємо глобальну змінну ?>";
+    const CURRENT_USER_USERNAME_GLOBAL = "<?php echo $current_username_for_js; ?>";
 
     document.addEventListener('DOMContentLoaded', function () {
         const collapsibles = document.querySelectorAll('.left-sidebar .collapsible-header');
         collapsibles.forEach(function(collapsible) {
             const content = collapsible.nextElementSibling;
-            // Перевіряємо, чи існує content і чи має він клас default-visible
-            if (content && content.classList.contains('default-visible')) {
+            
+            // Ініціалізація стану (чи активний елемент за замовчуванням)
+            // Цю частину можна залишити, якщо ви хочете, щоб певні меню були розкриті одразу
+            // Наприклад, якщо додати клас 'default-open' до .collapsible-header в HTML
+            if (collapsible.classList.contains('default-open') && content) { // 'default-open' - новий клас для прикладу
                 collapsible.classList.add('active');
                 content.style.maxHeight = content.scrollHeight + "px";
             } else if (content) {
-                content.style.maxHeight = '0px';
+                content.style.maxHeight = '0px'; // За замовчуванням всі закриті, якщо немає 'default-open'
             }
-            // Додаємо анімацію тільки якщо content існує
-            if (content) {
+
+            if (content) { // Додаємо анімацію тільки якщо content існує
                 setTimeout(() => {
                     content.classList.add('animate-max-height');
                 }, 0);
             }
 
-            collapsible.addEventListener('click', function() {
+            collapsible.addEventListener('click', function(event) {
+                // event.preventDefault(); // НЕ ПОТРІБНО тут для collapsible-header, бо це div, а не посилання
+                                        // Якщо б це було посилання <a> з класом collapsible-header, тоді б знадобилось
                 this.classList.toggle('active');
                 const currentContent = this.nextElementSibling;
-                if (currentContent) { // Перевірка існування currentContent
+                if (currentContent) {
                     if (currentContent.style.maxHeight && currentContent.style.maxHeight !== '0px') {
                         currentContent.style.maxHeight = '0px';
                     } else {
@@ -279,30 +271,31 @@
             });
         });
 
+        // Обробка кліків на звичайних посиланнях у сайдбарі - НЕ ПОТРІБНА СПЕЦІАЛЬНА ОБРОБКА,
+        // якщо вони не мають класів, що перехоплюють події (наприклад, collapsible-header).
+        // Стандартна поведінка тега <a> (перехід за href) має працювати.
+        // Якщо посилання "Налаштування" не працює, перевірте:
+        // 1. Чи немає помилок JavaScript у консолі, які блокують подальше виконання.
+        // 2. Чи правильний href="settings.php" і чи файл settings.php знаходиться у тій же директорії,
+        //    що й поточна сторінка (наприклад, home.php).
+        // 3. Чи не накладений якийсь прозорий елемент поверх посилання, який перехоплює клік.
+
         const headerMenuToggle = document.getElementById('headerMenuToggle');
         const leftSidebar = document.getElementById('leftSidebar');
-        const mainContent = document.querySelector('.settings-main-content') || document.getElementById('mainContent'); // Адаптуємо для різних сторінок
-        // const rightSidebar = document.getElementById('rightSidebar'); // Якщо правий сайдбар глобальний
+        // Адаптуємо для різних сторінок, беремо або settings-main-content або mainContent (якщо є на home.php)
+        const mainContentElement = document.querySelector('.settings-main-content') || document.getElementById('mainContent'); 
 
         const screenBreakpointLeftSidebar = 991.98;
-        // const screenBreakpointRightSidebar = 1199.98; // Якщо правий сайдбар глобальний
-
 
         function updateMainContentLayoutGlobal() {
-            if (!mainContent || !leftSidebar) return; // Перевірка існування елементів
+            if (!mainContentElement || !leftSidebar) return;
             let marginLeft = 0;
-            // let marginRight = 0; // Якщо правий сайдбар глобальний
-
+            
             if (!leftSidebar.classList.contains('hidden')) {
                 marginLeft = leftSidebar.offsetWidth;
             }
-            // if (rightSidebar && !rightSidebar.classList.contains('hidden')) { // Якщо правий сайдбар глобальний
-            // marginRight = rightSidebar.offsetWidth;
-            // }
-            mainContent.style.marginLeft = marginLeft + 'px';
-            // mainContent.style.marginRight = marginRight + 'px'; // Якщо правий сайдбар глобальний
+            mainContentElement.style.marginLeft = marginLeft + 'px';
         }
-
 
         function toggleLeftSidebarVisibilityGlobal() {
             if (!leftSidebar) return;
@@ -332,23 +325,17 @@
             } else if (screenWidth > screenBreakpointLeftSidebar && leftSidebar.classList.contains('js-forced-open')) {
                 leftSidebar.classList.remove('hidden');
             }
-            // Логіка для правого сайдбару, якщо він глобальний
-            // if (rightSidebar) {
-            //     if (screenWidth <= screenBreakpointRightSidebar) {
-            //         rightSidebar.classList.add('hidden');
-            //     } else {
-            //         rightSidebar.classList.remove('hidden');
-            //     }
-            // }
             updateMainContentLayoutGlobal();
         }
 
         window.addEventListener('resize', applyResponsiveBehaviorGlobal);
 
+        // Початкове налаштування стану сайдбару
         if (leftSidebar) {
             if (window.innerWidth > screenBreakpointLeftSidebar) {
                 leftSidebar.classList.remove('hidden');
-                leftSidebar.classList.add('js-forced-open');
+                // Якщо хочете, щоб сайдбар був завжди відкритий на великих екранах при завантаженні:
+                // leftSidebar.classList.add('js-forced-open'); 
             } else {
                 leftSidebar.classList.add('hidden');
                 leftSidebar.classList.remove('js-forced-open');
@@ -356,27 +343,90 @@
         }
         applyResponsiveBehaviorGlobal(); // Виклик для початкового стану
 
-        // Глобальні обробники для модальних вікон "Додати курс", якщо вони потрібні на всіх сторінках
-        // const addCourseToggleBtn = document.getElementById('headerAddCourseToggle');
-        // const addCourseDropdown = document.getElementById('addCourseDropdown');
-        // if (addCourseToggleBtn && addCourseDropdown) {
-        //     addCourseToggleBtn.addEventListener('click', function(event) {
-        //         event.stopPropagation();
-        //         addCourseDropdown.style.display = addCourseDropdown.style.display === 'block' ? 'none' : 'block';
-        //     });
-        // }
-        // document.addEventListener('click', function(event) {
-        //     if (addCourseDropdown && addCourseToggleBtn) {
-        //         if (!addCourseToggleBtn.contains(event.target) && !addCourseDropdown.contains(event.target)) {
-        //             addCourseDropdown.style.display = 'none';
-        //         }
-        //     }
-        // });
 
-        // Функції для завантаження списків курсів у сайдбар (можна перенести сюди, якщо потрібні глобально)
-        // async function loadSidebarCourses() { ... }
-        // loadSidebarCourses();
+        // --- Код для модальних вікон "Додати курс", якщо вони викликаються звідси ---
+        // Якщо ці кнопки/меню є ТІЛЬКИ на home.php, то цей JS має бути там, а не в глобальному header.php.
+        // Припускаємо, що ці елементи можуть бути глобальними або на сторінках, що включають цей header.
+        const addCourseToggleBtn = document.getElementById('headerAddCourseToggle'); // Можливо, цієї кнопки немає в хедері на всіх сторінках
+        const addCourseDropdown = document.getElementById('addCourseDropdown');     // Аналогічно
+        
+        if (addCourseToggleBtn && addCourseDropdown) {
+            addCourseToggleBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                addCourseDropdown.style.display = addCourseDropdown.style.display === 'block' ? 'none' : 'block';
+            });
+        }
+        
+        // Закриття випадаючого меню при кліку поза ним
+        document.addEventListener('click', function(event) {
+            if (addCourseDropdown && addCourseToggleBtn) { // Перевірка на існування
+                if (!addCourseToggleBtn.contains(event.target) && !addCourseDropdown.contains(event.target)) {
+                    addCourseDropdown.style.display = 'none';
+                }
+            }
+            // Аналогічно для інших випадаючих меню, якщо вони є
+        });
+
+        // Обробники для опцій в addCourseDropdown (Приєднатися/Створити курс)
+        // Ці ID мають відповідати тим, що на home.php або де це меню використовується
+        const joinCourseOption = document.getElementById('joinCourseOption');
+        const createCourseOption = document.getElementById('createCourseOption');
+        const createCourseModal = document.getElementById('createCourseModal'); // ID модального вікна
+        const joinCourseModal = document.getElementById('joinCourseModal');     // ID модального вікна
+
+        if (createCourseOption && createCourseModal && addCourseDropdown) {
+            createCourseOption.addEventListener('click', function(event) {
+                event.preventDefault();
+                if(createCourseModal) createCourseModal.style.display = 'flex';
+                if(addCourseDropdown) addCourseDropdown.style.display = 'none';
+            });
+        }
+
+        // Посилання "+ Створити" в самому сайдбарі
+        const createCourseFromSidebar = document.getElementById('createCourseFromSidebar');
+        if (createCourseFromSidebar && createCourseModal) {
+            createCourseFromSidebar.addEventListener('click', function(event) {
+                event.preventDefault();
+                if(createCourseModal) createCourseModal.style.display = 'flex';
+            });
+        }
+        
+        if (joinCourseOption && joinCourseModal && addCourseDropdown) {
+            joinCourseOption.addEventListener('click', function(event) {
+                event.preventDefault();
+                if(joinCourseModal) joinCourseModal.style.display = 'flex';
+                if(addCourseDropdown) addCourseDropdown.style.display = 'none'; 
+            });
+        }
+
+        // Закриття модальних вікон
+        const modalCloseBtns = document.querySelectorAll('.modal-close-btn'); // Для всіх кнопок закриття
+        modalCloseBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Знаходимо батьківське модальне вікно і закриваємо його
+                const modal = this.closest('.modal-overlay');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // Закриття модальних вікон при кліку на оверлей
+        const modalOverlays = document.querySelectorAll('.modal-overlay');
+        modalOverlays.forEach(overlay => {
+            overlay.addEventListener('click', function(event) {
+                if (event.target === this) { // Якщо клік був саме на оверлеї, а не на вмісті
+                    this.style.display = 'none';
+                }
+            });
+        });
+
+        // Завантаження списків курсів у сайдбар (можна перенести сюди, якщо потрібні глобально)
+        // Функція loadSidebarCourses() має бути визначена або тут, або в specific page JS.
+        // Якщо вона специфічна для home.php, то її виклик має бути там.
+        // Якщо ж списки курсів у сайдбарі оновлюються на багатьох сторінках, тоді:
+        // if (typeof loadSidebarCourses === 'function') {
+        //     loadSidebarCourses(); 
+        // }
     });
 </script>
-</body>
-</html>

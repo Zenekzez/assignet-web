@@ -22,10 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Валідація
     if (empty($firstName) || empty($lastName) || empty($username)) {
         $response['message'] = 'Ім\'я, прізвище та юзернейм не можуть бути порожніми.';
-        echo json_encode(<span class="math-inline">response\);
-exit\(\);
-\}
-if \(\!preg\_match\("/^\[a\-zA\-Z0\-9\_\]\{3,20\}</span>/", $username)) {
+        echo json_encode($response);
+        exit();
+    }
+    // Цей регулярний вираз тут правильний для PHP
+    if (!preg_match("/^[a-zA-Z0-9_]{3,20}$/", $username)) {
         $response['message'] = "Юзернейм: 3-20 символів (літери, цифри, '_').";
         echo json_encode($response);
         exit();
