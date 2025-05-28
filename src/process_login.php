@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     // Перенаправлення на головну сторінку або кабінет
                     // Наприклад, на home.php, який ти створив
-                    header("Location: home.php"); // Якщо home.php в тій же папці src
+                    header("Location: ../public/html/home.php"); // Якщо home.php в тій же папці src
                                                   // Якщо home.php в public, то header("Location: ../public/home.php");
                     exit();
                 } else {
