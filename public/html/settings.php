@@ -303,10 +303,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
-<?php
-    // Якщо ви видалили require_once 'templates/footer.php'; раніше, 
-    // то ці закриваючі теги мають бути тут:
-?>
-        </div> </body>
-</html>

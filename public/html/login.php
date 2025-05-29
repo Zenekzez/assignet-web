@@ -1,86 +1,79 @@
 <?php
-// Файл: src/process_login.php
-// Зміни: Додано вибірку first_name, last_name, avatar_path та збереження їх у сесію
+session_start(); // Потрібно для доступу до змінних сесії
 
-session_start();
-require_once '../../src/connect.php'; // Підключення до бази даних
+// Отримуємо помилки з сесії, якщо вони є
+$errors = $_SESSION['errors'] ?? [];
+// Отримуємо дані форми з сесії (якщо потрібно відновлювати логін/пошту)
+$formData = $_SESSION['form_data'] ?? [];
 
-$errors = [];
-$formData = []; // Для збереження введеного логіна/пошти
+// Очищаємо помилки та дані з сесії, щоб вони не з'являлися знову
+unset($_SESSION['errors']);
+unset($_SESSION['form_data']);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $login_identifier = trim($_POST['login_identifier'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    $formData['login_identifier'] = $login_identifier;
-
-    if (empty($login_identifier)) {
-        $errors['login_identifier'] = "Введіть вашу пошту або юзернейм.";
-    }
-    if (empty($password)) {
-        $errors['password'] = "Введіть ваш пароль.";
-    }
-
-    if (empty($errors)) {
-        $is_email = filter_var($login_identifier, FILTER_VALIDATE_EMAIL);
-
-        // Додаємо вибірку first_name, last_name, avatar_path
-        if ($is_email) {
-            // Переконайтеся, що колонка avatar_path існує у вашій таблиці users
-            $sql = "SELECT user_id, username, password_hash, first_name, last_name, avatar_path FROM users WHERE email = ?";
-        } else {
-            $sql = "SELECT user_id, username, password_hash, first_name, last_name, avatar_path FROM users WHERE username = ?";
-        }
-
-        $stmt = $conn->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param("s", $login_identifier);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows == 1) {
-                $user = $result->fetch_assoc();
-
-                if (password_verify($password, $user['password_hash'])) {
-                    $_SESSION['user_id'] = $user['user_id'];
-                    $_SESSION['username'] = $user['username'];
-                    // Зберігаємо додаткові дані в сесію
-                    $_SESSION['db_first_name'] = $user['first_name'];
-                    $_SESSION['db_last_name'] = $user['last_name'];
-                    $_SESSION['db_avatar_path'] = $user['avatar_path']; // Може бути NULL, якщо аватарки немає
-
-                    // Перенаправлення на головну сторінку
-                    // Переконайтеся, що шлях ../public/html/home.php правильний відносно розташування process_login.php
-                    header("Location: ../public/html/home.php");
-                    exit();
-                } else {
-                    // Невірний пароль
-                    $errors['login_error'] = "Неправильна пошта/юзернейм або пароль.";
-                }
-            } else {
-                // Користувача не знайдено
-                $errors['login_error'] = "Неправильна пошта/юзернейм або пароль.";
-            }
-            $stmt->close();
-        } else {
-            $errors['login_error'] = "Помилка підготовки запиту до бази даних.";
-            // error_log("DB prepare error in process_login: " . $conn->error); // Для дебагу
-        }
-    }
-
-    // Якщо є помилки, повертаємо на сторінку входу
-    if (!empty($errors)) {
-        $_SESSION['errors'] = $errors;
-        $_SESSION['form_data'] = $formData; // Зберігаємо введені дані
-        header("Location: ../public/html/login.php");
-        exit();
-    }
-
-} else {
-    // Якщо хтось намагається отримати доступ до скрипту напряму
-    header("Location: ../public/html/login.php");
-    exit();
+// Перевірка, чи є повідомлення про успішну реєстрацію
+$registration_success_message = '';
+if (isset($_GET['registration']) && $_GET['registration'] === 'success') {
+    $registration_success_message = "Реєстрація успішна! Тепер ви можете увійти.";
 }
-
-$conn->close();
 ?>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід - Assignet</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        /* Додатковий стиль для повідомлення про успішну реєстрацію */
+        .success-message-box {
+            background-color: #e6ffed;
+            border: 1px solid var(--green);
+            color: var(--green);
+            padding: 15px;
+            margin: 10px 10px 20px 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" style="max-height: fit-content; height: auto; min-height: 450px;"> <h1 class="regHeader">Вхід</h1>
+
+    <?php if ($registration_success_message): ?>
+        <div class="success-message-box">
+            <?php echo htmlspecialchars($registration_success_message); ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($errors['login_error'])): ?>
+        <div class="input-container error" style="text-align: center; border: 1px solid var(--red); padding: 10px; margin: 10px 10px 15px 10px; background-color: #ffebee; border-radius: 5px;">
+            <small class="error-message" style="display:block; color: var(--red);"><?php echo htmlspecialchars($errors['login_error']); ?></small>
+        </div>
+    <?php endif; ?>
+
+    <form action="../../src/process_login.php" method="post" autocomplete="on" id="loginForm">
+        <div class="input-container <?php echo isset($errors['login_identifier']) ? 'error' : ''; ?>">
+            <label for="loginIdentifierId" class="iftaLabel">Пошта або юзернейм</label>
+            <input type="text" id="loginIdentifierId" class="inputField" name="login_identifier" placeholder="Ваша пошта або юзернейм"
+                   value="<?php echo htmlspecialchars($formData['login_identifier'] ?? ''); ?>" autofocus required>
+            <small class="error-message">
+                <?php echo htmlspecialchars($errors['login_identifier'] ?? ''); ?>
+            </small>
+        </div>
+
+        <div class="input-container <?php echo isset($errors['password']) ? 'error' : ''; ?>">
+            <label for="passId" class="iftaLabel">Пароль</label>
+            <input type="password" id="passId" class="inputField" name="password" placeholder="Ваш пароль" required>
+            <small class="error-message">
+                <?php echo htmlspecialchars($errors['password'] ?? ''); ?>
+            </small>
+        </div>
+
+        <button type="submit" class="submit-button">Увійти</button>
+        <span id="alreadyHave">Ще не зареєстровані? <a href="reg.php">Створити акаунт</a></span>
+    </form>
+</div>
+
+</body>
+</html>
