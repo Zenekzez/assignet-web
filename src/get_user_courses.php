@@ -46,7 +46,8 @@ try {
                 'id' => $row['course_id'],
                 'name' => $row['course_name'],
                 'description' => $row['description'],
-                'color_class' => getColorClass($row['color']),
+                'color_hex' => $row['color'], // <--- ДОДАЙ ЦЕЙ РЯДОК
+                'color_class' => getColorClass($row['color']), // Цей рядок можна залишити, якщо він потрібен для чогось іншого, або видалити, якщо ні
                 'author_username' => $row['author_username']
             ];
         }
@@ -73,7 +74,8 @@ try {
                 'id' => $row['course_id'],
                 'name' => $row['course_name'],
                 'description' => $row['description'],
-                'color_class' => getColorClass($row['color']),
+                'color_hex' => $row['color'], // <--- ДОДАЙ ЦЕЙ РЯДОК
+                'color_class' => getColorClass($row['color']), // Аналогічно
                 'author_username' => $row['author_username']
             ];
         }

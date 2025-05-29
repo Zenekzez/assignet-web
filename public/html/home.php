@@ -508,41 +508,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addCourseCardToDashboard(course) {
         if (!coursesGridContainer) return;
-
+        
         const cardLink = document.createElement('a');
-        cardLink.href = `course_view.php?course_id=${course.id}`; 
+        cardLink.href = `course_view.php?course_id=${course.id}`;
         cardLink.classList.add('course-card');
         cardLink.setAttribute('data-course-id', course.id);
 
         const header = document.createElement('div');
-        header.classList.add('card-header', course.color_class || 'course-color-default');
+        header.classList.add('card-header'); // Залишаємо базовий клас
 
+        // Встановлюємо колір фону напряму, якщо він є
+        if (course.color_hex) {
+            header.style.backgroundColor = course.color_hex;
+        } else {
+            // Якщо з якоїсь причини color_hex не прийшов, використовуємо клас за замовчуванням
+            // header.classList.add('course-color-default');
+            }
+            
         const title = document.createElement('h4');
         title.textContent = course.name;
-
+        
         const author = document.createElement('span');
         author.classList.add('course-author');
+        // Переконайся, що course.author_username передається коректно
         author.textContent = course.author_username || CURRENT_USER_USERNAME;
-
+        
         header.appendChild(title);
         header.appendChild(author);
 
         const body = document.createElement('div');
         body.classList.add('card-body');
-
+        
         const descriptionTitle = document.createElement('h5');
         descriptionTitle.textContent = 'Опис курсу';
-
+        
         const descriptionText = document.createElement('p');
         descriptionText.classList.add('description-text');
         descriptionText.textContent = course.description || 'Немає опису.';
-
+        
         body.appendChild(descriptionTitle);
         body.appendChild(descriptionText);
-
+        
         cardLink.appendChild(header);
         cardLink.appendChild(body);
-
+        
         coursesGridContainer.appendChild(cardLink);
     }
 
@@ -609,7 +618,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             id: course.id,
                             name: course.name,
                             description: course.description,
-                            color_class: course.color_class,
+                            color_hex: course.color_hex, // <--- ДОДАЙ ЦЕ
+                            // color_class: course.color_class,
                             author_username: course.author_username || CURRENT_USER_USERNAME
                         };
                         addCourseToSidebar(courseDataForUI, teacherCoursesList);
@@ -623,7 +633,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             id: course.id,
                             name: course.name,
                             description: course.description,
-                            color_class: course.color_class,
+                            color_hex: course.color_hex, // <--- ДОДАЙ ЦЕ
+                            // color_class: course.color_class,
                             author_username: course.author_username 
                         };
                         let existingCard = coursesGridContainer.querySelector(`.course-card[data-course-id="${course.id}"]`);
@@ -633,6 +644,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         addCourseToSidebar(courseDataForUI, studentCoursesList); 
                     });
                 }
+                
 
             } else {
                 console.error("Помилка отримання курсів з сервера:", data.message);

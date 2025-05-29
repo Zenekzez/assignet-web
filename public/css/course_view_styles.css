@@ -48,7 +48,7 @@
     color: #495057;
     font-weight: 500;
     border-bottom: 3px solid transparent;
-    margin-bottom: -2px; 
+    margin-bottom: -2px;
     transition: color 0.2s ease, border-color 0.2s ease;
     white-space: nowrap; /* Щоб назви вкладок не переносились */
 }
@@ -65,61 +65,58 @@
 
 .course-banner {
     width: 100%;
-    padding: 50px 30px; /* Збільшені відступи для ефекту Notion */
+    padding: 50px 30px;
     color: white;
-    text-align: left; /* Вирівнювання тексту зліва, як у Notion */
+    text-align: left;
     border-radius: 8px;
     margin-bottom: 30px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    position: relative; /* Для можливого позиціонування елементів всередині */
-    min-height: 150px; /* Мінімальна висота */
-    display: flex;
+    position: relative;
+    min-height: 150px;
+    display: flex; /* Залишаємо flex, JS буде керувати display: none/flex */
     flex-direction: column;
-    justify-content: center; /* Центрування вмісту по вертикалі */
+    justify-content: center;
 }
 
-.course-banner h1.course-banner-title { /* Додав клас для h1 */
+.course-banner h1.course-banner-title {
     margin: 0 0 15px 0;
-    font-size: 2.8em; /* Більший розмір для назви */
-    font-weight: 700; /* Більш жирний шрифт */
+    font-size: 2.8em;
+    font-weight: 700;
     line-height: 1.2;
 }
 
 .course-banner .course-join-code {
     font-size: 1em;
-    background-color: rgba(255,255,255,0.2); /* Світліший фон для коду на кольоровому банері */
-    color: white; /* Колір тексту коду */
+    background-color: rgba(255,255,255,0.2);
+    color: white;
     display: inline-block;
     padding: 6px 12px;
     border-radius: 4px;
     margin-top: 10px;
     border: 1px solid rgba(255,255,255,0.3);
+    align-self: flex-start;
 }
 .course-banner .course-join-code strong {
     font-weight: 600;
 }
 
 .course-tab-content-area {
-    background-color: transparent; /* Забираємо фон, щоб сторінка виглядала "чистіше" */
-    padding: 0; /* Забираємо внутрішні відступи, якщо вміст вкладок матиме свої */
+    background-color: transparent;
+    padding: 0;
     border-radius: 0;
     box-shadow: none;
 }
 
 .tab-pane {
-    display: none; 
-    padding: 20px; /* Додаємо відступи всередині кожної вкладки */
-    background-color: #fff; /* Фон для вмісту вкладки */
+    display: none;
+    padding: 20px;
+    background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.07);
 }
-.tab-pane:not(:first-child) { /* Можна додати відступ зверху для неактивних вкладок, якщо треба */
-    /* margin-top: 20px; */
-}
-
 
 .tab-pane.active {
-    display: block; 
+    display: block;
 }
 
 .tab-pane h2 {
@@ -132,22 +129,19 @@
     font-weight: 600;
 }
 
-/* СТИЛІ ДЛЯ ФОРМ (оголошення, налаштування) - оновлено */
-.course-form { 
+.course-form {
     background-color: #fdfdfd;
     padding: 20px 25px;
     border-radius: 8px;
     margin-bottom: 25px;
     border: 1px solid #e9e9e9;
 }
-
 .course-form div {
     margin-bottom: 18px;
 }
-.course-form div:last-of-type { 
+.course-form div:last-of-type {
     margin-bottom: 0;
 }
-
 .course-form label {
     display: block;
     font-weight: 500;
@@ -161,7 +155,6 @@
     width: 15px;
     height: 15px;
 }
-
 .course-form textarea,
 .course-form input[type="text"] {
     width: 100%;
@@ -177,18 +170,16 @@
 .course-form input[type="text"]::placeholder {
     color: #999;
 }
-
 .course-form textarea:focus,
 .course-form input[type="text"]:focus {
     border-color: #007bff;
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.15);
 }
-
 .course-form input[type="color"] {
     padding: 2px;
     height: 40px;
-    width: 60px; 
+    width: 60px;
     border: 1px solid #d8d8d8;
     border-radius: 5px;
     vertical-align: middle;
@@ -200,9 +191,7 @@
     color: #6c757d;
     margin-top: 5px;
 }
-
-
-.course-form button[type="submit"] { 
+.course-form button[type="submit"] {
     background-color: #007bff;
     color: white;
     border: none;
@@ -213,13 +202,11 @@
     cursor: pointer;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
-
 .course-form button[type="submit"]:hover {
     background-color: #0056b3;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* СТИЛІ ДЛЯ ОГОЛОШЕНЬ */
 #announcementsArea .announcement-item {
     border: 1px solid #e7e7e7;
     padding: 18px 20px;
@@ -231,7 +218,6 @@
 #announcementsArea .announcement-item:last-child {
     margin-bottom: 0;
 }
-
 #announcementsArea .announcement-item .announcement-header {
     display: flex;
     justify-content: space-between;
@@ -239,6 +225,18 @@
     margin-bottom: 10px;
     padding-bottom: 10px;
     border-bottom: 1px dashed #f0f0f0;
+}
+.announcement-author-info {
+    display: flex;
+    align-items: center;
+}
+.announcement-author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    border: 1px solid #e0e0e0;
 }
 #announcementsArea .announcement-item .announcement-author {
     font-weight: 600;
@@ -253,10 +251,10 @@
     font-size: 1em;
     line-height: 1.65;
     color: #3f3f3f;
-    word-wrap: break-word; 
+    word-wrap: break-word;
     padding-top: 5px;
 }
-#announcementsArea > p { /* Стиль для повідомлень "Завантаження...", "Оголошень немає" */
+#announcementsArea > p {
     padding: 20px;
     text-align: center;
     color: #777;
@@ -264,7 +262,6 @@
     background-color: #f9f9f9;
     border-radius: 6px;
 }
-
 
 .course-not-found {
     text-align: center;
@@ -289,4 +286,333 @@
 }
 .course-not-found .button:hover {
     background-color: #0056b3;
+}
+
+
+/* === Assignment Tab Specific Styles === */
+.course-action-button { /* Загальний стиль для кнопки "+ Створити", якщо він вже є, додай ці властивості */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Відстань між іконкою та текстом */
+ /* background-color: #007bff; вже є у .course-form button */
+ /* color: white; вже є */
+ /* ... інші твої стилі для .course-action-button ... */
+}
+
+#showCreateAssignmentModalBtn {
+    margin-bottom: 25px;
+}
+
+.assignments-controls {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.assignments-controls label {
+    margin-right: 5px;
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.9em;
+}
+.assignments-controls select.form-control-sm {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    font-size: 0.9em;
+    background-color: #fff;
+    line-height: 1.5;
+}
+.assignments-controls select.form-control-sm:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* ЗМІНА: Обмеження ширини та центрування списку завдань */
+#assignmentsListArea {
+    max-width: 800px; /* Максимальна ширина списку */
+    margin-left: auto;
+    margin-right: auto;
+}
+#assignmentsListArea > p {
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+#assignmentsListArea .fa-spinner {
+    margin-right: 8px;
+}
+
+.assignment-item-card {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+    transition: box-shadow 0.2s ease-in-out;
+    overflow: hidden;
+    /* max-width: 700px; -- Прибрано, бо є max-width на #assignmentsListArea */
+    /* margin-left: auto;  -- Прибрано */
+    /* margin-right: auto; -- Прибрано */
+}
+.assignment-item-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.assignment-item-card.deadline-approaching {
+    border-left: 5px solid #ffc107;
+}
+
+.assignment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px; /* ЗМІНА: Зменшено вертикальний padding */
+    border-bottom: 1px solid #f0f0f0;
+}
+.assignment-title {
+    margin: 0;
+    font-size: 1.2em; /* ЗМІНА: Трохи зменшено */
+    font-weight: 600;
+    color: #343a40;
+}
+.assignment-title a {
+    text-decoration: none;
+    color: #0056b3;
+}
+.assignment-title a:hover {
+    text-decoration: underline;
+    color: #003d80;
+}
+
+.deadline-soon-label,
+.deadline-past-label {
+    padding: 4px 9px; /* ЗМІНА: Зменшено padding */
+    border-radius: 14px; /* ЗМІНА: Більш круглі */
+    font-size: 0.78em; /* ЗМІНА: Трохи зменшено */
+    font-weight: 500;  /* ЗМІНА: Нормальна жирність */
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1.1; /* ЗМІНА: Для кращого вигляду тексту в одну лінію */
+}
+.deadline-soon-label {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+.deadline-past-label {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.deadline-soon-label i.fas,
+.deadline-past-label i.fas {
+    font-size: 0.9em;
+}
+
+.assignment-card-body {
+    padding: 12px 20px; /* ЗМІНА: Зменшено вертикальний padding */
+    font-size: 0.875em; /* ЗМІНА: Зменшено загальний шрифт */
+    color: #495057;
+}
+.assignment-card-body p {
+    margin: 0 0 8px 0; /* ЗМІНА: Зменшено нижній відступ */
+    line-height: 1.45;  /* ЗМІНА: Трохи зменшено міжрядковий інтервал */
+}
+.assignment-card-body p:last-child {
+    margin-bottom: 0;
+}
+.assignment-card-body p i.fas {
+    margin-right: 7px;
+    color: #6c757d;
+    width: 14px; /* ЗМІНА: Зменшено */
+    text-align: center;
+    font-size: 0.9em; /* ЗМІНА: Зменшено */
+}
+
+.assignment-section,
+.assignment-dates,
+.assignment-due,
+.assignment-points {
+    font-size: 0.85em; /* ЗМІНА: Зменшено */
+    color: #5f6368;
+}
+.assignment-section strong,
+.assignment-due strong {
+    color: #212529;
+    font-weight: 500;
+}
+.assignment-description-short {
+    color: #495057;
+    margin-top: 10px !important; /* Залишено, якщо важливо */
+    font-size: 0.875em; /* ЗМІНА: Зменшено */
+    line-height: 1.4;   /* ЗМІНА: Зменшено */
+    /* ЗМІНА: Додано обмеження по рядках */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Максимум 2 рядки */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.4em * 2); /* Приблизна висота для 2 рядків, щоб уникнути "стрибків" */
+    max-height: calc(1.4em * 2 + 4px); /* Обмеження максимальної висоти */
+}
+
+.assignment-card-footer {
+    padding: 10px 20px; /* ЗМІНА: Зменшено вертикальний padding */
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.assignment-card-footer .submission-status {
+    font-size: 0.8em; /* ЗМІНА: Зменшено */
+    padding: 5px 10px; /* ЗМІНА: Зменшено */
+    border-radius: 16px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid transparent;
+}
+.submission-status.submitted { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc;}
+.submission-status.graded { background-color: #cff4fc; color: #055160; border-color: #b6effb;}
+.submission-status.pending { background-color: #fff3cd; color: #664d03; border-color: #ffecb5;}
+.submission-status.missed { background-color: #f8d7da; color: #58151c; border-color: #f1c0c7;}
+.submission-status i.fas {
+    font-size: 0.9em;
+}
+
+.assignment-card-footer .button-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    padding: 6px 10px; /* ЗМІНА: Зменшено */
+    font-size: 0.8em;  /* ЗМІНА: Зменшено */
+    font-weight: 500;
+    border-radius: 5px;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    border: 1px solid;
+}
+.view-assignment-link {
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+.view-assignment-link:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    color: white;
+}
+.view-submissions-link {
+    background-color: transparent;
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+.view-submissions-link:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* === Modal Styles for Creating Assignment === */
+.modal-content.create-assignment-modal-content {
+    max-width: 600px;
+    padding: 20px 25px 25px 25px;
+}
+.modal-content.create-assignment-modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: #333;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 12px;
+}
+.modal-content.create-assignment-modal-content .course-form {
+    padding: 0; border: none; box-shadow: none;
+}
+.form-group-modal {
+    margin-bottom: 16px;
+}
+.form-group-modal label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #495057;
+    font-size: 0.9em;
+}
+.form-control-modal {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    box-sizing: border-box;
+}
+.form-control-modal:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+.form-control-modal::placeholder {
+    color: #6c757d;
+    opacity: 0.8;
+}
+textarea.form-control-modal {
+    min-height: 90px;
+    resize: vertical;
+}
+.form-row-modal {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 16px;
+}
+.form-row-modal .form-group-modal {
+    flex: 1;
+    margin-bottom: 0;
+}
+.submit-button-modal {
+    display: block;
+    width: auto;
+    min-width: 160px;
+    margin: 20px auto 0 auto;
+    padding: 10px 22px;
+    font-size: 1em;
+    font-weight: 500;
+    background-color: #198754;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.submit-button-modal:hover {
+    background-color: #157347;
+}
+input[type="datetime-local"].form-control-modal {
+    /* specific styles if needed */
+}
+.course-action-button i.fas,
+.deadline-soon-label i.fas,
+.deadline-past-label i.fas,
+.submission-status i.fas,
+.button-link i.fas {
+    margin-right: 6px;
 }
