@@ -1,0 +1,292 @@
+/* public/css/course_view_styles.css */
+
+/* Загальний контейнер для вмісту сторінки курсу, що йде після глобального хедера */
+.course-view-main-content {
+    flex-grow: 1;
+    padding: 20px;
+    height: 100%; /* Можливо, calc(100vh - висота_хедера - висота_футера_якщо_є) */
+    overflow-y: auto;
+    /* margin-left: 250px; /* Цей margin керується з templates/header.php JS */
+    box-sizing: border-box;
+}
+
+.course-header-bar {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.breadcrumbs {
+    font-size: 0.95em;
+}
+.breadcrumbs a {
+    color: #007bff;
+    text-decoration: none;
+}
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+.breadcrumbs span {
+    color: #6c757d;
+}
+.breadcrumbs span#current-tab-breadcrumb {
+    font-weight: 500;
+}
+
+.course-tab-navigation {
+    display: flex;
+    flex-wrap: wrap; /* Для адаптивності на малих екранах */
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 25px;
+}
+
+.course-tab-navigation .tab-link {
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #495057;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px; 
+    transition: color 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap; /* Щоб назви вкладок не переносились */
+}
+
+.course-tab-navigation .tab-link:hover {
+    color: #0056b3;
+    border-bottom-color: #cdddeb; /* Легкий ховер ефект для межі */
+}
+
+.course-tab-navigation .tab-link.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.course-banner {
+    width: 100%;
+    padding: 50px 30px; /* Збільшені відступи для ефекту Notion */
+    color: white;
+    text-align: left; /* Вирівнювання тексту зліва, як у Notion */
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    position: relative; /* Для можливого позиціонування елементів всередині */
+    min-height: 150px; /* Мінімальна висота */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Центрування вмісту по вертикалі */
+}
+
+.course-banner h1.course-banner-title { /* Додав клас для h1 */
+    margin: 0 0 15px 0;
+    font-size: 2.8em; /* Більший розмір для назви */
+    font-weight: 700; /* Більш жирний шрифт */
+    line-height: 1.2;
+}
+
+.course-banner .course-join-code {
+    font-size: 1em;
+    background-color: rgba(255,255,255,0.2); /* Світліший фон для коду на кольоровому банері */
+    color: white; /* Колір тексту коду */
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-top: 10px;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+.course-banner .course-join-code strong {
+    font-weight: 600;
+}
+
+.course-tab-content-area {
+    background-color: transparent; /* Забираємо фон, щоб сторінка виглядала "чистіше" */
+    padding: 0; /* Забираємо внутрішні відступи, якщо вміст вкладок матиме свої */
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.tab-pane {
+    display: none; 
+    padding: 20px; /* Додаємо відступи всередині кожної вкладки */
+    background-color: #fff; /* Фон для вмісту вкладки */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+}
+.tab-pane:not(:first-child) { /* Можна додати відступ зверху для неактивних вкладок, якщо треба */
+    /* margin-top: 20px; */
+}
+
+
+.tab-pane.active {
+    display: block; 
+}
+
+.tab-pane h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    font-size: 1.8em;
+    color: #333;
+    font-weight: 600;
+}
+
+/* СТИЛІ ДЛЯ ФОРМ (оголошення, налаштування) - оновлено */
+.course-form { 
+    background-color: #fdfdfd;
+    padding: 20px 25px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #e9e9e9;
+}
+
+.course-form div {
+    margin-bottom: 18px;
+}
+.course-form div:last-of-type { 
+    margin-bottom: 0;
+}
+
+.course-form label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #454545;
+    font-size: 0.95em;
+}
+.course-form label input[type="checkbox"] {
+    margin-right: 8px;
+    vertical-align: middle;
+    width: 15px;
+    height: 15px;
+}
+
+.course-form textarea,
+.course-form input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d8d8d8;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+    color: #333;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.course-form textarea::placeholder,
+.course-form input[type="text"]::placeholder {
+    color: #999;
+}
+
+.course-form textarea:focus,
+.course-form input[type="text"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.15);
+}
+
+.course-form input[type="color"] {
+    padding: 2px;
+    height: 40px;
+    width: 60px; 
+    border: 1px solid #d8d8d8;
+    border-radius: 5px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+.course-form small {
+    display: block;
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+
+.course-form button[type="submit"] { 
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    font-size: 1em;
+    font-weight: 500;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.course-form button[type="submit"]:hover {
+    background-color: #0056b3;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* СТИЛІ ДЛЯ ОГОЛОШЕНЬ */
+#announcementsArea .announcement-item {
+    border: 1px solid #e7e7e7;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+#announcementsArea .announcement-item:last-child {
+    margin-bottom: 0;
+}
+
+#announcementsArea .announcement-item .announcement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #f0f0f0;
+}
+#announcementsArea .announcement-item .announcement-author {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95em;
+}
+#announcementsArea .announcement-item .announcement-date {
+    font-size: 0.8em;
+    color: #888;
+}
+#announcementsArea .announcement-item .announcement-content {
+    font-size: 1em;
+    line-height: 1.65;
+    color: #3f3f3f;
+    word-wrap: break-word; 
+    padding-top: 5px;
+}
+#announcementsArea > p { /* Стиль для повідомлень "Завантаження...", "Оголошень немає" */
+    padding: 20px;
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+}
+
+
+.course-not-found {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+}
+.course-not-found h1 {
+    color: #dc3545;
+    margin-bottom:15px;
+}
+.course-not-found .button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+.course-not-found .button:hover {
+    background-color: #0056b3;
+}
