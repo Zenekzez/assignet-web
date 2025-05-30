@@ -24,7 +24,7 @@ if (!$assignment_id_get) {
 } else {
     // Отримати дані завдання та курсу
     $stmt_assignment = $conn->prepare(
-        "SELECT a.assignment_id, a.title as assignment_title, a.course_id, c.course_name, c.author_id as course_author_id
+        "SELECT a.assignment_id, a.title as assignment_title, a.course_id, a.due_date, c.course_name, c.author_id as course_author_id
          FROM assignments a
          JOIN courses c ON a.course_id = c.course_id
          WHERE a.assignment_id = ?"
@@ -108,7 +108,7 @@ $page_title = "Здані роботи: " . ($assignment_data ? htmlspecialchars
                         <?php foreach ($submissions as $sub): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($sub['first_name'] . ' ' . $sub['last_name']); ?> (<?php echo htmlspecialchars($sub['student_username']); ?>)</td>
-                                <td><?php echo $sub['submission_date'] ? (new DateTime($sub['submission_date']))->format('d.m.Y H:i') : 'Не здано'; ?></td>
+                                <td><?php echo $sub['submission_date'] ? (new DateTime($sub['submission_date']))->format('d.m.Y H:i') : '(-)'; ?></td>
                                 <td>
                                     <?php
                                     $statusText = 'Не здано'; $statusClass = 'pending';

@@ -8,6 +8,7 @@
     overflow-y: auto;
     /* margin-left: 250px; /* Цей margin керується з templates/header.php JS */
     box-sizing: border-box;
+    border: 2px dashed red; /* Тимчасова рамка для батька */
 }
 
 .course-header-bar {
