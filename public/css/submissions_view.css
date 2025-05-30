@@ -1,0 +1,62 @@
+/* public/css/submissions_view_styles.css */
+.submissions-container h2 {
+    margin-bottom: 20px; /* Відступ під заголовком списку зданих робіт */
+}
+
+.submissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.9em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.submissions-table th,
+.submissions-table td {
+    border: 1px solid #dee2e6;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.submissions-table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.submissions-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.submissions-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.submission-status-table { /* Стилі для статусів в таблиці */
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: 500;
+    display: inline-block; /* Щоб padding працював коректно */
+}
+.submission-status-table.submitted { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;}
+.submission-status-table.graded { background-color: #cff4fc; color: #055160; border: 1px solid #b6effb;}
+.submission-status-table.pending { background-color: #fff3cd; color: #664d03; border: 1px solid #ffecb5;}
+.submission-status-table.missed { background-color: #f8d7da; color: #58151c; border: 1px solid #f1c0c7;}
+
+
+.button-link.grade-link {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    padding: 6px 10px;
+    font-size: 0.9em;
+}
+.button-link.grade-link:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+.button-link.grade-link i.fas {
+    margin-right: 5px;
+}
