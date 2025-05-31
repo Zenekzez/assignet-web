@@ -1,12 +1,13 @@
 <?php
+// File: public/html/course_view.php
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/../../src/connect.php'; // Підключення до БД
-require_once __DIR__ . '/templates/header.php'; // Підключення загального хедера (з сайдбаром)
+require_once __DIR__ . '/../../src/connect.php';
+require_once __DIR__ . '/templates/header.php'; //
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: login.php"); //
     exit();
 }
 
@@ -14,10 +15,10 @@ $course_id_get = filter_input(INPUT_GET, 'course_id', FILTER_VALIDATE_INT);
 $current_user_id = $_SESSION['user_id'];
 $course_data = null;
 $author_username = 'Невідомий';
-$is_teacher = false; // Визначає, чи є поточний користувач АВТОРОМ курсу
+$is_teacher = false;
 
 if (!$course_id_get) {
-    // $course_data залишиться null, і відобразиться блок "Курс не знайдено"
+    // $course_data залишиться null
 } else {
     $stmt_course = $conn->prepare("SELECT course_name, author_id, color, join_code, description, join_code_visible FROM courses WHERE course_id = ?");
     if ($stmt_course) {
@@ -26,11 +27,9 @@ if (!$course_id_get) {
         $result_course = $stmt_course->get_result();
         if ($course_data_row = $result_course->fetch_assoc()) {
             $course_data = $course_data_row;
-
             if ($current_user_id == $course_data['author_id']) {
                 $is_teacher = true;
             }
-
             $stmt_author = $conn->prepare("SELECT username FROM users WHERE user_id = ?");
             if ($stmt_author) {
                 $stmt_author->bind_param("i", $course_data['author_id']);
@@ -55,11 +54,19 @@ $banner_color_hex = (!empty($course_data['color'])) ? htmlspecialchars($course_d
 $page_title = $course_data ? htmlspecialchars($course_data['course_name']) : 'Курс не знайдено';
 $join_code_visible_db = $course_data['join_code_visible'] ?? true;
 
+if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
+    define('WEB_ROOT_REL_FROM_HTML_CV', '../'); // Для CSS та JS шляхів з course_view.php
+}
+
+
 ?>
 
 <title><?php echo $page_title; ?> - Assignet</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="../css/course_view_styles.css">
+<link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/course_view_styles.css">
+<link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/course_people_styles.css">
+<link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/grades_tab_styles.css">
+
 
 <div class="course-view-main-content">
     <?php if ($course_data): ?>
@@ -96,7 +103,7 @@ $join_code_visible_db = $course_data['join_code_visible'] ?? true;
 
         <div id="course-tab-content" class="course-tab-content-area">
             <div id="tab-stream" class="tab-pane active">
-                <h2>Стрічка курсу</h2>
+                 <h2>Стрічка курсу</h2>
                 <?php if ($is_teacher): ?>
                     <form id="createAnnouncementForm" class="course-form">
                         <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id_get); ?>">
@@ -119,7 +126,6 @@ $join_code_visible_db = $course_data['join_code_visible'] ?? true;
                         <i class="fas fa-plus"></i> Створити завдання
                     </button>
                 <?php endif; ?>
-
                 <div class="assignments-controls">
                     <label for="assignmentSortSelect">Сортувати:</label>
                     <select id="assignmentSortSelect" class="form-control-sm">
@@ -129,21 +135,33 @@ $join_code_visible_db = $course_data['join_code_visible'] ?? true;
                         <option value="created_at_asc">Датою публікації (спочатку старі)</option>
                     </select>
                 </div>
-
                 <div id="assignmentsListArea">
                     <p><i class="fas fa-spinner fa-spin"></i> Завантаження завдань...</p>
                 </div>
             </div>
 
             <div id="tab-people" class="tab-pane">
-                <h2>Учасники</h2>
-                <p>Вміст вкладки "Учасники" буде тут.</p>
+                <h2>Викладач</h2>
+                <div id="teacherInfoArea" class="people-list-section">
+                    <p><i class="fas fa-spinner fa-spin"></i> Завантаження...</p>
+                </div>
+                <hr class="people-divider">
+                <div class="students-header">
+                    <h2>Студенти</h2>
+                    <span id="studentCount" class="student-count-badge">0</span>
+                </div>
+                <div id="studentsListArea" class="people-list-section">
+                    <p>Завантаження списку студентів...</p>
+                </div>
             </div>
+
 
             <?php if ($is_teacher): ?>
             <div id="tab-grades" class="tab-pane">
-                <h2>Оцінки</h2>
-                <p>Вміст вкладки "Оцінки" (для викладача) буде тут.</p>
+                <h2>Журнал оцінок</h2>
+                <div id="teacherGradesSummaryArea" class="grades-summary-container">
+                    <p><i class="fas fa-spinner fa-spin"></i> Завантаження журналу оцінок...</p>
+                </div>
             </div>
             <div id="tab-settings" class="tab-pane">
                 <h2>Налаштування курсу</h2>
@@ -174,17 +192,22 @@ $join_code_visible_db = $course_data['join_code_visible'] ?? true;
             <?php else: ?>
             <div id="tab-my-grades" class="tab-pane">
                 <h2>Мої оцінки</h2>
-                <p>Вміст вкладки "Мої оцінки" (для студента) буде тут.</p>
+                <div id="myGradesArea">
+                    <p><i class="fas fa-spinner fa-spin"></i> Завантаження ваших оцінок...</p>
+                </div>
             </div>
             <?php endif; ?>
-        </div> <?php else: ?>
+        </div>
+    <?php else: ?>
         <div class="course-not-found">
             <h1>Помилка</h1>
             <p>Курс з ID <?php echo htmlspecialchars($_GET['course_id'] ?? 'невідомим'); ?> не знайдено або у вас немає до нього доступу.</p>
             <a href="home.php" class="button">Повернутися на головну</a>
         </div>
     <?php endif; ?>
-</div> <?php if ($is_teacher): ?>
+</div>
+
+<?php if ($is_teacher): ?>
 <div id="createAssignmentModal" class="modal-overlay" style="display: none;">
     <div class="modal-content create-assignment-modal-content">
         <button class="modal-close-btn" id="closeCreateAssignmentModalBtn" aria-label="Закрити">&times;</button>
@@ -224,64 +247,250 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabLinks = document.querySelectorAll('.course-tab-navigation .tab-link');
     const tabPanes = document.querySelectorAll('.course-tab-content-area .tab-pane');
     const breadcrumbCurrentTab = document.getElementById('current-tab-breadcrumb');
-    const courseBannerElement = document.querySelector('.course-banner'); // Додано для керування банером
-
-    tabLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault();
-            const targetTab = this.getAttribute('data-tab');
-
-            tabLinks.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-
-            tabPanes.forEach(pane => {
-                if (pane.id === 'tab-' + targetTab) {
-                    pane.classList.add('active');
-                } else {
-                    pane.classList.remove('active');
-                }
-            });
-            if (breadcrumbCurrentTab) {
-                breadcrumbCurrentTab.textContent = this.textContent;
-            }
-
-            // Керування видимістю банера
-            if (courseBannerElement) {
-                if (targetTab === 'stream') {
-                    courseBannerElement.style.display = 'flex'; // Або 'block', як у тебе стилізовано
-                } else {
-                    courseBannerElement.style.display = 'none';
-                }
-            }
-
-            // Завантаження контенту для активної вкладки
-            if (targetTab === 'assignments' && currentCourseIdForJS) {
-                loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
-            } else if (targetTab === 'stream' && currentCourseIdForJS) {
-                // Можливо, тут теж потрібно викликати loadAnnouncements, якщо вони не завантажуються при першому відкритті
-                 loadAnnouncements(currentCourseIdForJS); // Додав, щоб оголошення завантажувались при переході на вкладку
-            }
-        });
-    });
-    
-    // Початковий стан банера при завантаженні сторінки
-    if (courseBannerElement) {
-        const activeTabLinkInit = document.querySelector('.course-tab-navigation .tab-link.active');
-        if (activeTabLinkInit && activeTabLinkInit.getAttribute('data-tab') === 'stream') {
-            courseBannerElement.style.display = 'flex';
-        } else {
-            courseBannerElement.style.display = 'none';
-        }
-    }
-
+    const courseBannerElement = document.querySelector('.course-banner');
 
     const createAnnouncementForm = document.getElementById('createAnnouncementForm');
     const announcementsArea = document.getElementById('announcementsArea');
     const currentCourseIdForJS = <?php echo $course_id_get ? json_encode((int)$course_id_get) : 'null'; ?>;
-    
     let isCurrentUserTeacherOfThisCourse = <?php echo json_encode($is_teacher); ?>;
 
-    async function loadAnnouncements(courseId) {
+    const courseSettingsForm = document.getElementById('courseSettingsForm');
+    const courseBannerTitleElement = document.querySelector('.course-banner-title');
+    const breadcrumbCourseNameElement = document.querySelector('.breadcrumb-course-name');
+    const courseJoinCodeElement = document.querySelector('.course-banner .course-join-code');
+    const joinCodeFromDB = <?php echo isset($course_data['join_code']) ? json_encode($course_data['join_code']) : 'null'; ?>;
+
+    const assignmentsListArea = document.getElementById('assignmentsListArea');
+    const showCreateAssignmentModalBtn = document.getElementById('showCreateAssignmentModalBtn');
+    const createAssignmentModal = document.getElementById('createAssignmentModal');
+    const closeCreateAssignmentModalBtn = document.getElementById('closeCreateAssignmentModalBtn');
+    const createAssignmentFormInternal = document.getElementById('createAssignmentFormInternal');
+    const assignmentSortSelect = document.getElementById('assignmentSortSelect');
+
+    const teacherInfoArea = document.getElementById('teacherInfoArea');
+    const studentsListArea = document.getElementById('studentsListArea');
+    const studentCountBadge = document.getElementById('studentCount');
+    const defaultAvatarRelPath = 'assets/default_avatar.png';
+    const baseAvatarUrl = '<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>';
+
+    const myGradesArea = document.getElementById('myGradesArea');
+    const teacherGradesSummaryArea = document.getElementById('teacherGradesSummaryArea');
+
+
+    function htmlspecialchars(str) {
+        if (typeof str !== 'string') return '';
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return str.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function getStatusTextAndClass(statusCode, dueDateStr) {
+        let statusText = 'Не здано';
+        let statusClass = 'pending';
+        const dueDate = dueDateStr ? new Date(dueDateStr) : null;
+        const now = new Date();
+
+        switch (statusCode) {
+            case 'submitted': statusText = 'Здано'; statusClass = 'submitted'; break;
+            case 'graded': statusText = 'Оцінено'; statusClass = 'graded'; break;
+            case 'missed': statusText = 'Пропущено'; statusClass = 'missed'; break;
+            case 'pending_submission':
+            default:
+                if (dueDate && dueDate < now) {
+                    statusText = 'Пропущено'; statusClass = 'missed';
+                } else {
+                    statusText = 'Не здано'; statusClass = 'pending';
+                }
+                break;
+        }
+        return { text: statusText, class: `submission-status-${statusClass}` };
+    }
+
+    async function loadMyGrades(courseId) {
+        if (!courseId || !myGradesArea) return;
+        myGradesArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження ваших оцінок...</p>';
+        try {
+            const response = await fetch(`../../src/grades_actions.php?action=get_my_grades_for_course&course_id=${courseId}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
+                throw new Error(errorData.message);
+            }
+            const result = await response.json();
+            if (result.status === 'success' && result.grades) {
+                myGradesArea.innerHTML = '';
+                if (result.grades.length > 0) {
+                    const table = document.createElement('table');
+                    table.classList.add('my-grades-table');
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Назва завдання</th>
+                                <th>Термін здачі</th>
+                                <th>Статус</th>
+                                <th>Оцінка</th>
+                                <th>Макс. бали</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    `;
+                    const tbody = table.querySelector('tbody');
+                    result.grades.forEach(gradeItem => {
+                        const row = tbody.insertRow();
+                        const statusInfo = getStatusTextAndClass(gradeItem.submission_status, gradeItem.due_date);
+                        row.insertCell().innerHTML = `<a href="assignment_view.php?assignment_id=${gradeItem.assignment_id}">${htmlspecialchars(gradeItem.assignment_title)}</a>`;
+                        row.insertCell().textContent = gradeItem.due_date ? new Date(gradeItem.due_date).toLocaleString('uk-UA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '–';
+                        row.insertCell().innerHTML = `<span class="submission-status-badge ${statusInfo.class}">${statusInfo.text}</span>`;
+                        row.insertCell().textContent = gradeItem.grade !== null ? gradeItem.grade : '–';
+                        row.insertCell().textContent = gradeItem.max_points;
+                        let actionsHTML = `<a href="assignment_view.php?assignment_id=${gradeItem.assignment_id}" class="button-link-small view-assignment-details-link"><i class="fas fa-eye"></i> Деталі</a>`;
+                        const dueDateObj = gradeItem.due_date ? new Date(gradeItem.due_date) : null;
+                        const now = new Date();
+                        if ((gradeItem.submission_status === 'pending_submission' || gradeItem.submission_status === 'submitted') && (!dueDateObj || dueDateObj >= now) ) {
+                             actionsHTML += ` <a href="assignment_view.php?assignment_id=${gradeItem.assignment_id}#studentSubmissionArea"
+                                                class="button-link-small submit-work-link">
+                                                <i class="fas fa-upload"></i> ${gradeItem.submission_status === 'submitted' ? 'Змінити' : 'Здати'}
+                                              </a>`;
+                        }
+                        row.insertCell().innerHTML = actionsHTML;
+                    });
+                    myGradesArea.appendChild(table);
+                } else {
+                    myGradesArea.innerHTML = '<p>Для цього курсу ще немає завдань або оцінок.</p>';
+                }
+            } else {
+                myGradesArea.innerHTML = `<p>Не вдалося завантажити оцінки: ${result.message || 'Помилка сервера'}</p>`;
+            }
+        } catch (error) {
+            console.error("Помилка завантаження оцінок студента:", error);
+            myGradesArea.innerHTML = `<p>Сталася помилка: ${error.message}. Спробуйте оновити сторінку.</p>`;
+        }
+    }
+
+    function getStatusTextAndClassForTeacher(statusCode, dueDateStr) {
+        let statusText = '–';
+        let statusClass = 'status-not-submitted';
+        const dueDate = dueDateStr ? new Date(dueDateStr) : null;
+        const now = new Date();
+        switch (statusCode) {
+            case 'submitted': statusText = 'Здано'; statusClass = 'submission-status-submitted'; break;
+            case 'graded': statusClass = 'submission-status-graded'; break;
+            case 'missed': statusText = 'Пропущено'; statusClass = 'submission-status-missed'; break;
+            case 'pending_submission':
+            default:
+                if (dueDate && dueDate < now) {
+                    statusText = 'Пропущено'; statusClass = 'submission-status-missed';
+                } else {
+                    statusText = '–'; statusClass = 'status-not-submitted';
+                }
+                break;
+        }
+        return { text: statusText, class: statusClass };
+    }
+
+    async function loadTeacherGradesSummary(courseId) {
+        if (!courseId || !teacherGradesSummaryArea || !isCurrentUserTeacherOfThisCourse) return;
+        teacherGradesSummaryArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження журналу оцінок...</p>';
+        try {
+            const response = await fetch(`../../src/grading_actions.php?action=get_course_grades_summary&course_id=${courseId}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
+                throw new Error(errorData.message);
+            }
+            const result = await response.json();
+            if (result.status === 'success' && result.assignments && result.students_grades) {
+                teacherGradesSummaryArea.innerHTML = '';
+                if (result.students_grades.length === 0) {
+                    teacherGradesSummaryArea.innerHTML = '<p>У курсі ще немає студентів для відображення оцінок.</p>';
+                    return;
+                }
+                if (result.assignments.length === 0) {
+                    teacherGradesSummaryArea.innerHTML = '<p>У курсі ще немає завдань для відображення оцінок.</p>';
+                    return;
+                }
+                const table = document.createElement('table');
+                table.classList.add('teacher-grades-summary-table');
+                const thead = table.createTHead();
+                const headerRow = thead.insertRow();
+                const studentHeaderCell = document.createElement('th');
+                studentHeaderCell.textContent = 'Студент';
+                studentHeaderCell.classList.add('student-name-column');
+                headerRow.appendChild(studentHeaderCell);
+                result.assignments.forEach(assignment => {
+                    const th = document.createElement('th');
+                    th.innerHTML = `${htmlspecialchars(assignment.title)}<br><small>(макс. ${assignment.max_points})</small>`;
+                    th.setAttribute('data-assignment-id', assignment.assignment_id);
+                    headerRow.appendChild(th);
+                });
+                const tbody = table.createTBody();
+                result.students_grades.forEach(studentGradeInfo => {
+                    const row = tbody.insertRow();
+                    const studentNameCell = row.insertCell();
+                    studentNameCell.innerHTML = `${htmlspecialchars(studentGradeInfo.first_name)} ${htmlspecialchars(studentGradeInfo.last_name)}<br><small>@${htmlspecialchars(studentGradeInfo.username)}</small>`;
+                    studentNameCell.classList.add('student-name-cell');
+                    result.assignments.forEach(assignment => {
+                        const cell = row.insertCell();
+                        cell.classList.add('grade-cell');
+                        const gradeData = studentGradeInfo.grades_by_assignment_id[assignment.assignment_id];
+                        if (gradeData && gradeData.submission_id) {
+                            const gradeValue = gradeData.grade !== null ? gradeData.grade : '–';
+                            cell.innerHTML = `<a href="grade_submission.php?submission_id=${gradeData.submission_id}"
+                                                 title="Перейти до оцінювання">${gradeValue}</a>`;
+                            if(gradeData.grade !== null) cell.classList.add('graded');
+                            else if (gradeData.status === 'submitted') cell.classList.add('submitted-needs-grading');
+                        } else {
+                            const assignmentDetails = result.assignments.find(a => a.assignment_id === assignment.assignment_id);
+                            const statusInfo = getStatusTextAndClassForTeacher(null, assignmentDetails ? assignmentDetails.due_date : null);
+                             cell.innerHTML = `<span class="${statusInfo.class}">${statusInfo.text}</span>`;
+                        }
+                    });
+                });
+                teacherGradesSummaryArea.appendChild(table);
+            } else {
+                teacherGradesSummaryArea.innerHTML = `<p>Не вдалося завантажити журнал оцінок: ${result.message || 'Помилка сервера'}</p>`;
+            }
+        } catch (error) {
+            console.error("Помилка завантаження журналу оцінок для викладача:", error);
+            teacherGradesSummaryArea.innerHTML = `<p>Сталася помилка: ${error.message}. Спробуйте оновити сторінку.</p>`;
+        }
+    }
+
+    // Tab switching logic
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const targetTab = this.getAttribute('data-tab');
+            tabLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+            tabPanes.forEach(pane => {
+                pane.classList.toggle('active', pane.id === 'tab-' + targetTab);
+            });
+            if (breadcrumbCurrentTab) breadcrumbCurrentTab.textContent = this.textContent;
+            if (courseBannerElement) courseBannerElement.style.display = (targetTab === 'stream') ? 'flex' : 'none';
+
+            if (targetTab === 'assignments' && currentCourseIdForJS) loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
+            else if (targetTab === 'stream' && currentCourseIdForJS) loadAnnouncements(currentCourseIdForJS);
+            else if (targetTab === 'people' && currentCourseIdForJS) loadCourseParticipants(currentCourseIdForJS);
+            else if (targetTab === 'my-grades' && currentCourseIdForJS && !isCurrentUserTeacherOfThisCourse) loadMyGrades(currentCourseIdForJS);
+            else if (targetTab === 'grades' && currentCourseIdForJS && isCurrentUserTeacherOfThisCourse) loadTeacherGradesSummary(currentCourseIdForJS);
+        });
+    });
+
+    // Initial load for active tab
+    const activeTabOnInit = document.querySelector('.course-tab-navigation .tab-link.active');
+    if (activeTabOnInit && currentCourseIdForJS) {
+        const activeTabName = activeTabOnInit.dataset.tab;
+        if (activeTabName === 'stream') loadAnnouncements(currentCourseIdForJS);
+        else if (activeTabName === 'assignments') loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
+        else if (activeTabName === 'people') loadCourseParticipants(currentCourseIdForJS);
+        else if (activeTabName === 'my-grades' && !isCurrentUserTeacherOfThisCourse) loadMyGrades(currentCourseIdForJS);
+        else if (activeTabName === 'grades' && isCurrentUserTeacherOfThisCourse) loadTeacherGradesSummary(currentCourseIdForJS);
+    }
+
+    // Functions for other tabs (loadAnnouncements, loadAssignments, loadCourseParticipants, etc.)
+    // Ensure they are defined as in previous responses or integrated here if not already.
+    // For brevity, I'm assuming they are present from previous steps.
+    // Example:
+    async function loadAnnouncements(courseId) { /* ... implementation ... */ 
         if (!courseId || !announcementsArea) return;
         announcementsArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження оголошень...</p>';
         try {
@@ -296,13 +505,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     result.announcements.forEach(ann => {
                         const annElement = document.createElement('div');
                         annElement.classList.add('announcement-item');
-                        const baseAvatarPath = '../';
-                        const defaultAvatar = baseAvatarPath + 'assets/default_avatar.png';
-                        const authorAvatarSrc = ann.author_avatar_path ? baseAvatarPath + ann.author_avatar_path : defaultAvatar;
+                        const authorAvatarSrc = ann.author_avatar_path ? baseAvatarUrl + ann.author_avatar_path : baseAvatarUrl + defaultAvatarRelPath;
                         annElement.innerHTML = `
                             <div class="announcement-header">
                                 <div class="announcement-author-info">
-                                    <img src="${authorAvatarSrc}" alt="${ann.author_username || 'Аватар'}" class="announcement-author-avatar">
+                                    <img src="${authorAvatarSrc}?t=${new Date().getTime()}" alt="${ann.author_username || 'Аватар'}" class="announcement-author-avatar">
                                     <span class="announcement-author">${ann.author_username || 'Викладач'}</span>
                                 </div>
                                 <span class="announcement-date">${new Date(ann.created_at).toLocaleString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
@@ -326,7 +533,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
     if (createAnnouncementForm) {
         createAnnouncementForm.addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -361,19 +567,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Завантажуємо оголошення, якщо вкладка "Стрічка" активна при завантаженні сторінки
-    if (currentCourseIdForJS && document.querySelector('.tab-link[data-tab="stream"].active')) {
-        loadAnnouncements(currentCourseIdForJS);
-    }
-
-    const courseSettingsForm = document.getElementById('courseSettingsForm');
-    // const courseBannerElement = document.querySelector('.course-banner'); // Вже визначено вище
-    const courseBannerTitleElement = document.querySelector('.course-banner-title');
-    const breadcrumbCourseNameElement = document.querySelector('.breadcrumb-course-name');
-    const courseJoinCodeElement = document.querySelector('.course-banner .course-join-code');
-    const joinCodeFromDB = <?php echo isset($course_data['join_code']) ? json_encode($course_data['join_code']) : 'null'; ?>;
-
     if(courseSettingsForm && courseBannerElement && courseBannerTitleElement && breadcrumbCourseNameElement) {
         courseSettingsForm.addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -404,7 +597,7 @@ document.addEventListener('DOMContentLoaded', function() {
                    alert(result.message || 'Налаштування збережено!');
                    const updatedData = result.updated_data;
                    courseBannerTitleElement.textContent = updatedData.course_name;
-                   if(courseBannerElement) courseBannerElement.style.backgroundColor = updatedData.color; // Перевірка існування
+                   if(courseBannerElement) courseBannerElement.style.backgroundColor = updatedData.color;
                    breadcrumbCourseNameElement.textContent = updatedData.course_name;
                    document.title = updatedData.course_name + ' - Assignet';
                    if (courseJoinCodeElement) {
@@ -433,23 +626,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // --- JAVASCRIPT ДЛЯ ВКЛАДКИ "ЗАВДАННЯ" ---
-    const assignmentsTabLink = document.querySelector('.tab-link[data-tab="assignments"]');
-    const assignmentsListArea = document.getElementById('assignmentsListArea');
-    const showCreateAssignmentModalBtn = document.getElementById('showCreateAssignmentModalBtn');
-    const createAssignmentModal = document.getElementById('createAssignmentModal');
-    const closeCreateAssignmentModalBtn = document.getElementById('closeCreateAssignmentModalBtn');
-    const createAssignmentFormInternal = document.getElementById('createAssignmentFormInternal');
-    const assignmentSortSelect = document.getElementById('assignmentSortSelect');
-
     async function loadAssignments(courseId, sortBy = 'due_date_asc') {
-        if (!courseId || !assignmentsListArea) {
-            console.warn("loadAssignments: courseId або assignmentsListArea не знайдено."); // Змінив на warn
+         if (!courseId || !assignmentsListArea) {
+            console.warn("loadAssignments: courseId або assignmentsListArea не знайдено.");
             return;
         }
         assignmentsListArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження завдань...</p>';
-
         try {
             const response = await fetch(`../../src/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=${sortBy}`);
             if (!response.ok) {
@@ -458,20 +640,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(`HTTP помилка! Статус: ${response.status}`);
             }
             const result = await response.json();
-
             if (result.status === 'success' && result.assignments) {
                 isCurrentUserTeacherOfThisCourse = result.is_teacher_of_course;
                 assignmentsListArea.innerHTML = '';
-
                 if (result.assignments.length > 0) {
                     result.assignments.forEach(asm => {
                         const asmElement = document.createElement('div');
                         asmElement.classList.add('assignment-item-card');
-                        
                         let deadlineLabel = '';
                         const dueDateObj = asm.due_date ? new Date(asm.due_date) : null;
                         const now = new Date();
-
                         if (asm.is_deadline_soon && !(dueDateObj && dueDateObj < now && asm.submission_status !== 'submitted' && asm.submission_status !== 'graded')) {
                              asmElement.classList.add('deadline-approaching');
                              deadlineLabel = '<span class="deadline-soon-label"><i class="fas fa-bell"></i> Термін здачі скоро!</span>';
@@ -479,25 +657,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (dueDateObj && dueDateObj < now && asm.submission_status !== 'submitted' && asm.submission_status !== 'graded' && asm.submission_status !== 'missed') {
                              deadlineLabel = '<span class="deadline-past-label"><i class="fas fa-exclamation-circle"></i> Термін здачі минув</span>';
                         }
-
                         let submissionInfo = '';
                         if (!isCurrentUserTeacherOfThisCourse) {
                            if (asm.submission_status === 'submitted') {
                                submissionInfo = '<span class="submission-status submitted"><i class="fas fa-check-circle"></i> Здано</span>';
                            } else if (asm.submission_status === 'graded') {
                                submissionInfo = `<span class="submission-status graded"><i class="fas fa-award"></i> Оцінено</span>`;
-                           } else if (dueDateObj && dueDateObj < now) { // Термін минув і не здано/не оцінено
+                           } else if (dueDateObj && dueDateObj < now) {
                                submissionInfo = '<span class="submission-status missed"><i class="fas fa-times-circle"></i> Пропущено</span>';
-                           } else { // Ще не здано, термін не минув
+                           } else {
                                submissionInfo = '<span class="submission-status pending"><i class="fas fa-hourglass-half"></i> Не здано</span>';
                            }
                         }
-                        
                         let shortDescription = asm.description || '';
-                        if (shortDescription.length > 100) { // Зменшив довжину скороченого опису
+                        if (shortDescription.length > 100) {
                             shortDescription = shortDescription.substring(0, 100) + '...';
                         }
-
                         asmElement.innerHTML = `
                             <div class="assignment-card-header">
                                 <h3 class="assignment-title"><a href="assignment_view.php?assignment_id=${asm.assignment_id}">${asm.title}</a></h3>
@@ -532,20 +707,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (assignmentsListArea) assignmentsListArea.innerHTML = '<p>Сталася помилка при завантаженні завдань. Спробуйте оновити сторінку.</p>';
         }
     }
-
-    if (assignmentSortSelect) {
-        assignmentSortSelect.addEventListener('change', function() {
-            if (currentCourseIdForJS) {
-                loadAssignments(currentCourseIdForJS, this.value);
-            }
-        });
-    }
-    
-    // Обробники для модального вікна (тільки якщо користувач - викладач)
-    // isCurrentUserTeacherOfThisCourse визначається після першого завантаження завдань,
-    // тому краще перевіряти існування самих кнопок/модалки, які рендеряться PHP умовно
     if (showCreateAssignmentModalBtn && createAssignmentModal) {
-        showCreateAssignmentModalBtn.addEventListener('click', () => {
+         showCreateAssignmentModalBtn.addEventListener('click', () => {
             createAssignmentModal.style.display = 'flex';
         });
     }
@@ -556,45 +719,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     if (createAssignmentModal) {
-        createAssignmentModal.addEventListener('click', (event) => {
+         createAssignmentModal.addEventListener('click', (event) => {
             if (event.target === createAssignmentModal) {
                 createAssignmentModal.style.display = 'none';
                 if(createAssignmentFormInternal) createAssignmentFormInternal.reset();
             }
         });
     }
-
     if (createAssignmentFormInternal) {
         createAssignmentFormInternal.addEventListener('submit', async function(event) {
             event.preventDefault();
             const formData = new FormData(this);
             formData.append('action', 'create_assignment');
-
             const title = formData.get('assignment_title').trim();
             const maxPoints = formData.get('assignment_max_points');
             const dueDate = formData.get('assignment_due_date');
-
             if (!title || !maxPoints || !dueDate) {
                 alert('Будь ласка, заповніть назву, бали та дату здачі.');
                 return;
             }
-            if (parseInt(maxPoints) < 0) {
-                alert('Кількість балів не може бути від\'ємною.');
+            if (parseInt(maxPoints) < 0 || parseInt(maxPoints) > 100) { // Added check for > 100
+                alert('Кількість балів повинна бути від 0 до 100.'); // Updated message
                 return;
             }
-            if (parseInt(maxPoints) > 100) {
-            alert('Максимальна кількість балів не може перевищувати 100.');
-            return;
-            }
-
-            
             try {
                 const response = await fetch('../../src/course_actions.php', {
                     method: 'POST',
                     body: formData
                 });
                 const result = await response.json();
-
                 if (result.status === 'success') {
                     alert(result.message);
                     createAssignmentModal.style.display = 'none';
@@ -611,10 +764,100 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Ініціалізаційне завантаження для активної вкладки "Завдання"
-    if (document.querySelector('.tab-link[data-tab="assignments"].active') && currentCourseIdForJS) {
-        loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
+     function createUserListItem(user, isTeacherContext = false, isCurrentUserTheTeacher = false) {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('person-item');
+        itemDiv.dataset.userId = user.user_id;
+        const avatarSrc = user.avatar_path ? (baseAvatarUrl + user.avatar_path) : (baseAvatarUrl + defaultAvatarRelPath);
+        let removeButtonHTML = '';
+        if (!isTeacherContext && isCurrentUserTheTeacher && user.user_id != <?php echo json_encode($current_user_id); ?>) {
+            removeButtonHTML = `<button class="remove-student-btn" data-student-id="${user.user_id}" data-student-name="${user.first_name || ''} ${user.last_name || ''}"><i class="fas fa-user-minus"></i> Видалити</button>`;
+        }
+        itemDiv.innerHTML = `
+            <img src="${avatarSrc}?t=${new Date().getTime()}" alt="Avatar" class="person-avatar">
+            <div class="person-details">
+                <span class="person-name">${user.first_name || ''} ${user.last_name || ''}</span>
+                <span class="person-username">@${user.username}</span>
+            </div>
+            ${isCurrentUserTheTeacher ? removeButtonHTML : ''}
+        `;
+        if (!isTeacherContext && isCurrentUserTheTeacher && user.user_id != <?php echo json_encode($current_user_id); ?>) {
+            const removeBtn = itemDiv.querySelector('.remove-student-btn');
+            if(removeBtn) {
+                removeBtn.addEventListener('click', handleRemoveStudent);
+            }
+        }
+        return itemDiv;
     }
+    async function loadCourseParticipants(courseId) {
+        if (!courseId || !teacherInfoArea || !studentsListArea || !studentCountBadge) return;
+        teacherInfoArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження...</p>';
+        studentsListArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження списку студентів...</p>';
+        studentCountBadge.textContent = '0';
+        try {
+            const response = await fetch(`../../src/course_participants_actions.php?action=get_course_participants&course_id=${courseId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP помилка! Статус: ${response.status}`);
+            }
+            const result = await response.json();
+            if (result.status === 'success') {
+                teacherInfoArea.innerHTML = '';
+                if (result.teacher) {
+                    const teacherItem = createUserListItem(result.teacher, true, result.is_current_user_teacher);
+                    teacherInfoArea.appendChild(teacherItem);
+                } else {
+                    teacherInfoArea.innerHTML = '<p>Інформація про викладача недоступна.</p>';
+                }
+                studentsListArea.innerHTML = '';
+                if (result.students && result.students.length > 0) {
+                    result.students.forEach(student => {
+                        const studentItem = createUserListItem(student, false, result.is_current_user_teacher);
+                        studentsListArea.appendChild(studentItem);
+                    });
+                    studentCountBadge.textContent = result.student_count || 0;
+                } else {
+                    studentsListArea.innerHTML = '<p>У цьому курсі ще немає студентів.</p>';
+                    studentCountBadge.textContent = '0';
+                }
+            } else {
+                teacherInfoArea.innerHTML = `<p>Помилка: ${result.message}</p>`;
+                studentsListArea.innerHTML = `<p>Помилка: ${result.message}</p>`;
+            }
+        } catch (error) {
+            console.error("Помилка завантаження учасників курсу:", error);
+            teacherInfoArea.innerHTML = '<p>Не вдалося завантажити дані викладача.</p>';
+            studentsListArea.innerHTML = '<p>Не вдалося завантажити список студентів.</p>';
+        }
+    }
+    async function handleRemoveStudent(event) {
+        const studentId = event.currentTarget.dataset.studentId;
+        const studentName = event.currentTarget.dataset.studentName;
+        if (!confirm(`Ви впевнені, що хочете видалити студента ${studentName} з курсу?`)) {
+            return;
+        }
+        const formData = new FormData();
+        formData.append('action', 'remove_student_from_course');
+        formData.append('course_id', currentCourseIdForJS);
+        formData.append('student_id', studentId);
+        try {
+            const response = await fetch('../../src/course_participants_actions.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert(result.message);
+                if (currentCourseIdForJS) {
+                    loadCourseParticipants(currentCourseIdForJS);
+                }
+            } else {
+                alert(`Помилка: ${result.message || 'Не вдалося видалити студента.'}`);
+            }
+        } catch (error) {
+            console.error('Помилка AJAX при видаленні студента:', error);
+            alert('Сталася помилка на клієнті. Деталі в консолі.');
+        }
+    }
+
 });
 </script>
