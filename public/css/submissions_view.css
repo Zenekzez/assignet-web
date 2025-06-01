@@ -18,136 +18,221 @@
     width: 100%; /* Таблиця на всю ширину */
     border-collapse: collapse;
     margin-top: 20px;
-    font-size: 0.95em; /* Трохи більший шрифт для читабельності */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Легка тінь */
-    border-radius: 8px; /* Заокруглені кути */
-    overflow: hidden; /* Щоб тінь і border-radius працювали */
-    background-color: #fff;
+    font-size: 0.9em; /* Змінено з 0.95em для відповідності my-grades-table */ /* */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Змінено для відповідності my-grades-table */ /* */
+    border-radius: 6px; /* Змінено з 8px для відповідності my-grades-table */ /* */
+    overflow: hidden; /* Щоб тінь і border-radius працювали */ /* */
+    background-color: #fff; /* */
 }
 
 .submissions-table th,
 .submissions-table td {
-    border-bottom: 1px solid #dee2e6; /* Тільки горизонтальні лінії */
-    padding: 12px 15px; /* Збільшені відступи */
-    text-align: left;
-    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6; /* Тільки горизонтальні лінії */ /* */
+    padding: 12px 15px; /* Збільшені відступи */ /* */
+    text-align: left; /* */
+    vertical-align: middle; /* */
 }
 
 .submissions-table th:first-child,
 .submissions-table td:first-child {
-    padding-left: 20px; /* Більший відступ для першої колонки */
+    padding-left: 20px; /* Більший відступ для першої колонки */ /* */
 }
 .submissions-table th:last-child,
 .submissions-table td:last-child {
-    padding-right: 20px; /* Більший відступ для останньої колонки */
-    text-align: center; /* Дії по центру */
+    padding-right: 20px; /* Більший відступ для останньої колонки */ /* */
+    text-align: center; /* Дії по центру */ /* */
 }
 
 
 .submissions-table thead th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    color: #495057;
-    border-bottom-width: 2px; /* Жирніша лінія під заголовком */
-    border-top: 1px solid #dee2e6; /* Верхня межа для заголовків */
-
+    background-color: #f8f9fa; /* */
+    font-weight: 600; /* */
+    color: #495057; /* */
+    border-top: 1px solid #dee2e6; /* Верхня межа для заголовків */ /* */
+    border-bottom: 1px solid #dee2e6; /* Замінено для стандартної товщини межі */ /* */
 }
 
 .submissions-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #f9f9f9; /* */
 }
 
 .submissions-table tbody tr:hover {
-    background-color: #f1f3f4; /* Світліший ховер */
+    background-color: #f1f3f4; /* Світліший ховер */ /* */
 }
+
+/* Стилі для стовпця "Студент" з аватаркою */
+.submissions-table td.student-name-cell {
+    font-weight: 500; 
+    line-height: 1.3; 
+    white-space: normal; 
+    /* display: flex; /* Закоментовано, оскільки використовується внутрішня обгортка */
+    /* align-items: center; */
+    /* gap: 10px; */
+}
+
+/* Обгортка для контенту всередині комірки Студент (аватар + інфо) */
+.student-name-cell-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.student-avatar-in-table {
+    width: 36px; 
+    height: 36px; 
+    border-radius: 50%; /* Робить аватарку круглою */
+    object-fit: cover; 
+    border: 1px solid #ddd; 
+    flex-shrink: 0; 
+}
+
+.submissions-table td.student-name-cell .student-info-container {
+    /* Можна залишити порожнім або додати стилі за потреби */
+}
+
+.submissions-table td.student-name-cell small {
+    display: block; 
+    font-weight: normal; 
+    color: #777; 
+    font-size: 0.9em; 
+    margin-top: 2px; 
+}
+
 
 /* Стилі для статусів в таблиці */
 .submission-status-table {
-    padding: 5px 10px; /* Збільшено padding */
-    border-radius: 14px; /* Більш заокруглені */
-    font-size: 0.85em;
-    font-weight: 500;
-    display: inline-block;
-    text-align: center;
-    min-width: 85px; /* Мінімальна ширина */
+    padding: 5px 10px; /* Збільшено padding */ /* */
+    border-radius: 14px; /* Більш заокруглені */ /* */
+    font-size: 0.85em; /* */
+    font-weight: 500; /* */
+    display: inline-block; /* */
+    text-align: center; /* */
+    min-width: 85px; /* Мінімальна ширина */ /* */
 }
-.submission-status-table.submitted { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;}
-.submission-status-table.graded { background-color: #cff4fc; color: #055160; border: 1px solid #b6effb;}
-.submission-status-table.pending { background-color: #fff3cd; color: #664d03; border: 1px solid #ffecb5;}
-.submission-status-table.missed { background-color: #f8d7da; color: #58151c; border: 1px solid #f1c0c7;}
+.submission-status-table.submitted { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;} /* */
+.submission-status-table.graded { background-color: #cff4fc; color: #055160; border: 1px solid #b6effb;} /* */
+.submission-status-table.pending { background-color: #fff3cd; color: #664d03; border: 1px solid #ffecb5;} /* */
+.submission-status-table.missed { background-color: #f8d7da; color: #58151c; border: 1px solid #f1c0c7;} /* */
 
 /* Стилі для кнопки/посилання "Дії" */
 .button-link.grade-link {
-    display: inline-flex; /* Для вирівнювання іконки та тексту */
-    align-items: center;
-    gap: 6px; /* Відстань між іконкою та текстом */
-    background-color: #007bff;
-    color: white;
-    padding: 7px 12px; /* Збільшено padding */
-    font-size: 0.9em;
-    border-radius: 5px; /* Заокруглені кути */
-    text-decoration: none;
-    border: 1px solid transparent;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    display: inline-flex; /* Для вирівнювання іконки та тексту */ /* */
+    align-items: center; /* */
+    gap: 6px; /* Відстань між іконкою та текстом */ /* */
+    background-color: #007bff; /* */
+    color: white; /* */
+    padding: 7px 12px; /* Збільшено padding */ /* */
+    font-size: 0.9em; /* */
+    border-radius: 5px; /* Заокруглені кути */ /* */
+    text-decoration: none; /* */
+    border: 1px solid transparent; /* */
+    transition: background-color 0.2s ease, border-color 0.2s ease; /* */
 }
 .button-link.grade-link:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-    color: white; /* Переконатися, що текст залишається білим */
+    background-color: #0056b3; /* */
+    border-color: #0056b3; /* */
+    color: white; /* Переконатися, що текст залишається білим */ /* */
 }
 .button-link.grade-link i.fas {
-    /* margin-right вже не потрібен через gap */
+    /* margin-right вже не потрібен через gap */ /* */
 }
 
 /* Повідомлення, якщо немає зданих робіт */
 .no-submissions-message {
-    padding: 25px;
-    text-align: center;
-    color: #6c757d;
-    font-style: italic;
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    margin-top: 20px;
+    padding: 25px; /* */
+    text-align: center; /* */
+    color: #6c757d; /* */
+    font-style: italic; /* */
+    background-color: #f8f9fa; /* */
+    border: 1px solid #e9ecef; /* */
+    border-radius: 8px; /* */
+    margin-top: 20px; /* */
 }
 
 /* Адаптивність для таблиці на малих екранах (приклад) */
 @media (max-width: 768px) {
     .submissions-table thead {
-        display: none; /* Сховати заголовок на малих екранах */
+        display: none; /* Сховати заголовок на малих екранах */ /* */
     }
     .submissions-table, .submissions-table tbody, .submissions-table tr, .submissions-table td {
-        display: block; /* Кожен td як блок */
-        width: 100%;
+        display: block; /* Кожен td як блок */ /* */
+        width: 100%; /* */
     }
     .submissions-table tr {
-        margin-bottom: 15px;
-        border: 1px solid #dee2e6; /* Окремі рамки для кожної "картки" */
-        border-radius: 6px;
-        overflow: hidden;
+        margin-bottom: 15px; /* */
+        border: 1px solid #dee2e6; /* Окремі рамки для кожної "картки" */ /* */
+        border-radius: 6px; /* */
+        overflow: hidden; /* */
     }
     .submissions-table td {
-        text-align: right; /* Вирівнюємо текст вліво, дані - вправо */
-        padding-left: 50%; /* Залишаємо місце для "заголовка" */
-        position: relative;
-        border-bottom: 1px solid #f0f0f0; /* Лінія між "полями" */
-    }
-    .submissions-table td:last-child {
-        border-bottom: none; /* Немає лінії для останнього поля */
-        text-align: center; /* Кнопку можна по центру */
-        padding-left: 0; /* Скидаємо відступ для кнопки */
-    }
-    .submissions-table td::before {
-        content: attr(data-label); /* Використовуємо data-label для показу заголовка */
-        position: absolute;
-        left: 10px;
-        width: calc(50% - 20px); /* Ширина "заголовка" */
-        padding-right: 10px;
-        font-weight: bold;
-        text-align: left;
+        /* Загальні стилі для мобільних td */
+        text-align: right; /* Вирівнюємо текст вліво, дані - вправо */ /* */
+        padding-left: 50%; /* Залишаємо місце для "заголовка" */ /* */
+        position: relative; /* */
+        border-bottom: 1px solid #f0f0f0; /* Лінія між "полями" */ /* */
     }
 
-    /* Додавання data-label в HTML для мобільного вигляду (в PHP циклі) */
-    /* Приклад для td студента: <td data-label="Студент"><?php ... ?></td> */
-    /* Це потрібно буде додати в PHP код генерації таблиці */
+    /* Специфічні стилі для student-name-cell на мобільних */
+    .submissions-table td.student-name-cell {
+        display: block; /* Повертаємо до блочного для простоти розміщення ::before */
+        padding-left: 15px; /* Стандартний відступ для контенту */
+        padding-top: 10px; /* Додатковий відступ зверху для data-label */
+        padding-bottom: 10px; /* Відступ знизу */
+        text-align: left; /* Вирівнювання контенту зліва */
+    }
+
+    .submissions-table td.student-name-cell::before {
+        content: attr(data-label); 
+        display: block; /* Лейбл над контентом */
+        position: static; /* Не абсолютне позиціонування */
+        width: auto; /* Автоматична ширина */
+        padding-right: 0;
+        margin-bottom: 8px; /* Відступ під лейблом */
+        font-weight: bold; 
+        text-align: left; 
+        color: #333;
+    }
+    
+    /* Обгортка для аватарки та інфо студента на мобільних */
+    .student-name-cell-content-wrapper {
+        /* display: flex; успадковується з десктопних, якщо не скинути */
+        /* align-items: center; успадковується */
+        /* gap: 10px; успадковується */
+    }
+
+    .student-avatar-in-table {
+        width: 32px; /* Трохи менша для мобільних */
+        height: 32px;
+        /* border-radius: 50%; успадковується */
+    }
+     .submissions-table td.student-name-cell .student-info-container {
+        line-height: 1.2; /* Компактніше для мобільних */
+    }
+    .submissions-table td.student-name-cell .student-info-container small{
+        font-size: 0.85em; /* Трохи менше для мобільних */
+        margin-top: 1px;
+    }
+
+    .submissions-table td:last-child {
+        border-bottom: none; /* Немає лінії для останнього поля */ /* */
+        text-align: center; /* Кнопку можна по центру */ /* */
+        padding-left: 0; /* Скидаємо відступ для кнопки */ /* */
+    }
+    
+    /* Загальне правило для ::before, що НЕ є .student-name-cell */
+    .submissions-table td:not(.student-name-cell)::before {
+        content: attr(data-label); /* Використовуємо data-label для показу заголовка */ /* */
+        position: absolute; /* */
+        left: 15px; /* Оновлено для узгодження з padding-left комірки */ /* */
+        width: calc(50% - 25px); /* Оновлено для узгодження */ /* */
+        padding-right: 10px; /* */
+        font-weight: bold; /* */
+        text-align: left; /* */
+        color: #333; /* Колір для data-label */
+    }
+
+
+    /* Додавання data-label в HTML для мобільного вигляду (в PHP циклі) */ /* */
+    /* Приклад для td студента: <td data-label="Студент"><?php ... ?></td> */ /* */
+    /* Це потрібно буде додати в PHP код генерації таблиці */ /* */
 }

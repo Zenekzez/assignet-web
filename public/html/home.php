@@ -232,14 +232,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const body = document.createElement('div');
         body.classList.add('card-body');
         
-        const descriptionTitle = document.createElement('h5');
-        descriptionTitle.textContent = 'Опис курсу';
+        // const descriptionTitle = document.createElement('h5');
+        // descriptionTitle.textContent = 'Опис курсу';
         
         const descriptionText = document.createElement('p');
         descriptionText.classList.add('description-text');
         descriptionText.textContent = course.description || 'Немає опису.';
         
-        body.appendChild(descriptionTitle);
+        // body.appendChild(descriptionTitle);
         body.appendChild(descriptionText);
         
         cardLink.appendChild(header);

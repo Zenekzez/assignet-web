@@ -26,11 +26,11 @@
 
 .settings-section {
     margin-bottom: 35px; /* Increased spacing */
-    padding-bottom: 25px;
-    border-bottom: 1px solid #f0f0f0; /* Lighter separator */
+    padding-bottom: 0; /* Прибираємо нижній відступ, щоб не було зайвого простору, якщо HR має свій margin */
+    /* border-bottom: 1px solid #f0f0f0; */ /* ВИДАЛЕНО ЦЕЙ РЯДОК, щоб не було подвійної лінії */
 }
 .settings-section:last-child {
-    border-bottom: none;
+    /* border-bottom: none; вже не потрібен, якщо видалили основний border-bottom */
     margin-bottom: 0;
     padding-bottom: 0;
 }
@@ -40,7 +40,7 @@
     margin-bottom: 20px;
     font-size: 1.4em; /* Adjusted size */
     color: #3c4043;
-    font-weight: 500;
+    font-weight: bold; /* ЗМІНЕНО на bold для більш виразного жирного шрифту */
 }
 
 .form-group {
@@ -57,6 +57,7 @@
 
 .form-group input[type="text"],
 .form-group input[type="password"],
+.form-group input[type="email"], /* Додано input[type="email"] сюди */
 .form-group input[type="file"] {
     width: 100%; /* Full width */
     padding: 10px 12px; /* Comfortable padding */
@@ -67,8 +68,18 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Стилі для стану :disabled, щоб поточна пошта виглядала відповідно */
+.form-group input[type="email"]:disabled {
+    background-color: #f0f2f5; /* Світліший фон для неактивного поля */
+    color: #5f6368; /* Колір тексту для неактивного поля */
+    cursor: not-allowed; /* Вказує, що поле не можна редагувати */
+    border-color: #dadce0; /* Стандартний колір рамки */
+}
+
+
 .form-group input[type="text"]:focus,
-.form-group input[type="password"]:focus {
+.form-group input[type="password"]:focus,
+.form-group input[type="email"]:focus { /* Додано input[type="email"]:focus сюди */
     border-color: var(--button-primary-bg, #1a73e8);
     outline: none;
     box-shadow: 0 0 0 1px var(--button-primary-bg, #1a73e8);
@@ -100,6 +111,14 @@
     color: #5f6368;
     margin-top: 6px;
 }
+
+/* Стиль для повідомлень про помилки під полями (якщо використовується newEmailError) */
+.form-group small.error-message { /* */
+    color: #d93025; /* Червоний колір для помилок */
+    font-size: 0.8em; /* Розмір як у звичайного small, але можна змінити */
+    /* style="display: none;" буде керуватися JavaScript */
+}
+
 
 .settings-button, .logout-button {
     background-color: var(--button-primary-bg, #1a73e8);
@@ -183,6 +202,6 @@
 hr {
     border: 0;
     height: 1px;
-    background-color: #e0e0e0;
-    margin: 25px 0;
+    background-color: #e0e0e0; /* Колір лінії, можна змінити на #f0f0f0, якщо потрібна світліша */
+    margin: 35px 0; /* Залишаємо поточні відступи для HR */
 }

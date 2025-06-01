@@ -3,12 +3,12 @@
     if (session_status() == PHP_SESSION_NONE) { 
         session_start();
     }
-    // $show_add_course_button_on_home = false; // Ця кнопка не потрібна на сторінці налаштувань
     require_once __DIR__ . '/templates/header.php'; 
 
     $current_first_name = htmlspecialchars($_SESSION['db_first_name'] ?? '', ENT_QUOTES, 'UTF-8');
     $current_last_name = htmlspecialchars($_SESSION['db_last_name'] ?? '', ENT_QUOTES, 'UTF-8');
     $current_username = htmlspecialchars($_SESSION['username'] ?? 'Невідомий користувач', ENT_QUOTES, 'UTF-8');
+    $current_user_email = htmlspecialchars($_SESSION['email'] ?? 'Не вказано', ENT_QUOTES, 'UTF-8'); // ДОДАНО
     
     $default_avatar_web_path = '../assets/default_avatar.png'; 
     $avatar_display_path = $default_avatar_web_path;
@@ -20,9 +20,7 @@
     }
 ?>
 <title>Налаштування - Assignet</title>
-<link rel="stylesheet" href="../css/settings_styles.css">
-
-<main class="page-content-wrapper settings-main-content">
+<link rel="stylesheet" href="../css/settings_styles.css"> <main class="page-content-wrapper settings-main-content">
     <div class="settings-container">
         <h1>Налаштування профілю</h1>
 
@@ -36,8 +34,7 @@
                     <div class="avatar-preview" id="avatarPreview" style="background-image: url('<?php echo $avatar_display_path; ?>?t=<?php echo time(); ?>');">
                     </div>
                     <input type="file" id="avatarFile" name="avatarFile" accept="image/png, image/jpeg">
-                    <small id="avatarError" style="color: red; display: none;"></small>
-                </div>
+                    <small id="avatarError" class="error-message" style="color: red; display: none;"></small> </div>
                 <button type="submit" class="settings-button">Завантажити аватарку</button>
             </form>
         </section>
@@ -68,6 +65,24 @@
             </form>
         </section>
 
+        <hr> <section class="settings-section">
+            <h2>Змінити електронну пошту</h2>
+            <form id="emailChangeForm">
+                <div class="form-group">
+                    <label for="currentEmailDisplay">Поточна пошта</label>
+                    <input type="email" id="currentEmailDisplay" name="currentEmailDisplay" value="<?php echo $current_user_email; ?>" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="newEmail">Нова електронна пошта</label>
+                    <input type="email" id="newEmail" name="newEmail" required>
+                    <small id="newEmailError" class="error-message" style="color: red; display: none;"></small> </div>
+                <div class="form-group">
+                    <label for="passwordForEmailChange">Ваш поточний пароль (для підтвердження)</label>
+                    <input type="password" id="passwordForEmailChange" name="passwordForEmailChange" required>
+                </div>
+                <button type="submit" class="settings-button">Змінити пошту</button>
+            </form>
+        </section>
         <hr>
 
         <section class="settings-section">
@@ -100,7 +115,6 @@
 </main>
 
 </div> <script>
-// ... (JavaScript для settings.php залишається тут, як у попередній відповіді) ...
 document.addEventListener('DOMContentLoaded', function() {
     const messageContainer = document.getElementById('messageContainer');
     const avatarForm = document.getElementById('avatarForm');
@@ -109,6 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const avatarError = document.getElementById('avatarError');
     const profileInfoForm = document.getElementById('profileInfoForm');
     const passwordChangeForm = document.getElementById('passwordChangeForm');
+    const emailChangeForm = document.getElementById('emailChangeForm'); // НОВА ФОРМА
+    const newEmailInput = document.getElementById('newEmail'); // НОВЕ ПОЛЕ
+    const newEmailError = document.getElementById('newEmailError'); // ДЛЯ ПОМИЛОК ВВОДУ НОВОЇ ПОШТИ
+    const currentEmailDisplayField = document.getElementById('currentEmailDisplay'); // ПОЛЕ ДЛЯ ВІДОБРАЖЕННЯ ПОТОЧНОЇ ПОШТИ
 
     const displayFirstName = document.getElementById('displayFirstName');
     const displayLastName = document.getElementById('displayLastName');
@@ -126,6 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
+    // Функція для валідації файлу аватарки (залишається без змін)
     function validateAvatarFile(file) {
         avatarError.style.display = 'none';
         avatarError.textContent = '';
@@ -168,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (avatarForm) {
+        // Обробник для форми аватарки (залишається без змін)
         avatarForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const file = avatarFile.files[0];
@@ -185,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showMessage('loading', 'Завантаження аватарки...');
 
             try {
-                const response = await fetch('../../src/update_avatar.php', {
+                const response = await fetch('../../src/update_avatar.php', { //
                     method: 'POST',
                     body: formData
                 });
@@ -207,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (profileInfoForm) {
+        // Обробник для форми інформації профілю (залишається без змін)
         profileInfoForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const dataToSend = {
@@ -228,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showMessage('loading', 'Збереження інформації...');
 
             try {
-                const response = await fetch('../../src/update_profile_info.php', {
+                const response = await fetch('../../src/update_profile_info.php', { //
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(dataToSend)
@@ -250,10 +271,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (passwordChangeForm) {
+        // Обробник для форми зміни пароля (залишається без змін)
         passwordChangeForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
+            const newPasswordInput = document.getElementById('newPassword');
+            const newPassword = newPasswordInput.value;
             const confirmNewPassword = document.getElementById('confirmNewPassword').value;
 
             if (!currentPassword || !newPassword || !confirmNewPassword) {
@@ -273,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showMessage('loading', 'Зміна пароля...');
 
             try {
-                const response = await fetch('../../src/change_password.php', {
+                const response = await fetch('../../src/change_password.php', { //
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ currentPassword, newPassword })
@@ -288,6 +311,112 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 showMessage('error', 'Помилка зміни пароля.');
                 console.error("Change password error:", error);
+            }
+        });
+    }
+
+    // НОВИЙ ОБРОБНИК ДЛЯ ПЕРЕВІРКИ ДОСТУПНОСТІ ПОШТИ ПРИ ВТРАТІ ФОКУСУ
+    if (newEmailInput) {
+        newEmailInput.addEventListener('blur', async function() {
+            newEmailError.style.display = 'none';
+            newEmailError.textContent = '';
+            const emailValue = this.value.trim();
+            const currentSessionEmail = "<?php echo $current_user_email; ?>"; // Отримуємо поточну пошту з PHP
+
+            if (!emailValue) return; // Якщо поле порожнє, нічого не робимо
+
+            const emailRegex = /^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/;
+            if (!emailRegex.test(emailValue)) {
+                newEmailError.textContent = "Некоректний формат електронної пошти.";
+                newEmailError.style.display = 'block';
+                return;
+            }
+
+            // Не перевіряємо доступність, якщо введена пошта ідентична поточній (ігноруючи регістр)
+            if (emailValue.toLowerCase() === currentSessionEmail.toLowerCase()) {
+                return;
+            }
+
+            // Перевірка доступності нової пошти
+            try {
+                const formData = new FormData();
+                formData.append('email', emailValue);
+                // Шлях до check_availability.php відносно public/html/settings.php
+                const response = await fetch('../../src/check_availability.php', { //
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (!data.available) { // Якщо пошта НЕ доступна (тобто зайнята)
+                    newEmailError.textContent = data.message || 'Ця електронна пошта вже використовується.';
+                    newEmailError.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Помилка перевірки доступності пошти:', error);
+                // Можна показати загальну помилку, але зазвичай краще покладатися на серверну валідацію при відправці форми
+            }
+        });
+    }
+
+    // НОВИЙ ОБРОБНИК ДЛЯ ФОРМИ ЗМІНИ ПОШТИ
+    if (emailChangeForm) {
+        emailChangeForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            newEmailError.style.display = 'none'; // Спершу ховаємо попередню помилку поля
+
+            const newEmailValue = newEmailInput.value.trim();
+            const passwordValue = document.getElementById('passwordForEmailChange').value;
+
+            if (!newEmailValue || !passwordValue) {
+                showMessage('error', 'Нова електронна пошта та поточний пароль мають бути заповнені.');
+                return;
+            }
+
+            const emailRegex = /^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/;
+            if (!emailRegex.test(newEmailValue)) {
+                showMessage('error', 'Некоректний формат нової електронної пошти.');
+                newEmailError.textContent = "Некоректний формат електронної пошти."; // Показуємо помилку біля поля
+                newEmailError.style.display = 'block';
+                return;
+            }
+
+            // Якщо клієнтська перевірка доступності вже показала помилку (і це не помилка формату), не відправляємо
+            if (newEmailError.style.display === 'block' && newEmailError.textContent !== "Некоректний формат електронної пошти.") {
+                 showMessage('error', newEmailError.textContent); // Показуємо помилку доступності в головному контейнері
+                 return;
+            }
+            
+            showMessage('loading', 'Зміна електронної пошти...');
+
+            try {
+                const response = await fetch('../../src/update_email.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        newEmail: newEmailValue, 
+                        passwordForEmailChange: passwordValue 
+                    })
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showMessage('success', result.message);
+                    if (result.new_email_for_display && currentEmailDisplayField) {
+                        currentEmailDisplayField.value = result.new_email_for_display; // Оновлюємо поле поточної пошти
+                    }
+                    this.reset(); // Очищаємо поля форми
+                    newEmailInput.value = ''; // Додатково очищаємо поле нової пошти
+                    document.getElementById('passwordForEmailChange').value = '';
+                } else {
+                    showMessage('error', result.message || 'Не вдалося змінити електронну пошту.');
+                     if (result.message.toLowerCase().includes("пошта вже використовується")) {
+                        newEmailError.textContent = result.message;
+                        newEmailError.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                showMessage('error', 'Помилка підключення до сервера при зміні пошти.');
+                console.error("Change email error:", error);
             }
         });
     }

@@ -285,7 +285,6 @@
                     <li><a href="<?php echo $settings_link; ?>" class="<?php echo ($current_page_header === 'settings.php') ? 'active' : ''; ?>"><i class="fas fa-cog"></i> Налаштування</a></li>
                     <li><a href="<?php echo $tasks_link; ?>" class="<?php echo ($current_page_header === 'assignments_list.php' || $current_page_header === basename($tasks_link)) ? 'active' : ''; ?>"><i class="fas fa-tasks"></i> Завдання</a></li>
                     <li><a href="<?php echo $grades_link; ?>" class="<?php echo ($current_page_header === 'grades_overview.php' || $current_page_header === basename($grades_link)) ? 'active' : ''; ?>"><i class="fas fa-chart-bar"></i> Оцінки</a></li>
-                    <li><a href="<?php echo $logout_link; ?>"><i class="fas fa-sign-out-alt"></i> Вийти</a></li>
                 </ul>
             </nav>
         </aside>

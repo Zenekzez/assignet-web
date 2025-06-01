@@ -62,11 +62,7 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
 ?>
 
 <title><?php echo $page_title_course; ?> - Assignet</title>
-<link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/course_view_styles.css">
-<link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/course_people_styles.css">
-<link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/grades_tab_styles.css">
-
-<main class="page-content-wrapper">
+<link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/course_view_styles.css"> <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/course_people_styles.css"> <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV; ?>css/grades_tab_styles.css"> <main class="page-content-wrapper">
     <div class="course-view-main-content">
         <?php if ($course_data): ?>
             <div class="course-header-bar">
@@ -77,6 +73,35 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
                 </div>
             </div>
 
+            <?php // Банер курсу ?>
+            <div class="course-banner" style="background-color: <?php echo $banner_color_hex; ?>;">
+                <h1 class="course-banner-title"><?php echo htmlspecialchars($course_data['course_name']); ?></h1>
+                <?php
+                // Оновлений блок для коду курсу з кнопкою копіювання
+                if ($is_teacher || $join_code_visible_db) {
+                    if (isset($course_data['join_code']) && !empty($course_data['join_code'])) {
+                        echo '<div class="course-join-code-container">';
+                        echo '  <span class="course-join-code-label">Код курсу: </span>';
+                        echo '  <strong id="courseJoinCodeText">' . htmlspecialchars($course_data['join_code']) . '</strong>';
+                        echo '  <button type="button" id="copyJoinCodeBtn" class="copy-join-code-btn" title="Копіювати код">'; // Додано type="button"
+                        echo '      <i class="fas fa-copy"></i>';
+                        echo '  </button>';
+                        echo '  <span id="copyJoinCodeFeedback" class="copy-feedback-message"></span>';
+                        echo '</div>';
+                    }
+                }
+                ?>
+            </div>
+
+            <?php // Блок опису курсу ВИЩЕ ВГОЛОВОК ?>
+            <?php if (!empty($course_data['description'])): ?>
+            <div class="course-description-section"> <?php // ЗМІНЕНО КЛАС (раніше був course-description-stream-section) ?>
+                <h3><i class="fas fa-info-circle"></i> Про курс</h3>
+                <p><?php echo nl2br(htmlspecialchars($course_data['description'])); ?></p>
+            </div>
+            <?php endif; ?>
+            
+            <?php // Навігація по вкладках ?>
             <nav class="course-tab-navigation">
                 <a href="#" class="tab-link active" data-tab="stream">Стрічка</a>
                 <a href="#" class="tab-link" data-tab="assignments">Завдання</a>
@@ -89,19 +114,10 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
                 <?php endif; ?>
             </nav>
 
-            <div class="course-banner" style="background-color: <?php echo $banner_color_hex; ?>;">
-                <h1 class="course-banner-title"><?php echo htmlspecialchars($course_data['course_name']); ?></h1>
-                <?php
-                if ($is_teacher || $join_code_visible_db) {
-                    if (isset($course_data['join_code'])) {
-                         echo '<p class="course-join-code">Код курсу: <strong>' . htmlspecialchars($course_data['join_code']) . '</strong></p>';
-                    }
-                }
-                ?>
-            </div>
-
+            <?php // Контент вкладок ?>
             <div id="course-tab-content" class="course-tab-content-area">
                 <div id="tab-stream" class="tab-pane active">
+                    <?php // Блок опису курсу звідси видалено, він тепер вище ?>
                     <h2>Стрічка курсу</h2>
                     <?php if ($is_teacher): ?>
                         <form id="createAnnouncementForm" class="course-form">
@@ -188,6 +204,17 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
                         </div>
                         <button type="submit">Зберегти налаштування</button>
                     </form>
+
+                    <hr style="margin-top: 30px; margin-bottom: 30px;"> 
+
+                    <div class="danger-zone-section">
+                        <h3>Небезпечна зона</h3>
+                        <p>Видалення курсу є незворотною дією. Будуть видалені всі завдання, оголошення, здані роботи та зарахування студентів.</p>
+                        <button id="showDeleteCourseModalBtn" class="button-danger">
+                            <i class="fas fa-trash-alt"></i> Видалити цей курс
+                        </button>
+                    </div>
+
                 </div>
                 <?php else: ?>
                 <div id="tab-my-grades" class="tab-pane">
@@ -197,89 +224,115 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
                     </div>
                 </div>
                 <?php endif; ?>
-            </div> <?php else: ?>
+            </div> 
+        <?php else: ?>
             <div class="course-not-found">
                 <h1>Помилка</h1>
                 <p>Курс з ID <?php echo htmlspecialchars($_GET['course_id'] ?? 'невідомим'); ?> не знайдено або у вас немає до нього доступу.</p>
                 <a href="home.php" class="button">Повернутися на головну</a>
             </div>
         <?php endif; ?>
-    </div> </main> <?php if ($is_teacher && $course_data): // Показуємо модальні вікна тільки якщо курс існує і користувач - викладач ?>
-<div id="createAssignmentModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content create-assignment-modal-content">
-        <button class="modal-close-btn" id="closeCreateAssignmentModalBtn" aria-label="Закрити">&times;</button>
-        <h2>Створити нове завдання</h2>
-        <form id="createAssignmentFormInternal" class="course-form">
-            <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id_get); ?>">
-            <div class="form-group-modal-infield">
-                <label for="assignment_title_modal" class="form-label-infield">Назва завдання:</label>
-                <input type="text" id="assignment_title_modal" name="assignment_title" class="form-control-modal-infield" required>
-            </div>
-            <div class="form-group-modal-infield">
-                <label for="assignment_description_modal" class="form-label-infield">Опис:</label>
-                <textarea id="assignment_description_modal" name="assignment_description" rows="5" class="form-control-modal-infield"></textarea>
-            </div>
-            <div class="form-group-modal-infield">
-                <label for="assignment_section_create_modal" class="form-label-infield">Розділ/Тема (новий або існуючий):</label>
-                <input type="text" id="assignment_section_create_modal" name="assignment_section_title" class="form-control-modal-infield" list="existing_sections_list_create" placeholder="Наприклад: Тиждень 1, Модуль А">
-                <datalist id="existing_sections_list_create"></datalist>
-                <small>Залиште порожнім, щоб додати завдання без розділу.</small>
-            </div>
-            <div class="form-row-modal">
-                <div class="form-group-modal half-width">
-                    <label for="assignment_max_points_modal">Макс. балів:</label>
-                    <input type="number" id="assignment_max_points_modal" name="assignment_max_points" min="0" max="100" value="100" class="form-control-modal" required>
-                </div>
-                <div class="form-group-modal half-width">
-                    <label for="assignment_due_date_modal">Дата та час здачі:</label>
-                    <input type="datetime-local" id="assignment_due_date_modal" name="assignment_due_date" class="form-control-modal" required>
-                </div>
-            </div>
-            <button type="submit" class="submit-button-modal">Створити завдання</button>
-        </form>
-    </div>
-</div>
+    </div> 
+</main> 
 
-<div id="editAssignmentModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content create-assignment-modal-content">
-        <button class="modal-close-btn" id="closeEditAssignmentModalBtn" aria-label="Закрити">&times;</button>
-        <h2>Редагувати завдання</h2>
-        <form id="editAssignmentFormInternal" class="course-form">
-            <input type="hidden" name="assignment_id_edit" id="assignment_id_edit">
-            <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id_get); ?>">
-            <div class="form-group-modal-infield">
-                <label for="assignment_title_edit_modal" class="form-label-infield">Назва завдання:</label>
-                <input type="text" id="assignment_title_edit_modal" name="assignment_title" class="form-control-modal-infield" required>
-            </div>
-            <div class="form-group-modal-infield">
-                <label for="assignment_description_edit_modal" class="form-label-infield">Опис:</label>
-                <textarea id="assignment_description_edit_modal" name="assignment_description" rows="5" class="form-control-modal-infield"></textarea>
-            </div>
-            <div class="form-group-modal-infield">
-                <label for="assignment_section_edit_modal" class="form-label-infield">Розділ/Тема (новий або існуючий):</label>
-                <input type="text" id="assignment_section_edit_modal" name="assignment_section_title" class="form-control-modal-infield" list="existing_sections_list_edit" placeholder="Наприклад: Тиждень 1, Модуль А">
-                <datalist id="existing_sections_list_edit"></datalist>
-                <small>Залиште порожнім, щоб додати завдання без розділу.</small>
-            </div>
-            <div class="form-row-modal">
-                <div class="form-group-modal half-width">
-                    <label for="assignment_max_points_edit_modal">Макс. балів:</label>
-                    <input type="number" id="assignment_max_points_edit_modal" name="assignment_max_points" min="0" max="100" class="form-control-modal" required>
+<?php if ($is_teacher && $course_data): ?>
+    <?php // ... існуючі модальні вікна для завдань ... ?>
+    <div id="createAssignmentModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content create-assignment-modal-content">
+            <button class="modal-close-btn" id="closeCreateAssignmentModalBtn" aria-label="Закрити">&times;</button>
+            <h2>Створити нове завдання</h2>
+            <form id="createAssignmentFormInternal" class="course-form">
+                <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id_get); ?>">
+                <div class="form-group-modal-infield">
+                    <label for="assignment_title_modal" class="form-label-infield">Назва завдання:</label>
+                    <input type="text" id="assignment_title_modal" name="assignment_title" class="form-control-modal-infield" required>
                 </div>
-                <div class="form-group-modal half-width">
-                    <label for="assignment_due_date_edit_modal">Дата та час здачі:</label>
-                    <input type="datetime-local" id="assignment_due_date_edit_modal" name="assignment_due_date" class="form-control-modal" required>
+                <div class="form-group-modal-infield">
+                    <label for="assignment_description_modal" class="form-label-infield">Опис:</label>
+                    <textarea id="assignment_description_modal" name="assignment_description" rows="5" class="form-control-modal-infield"></textarea>
                 </div>
-            </div>
-            <button type="submit" class="submit-button-modal">Зберегти зміни</button>
-        </form>
+                <div class="form-group-modal-infield">
+                    <label for="assignment_section_create_modal" class="form-label-infield">Розділ/Тема (новий або існуючий):</label>
+                    <input type="text" id="assignment_section_create_modal" name="assignment_section_title" class="form-control-modal-infield" list="existing_sections_list_create" placeholder="Наприклад: Тиждень 1, Модуль А">
+                    <datalist id="existing_sections_list_create"></datalist>
+                    <small>Залиште порожнім, щоб додати завдання без розділу.</small>
+                </div>
+                <div class="form-row-modal">
+                    <div class="form-group-modal half-width">
+                        <label for="assignment_max_points_modal">Макс. балів:</label>
+                        <input type="number" id="assignment_max_points_modal" name="assignment_max_points" min="0" max="100" value="100" class="form-control-modal" required>
+                    </div>
+                    <div class="form-group-modal half-width">
+                        <label for="assignment_due_date_modal">Дата та час здачі:</label>
+                        <input type="datetime-local" id="assignment_due_date_modal" name="assignment_due_date" class="form-control-modal" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-button-modal">Створити завдання</button>
+            </form>
+        </div>
     </div>
-</div>
+
+    <div id="editAssignmentModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content create-assignment-modal-content">
+            <button class="modal-close-btn" id="closeEditAssignmentModalBtn" aria-label="Закрити">&times;</button>
+            <h2>Редагувати завдання</h2>
+            <form id="editAssignmentFormInternal" class="course-form">
+                <input type="hidden" name="assignment_id_edit" id="assignment_id_edit">
+                <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id_get); ?>">
+                <div class="form-group-modal-infield">
+                    <label for="assignment_title_edit_modal" class="form-label-infield">Назва завдання:</label>
+                    <input type="text" id="assignment_title_edit_modal" name="assignment_title" class="form-control-modal-infield" required>
+                </div>
+                <div class="form-group-modal-infield">
+                    <label for="assignment_description_edit_modal" class="form-label-infield">Опис:</label>
+                    <textarea id="assignment_description_edit_modal" name="assignment_description" rows="5" class="form-control-modal-infield"></textarea>
+                </div>
+                <div class="form-group-modal-infield">
+                    <label for="assignment_section_edit_modal" class="form-label-infield">Розділ/Тема (новий або існуючий):</label>
+                    <input type="text" id="assignment_section_edit_modal" name="assignment_section_title" class="form-control-modal-infield" list="existing_sections_list_edit" placeholder="Наприклад: Тиждень 1, Модуль А">
+                    <datalist id="existing_sections_list_edit"></datalist>
+                    <small>Залиште порожнім, щоб додати завдання без розділу.</small>
+                </div>
+                <div class="form-row-modal">
+                    <div class="form-group-modal half-width">
+                        <label for="assignment_max_points_edit_modal">Макс. балів:</label>
+                        <input type="number" id="assignment_max_points_edit_modal" name="assignment_max_points" min="0" max="100" class="form-control-modal" required>
+                    </div>
+                    <div class="form-group-modal half-width">
+                        <label for="assignment_due_date_edit_modal">Дата та час здачі:</label>
+                        <input type="datetime-local" id="assignment_due_date_edit_modal" name="assignment_due_date" class="form-control-modal" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-button-modal">Зберегти зміни</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteCourseModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content delete-course-modal-content">
+            <button class="modal-close-btn" id="closeDeleteCourseModalBtn" aria-label="Закрити">&times;</button>
+            <h2>Підтвердження видалення курсу</h2>
+            <p class="delete-warning"><strong>Увага!</strong> Ця дія є незворотною. Всі дані курсу, включаючи завдання, оголошення, здані роботи студентів та їх зарахування, будуть остаточно видалені.</p>
+            <p>Щоб підтвердити видалення, будь ласка, введіть повну назву курсу: <br>
+                "<strong id="courseNameToConfirmDelete"><?php echo htmlspecialchars($course_data['course_name']); ?></strong>"
+            </p>
+            <form id="deleteCourseConfirmForm" style="margin-top: 15px;">
+                <input type="hidden" name="course_id_to_delete" value="<?php echo htmlspecialchars($course_id_get); ?>">
+                <div class="form-group-modal-infield">
+                    <label for="deleteCourseNameInput" class="form-label-infield">Введіть назву курсу</label>
+                    <input type="text" id="deleteCourseNameInput" name="delete_course_name_confirm" class="form-control-modal-infield" required autocomplete="off">
+                </div>
+                <button type="submit" id="confirmDeleteCourseBtn" class="submit-button-modal button-danger" disabled>Видалити остаточно</button>
+            </form>
+            <div id="deleteCourseError" class="message error" style="display:none; margin-top:15px;"></div>
+        </div>
+    </div>
 <?php endif; ?>
 
 
-</div> <script>
-// ... (JavaScript для course_view.php залишається тут, як у попередній відповіді) ...
+</div> 
+<script>
+// ... (JavaScript для course_view.php) ...
 document.addEventListener('DOMContentLoaded', function() {
     const tabLinks = document.querySelectorAll('.course-tab-navigation .tab-link');
     const tabPanes = document.querySelectorAll('.course-tab-content-area .tab-pane');
@@ -294,8 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const courseSettingsForm = document.getElementById('courseSettingsForm');
     const courseBannerTitleElement = document.querySelector('.course-banner-title');
     const breadcrumbCourseNameElement = document.querySelector('.breadcrumb-course-name');
-    const courseJoinCodeElement = document.querySelector('.course-banner .course-join-code');
-    const joinCodeFromDB = <?php echo isset($course_data['join_code']) ? json_encode($course_data['join_code']) : 'null'; ?>;
+    const joinCodeFromDB = <?php echo (isset($course_data['join_code']) && !empty($course_data['join_code'])) ? json_encode($course_data['join_code']) : 'null'; ?>;
 
     const assignmentsListArea = document.getElementById('assignmentsListArea');
     const showCreateAssignmentModalBtn = document.getElementById('showCreateAssignmentModalBtn');
@@ -324,6 +376,143 @@ document.addEventListener('DOMContentLoaded', function() {
     const assignmentDueDateEditModal = document.getElementById('assignment_due_date_edit_modal');
 
     let allExistingSections = [];
+
+    // JavaScript для кнопки копіювання
+    const copyJoinCodeBtn = document.getElementById('copyJoinCodeBtn');
+    const courseJoinCodeTextElement = document.getElementById('courseJoinCodeText');
+    const copyFeedbackElement = document.getElementById('copyJoinCodeFeedback');
+
+    if (copyJoinCodeBtn && courseJoinCodeTextElement && copyFeedbackElement) {
+        copyJoinCodeBtn.addEventListener('click', function() {
+            const codeToCopy = courseJoinCodeTextElement.innerText;
+            
+            navigator.clipboard.writeText(codeToCopy).then(function() {
+                copyFeedbackElement.textContent = 'Скопійовано!';
+                copyFeedbackElement.style.backgroundColor = '#28a745'; 
+                copyFeedbackElement.classList.add('visible');
+
+                setTimeout(() => {
+                    copyFeedbackElement.classList.remove('visible');
+                }, 1900); 
+            }).catch(function(err) {
+                console.error('Помилка копіювання коду: ', err);
+                copyFeedbackElement.textContent = 'Помилка!';
+                copyFeedbackElement.style.backgroundColor = '#dc3545'; 
+                copyFeedbackElement.classList.add('visible');
+                setTimeout(() => {
+                    copyFeedbackElement.classList.remove('visible');
+                }, 1900);
+            });
+        });
+    }
+    // Кінець JavaScript для кнопки копіювання
+
+    // JavaScript для видалення курсу
+    const showDeleteCourseModalBtn = document.getElementById('showDeleteCourseModalBtn');
+    const deleteCourseModal = document.getElementById('deleteCourseModal');
+    const closeDeleteCourseModalBtn = document.getElementById('closeDeleteCourseModalBtn');
+    const deleteCourseConfirmForm = document.getElementById('deleteCourseConfirmForm');
+    const deleteCourseNameInput = document.getElementById('deleteCourseNameInput');
+    const confirmDeleteCourseBtn = document.getElementById('confirmDeleteCourseBtn');
+    const courseNameToConfirmDeleteSpan = document.getElementById('courseNameToConfirmDelete');
+    const deleteCourseErrorDiv = document.getElementById('deleteCourseError');
+
+    const actualCourseName = courseNameToConfirmDeleteSpan ? courseNameToConfirmDeleteSpan.innerText.trim() : "";
+
+    if (showDeleteCourseModalBtn && deleteCourseModal) {
+        showDeleteCourseModalBtn.addEventListener('click', () => {
+            if(deleteCourseNameInput) deleteCourseNameInput.value = ''; 
+            if(confirmDeleteCourseBtn) confirmDeleteCourseBtn.disabled = true; 
+            if(deleteCourseErrorDiv) deleteCourseErrorDiv.style.display = 'none';
+            deleteCourseModal.style.display = 'flex';
+        });
+    }
+
+    if (closeDeleteCourseModalBtn && deleteCourseModal) {
+        closeDeleteCourseModalBtn.addEventListener('click', () => {
+            deleteCourseModal.style.display = 'none';
+        });
+    }
+    if (deleteCourseModal) { 
+        deleteCourseModal.addEventListener('click', (event) => {
+            if (event.target === deleteCourseModal) {
+                deleteCourseModal.style.display = 'none';
+            }
+        });
+    }
+
+    if (deleteCourseNameInput && confirmDeleteCourseBtn) {
+        deleteCourseNameInput.addEventListener('input', function() {
+            if (this.value.trim() === actualCourseName) {
+                confirmDeleteCourseBtn.disabled = false;
+            } else {
+                confirmDeleteCourseBtn.disabled = true;
+            }
+        });
+    }
+
+    if (deleteCourseConfirmForm) {
+        deleteCourseConfirmForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            if (deleteCourseNameInput.value.trim() !== actualCourseName) {
+                if(deleteCourseErrorDiv) {
+                    deleteCourseErrorDiv.textContent = 'Введена назва не співпадає з назвою курсу.';
+                    deleteCourseErrorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            if(confirmDeleteCourseBtn) {
+                confirmDeleteCourseBtn.disabled = true;
+                confirmDeleteCourseBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Видалення...';
+            }
+            if(deleteCourseErrorDiv) deleteCourseErrorDiv.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('action', 'delete_course');
+            const courseIdToDeleteInput = this.querySelector('input[name="course_id_to_delete"]');
+            if (courseIdToDeleteInput) {
+                 formData.append('course_id', courseIdToDeleteInput.value);
+            }
+
+
+            try {
+                const response = await fetch('../../src/course_actions.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    alert(result.message || 'Курс успішно видалено!');
+                    window.location.href = 'home.php'; 
+                } else {
+                    if(deleteCourseErrorDiv) {
+                        deleteCourseErrorDiv.textContent = result.message || 'Не вдалося видалити курс.';
+                        deleteCourseErrorDiv.style.display = 'block';
+                    }
+                    if(confirmDeleteCourseBtn) {
+                        confirmDeleteCourseBtn.disabled = false;
+                        confirmDeleteCourseBtn.innerHTML = 'Видалити остаточно';
+                    }
+                }
+            } catch (error) {
+                console.error('Помилка AJAX при видаленні курсу:', error);
+                if(deleteCourseErrorDiv) {
+                    deleteCourseErrorDiv.textContent = 'Сталася помилка на клієнті. Деталі в консолі.';
+                    deleteCourseErrorDiv.style.display = 'block';
+                }
+                if(confirmDeleteCourseBtn) {
+                    confirmDeleteCourseBtn.disabled = false;
+                    confirmDeleteCourseBtn.innerHTML = 'Видалити остаточно';
+                }
+            }
+        });
+    }
+    // Кінець JavaScript для видалення курсу
+
+
+    // ... (решта вашого JavaScript коду: fetchAndPopulateExistingSections, htmlspecialchars, тощо) ...
 
     async function fetchAndPopulateExistingSections(courseId) {
         const datalistCreate = document.getElementById('existing_sections_list_create');
@@ -481,7 +670,13 @@ document.addEventListener('DOMContentLoaded', function() {
             tabLinks.forEach(l => l.classList.remove('active')); this.classList.add('active');
             tabPanes.forEach(pane => pane.classList.toggle('active', pane.id === 'tab-' + targetTab));
             if (breadcrumbCurrentTab) breadcrumbCurrentTab.textContent = this.textContent;
-            if (courseBannerElement) courseBannerElement.style.display = (targetTab === 'stream') ? 'flex' : 'none';
+            
+            const isStreamTab = (targetTab === 'stream');
+            // Банер і опис курсу тепер відображаються незалежно від вкладок, тому ця логіка не потрібна
+            // if (courseBannerElement) courseBannerElement.style.display = 'flex'; 
+            // const courseDescriptionBlock = document.querySelector('.course-description-section');
+            // if (courseDescriptionBlock) courseDescriptionBlock.style.display = 'block';
+
             if (targetTab === 'assignments' && currentCourseIdForJS && assignmentSortSelect) loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
             else if (targetTab === 'stream' && currentCourseIdForJS) loadAnnouncements(currentCourseIdForJS);
             else if (targetTab === 'people' && currentCourseIdForJS) loadCourseParticipants(currentCourseIdForJS);
@@ -493,12 +688,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const activeTabOnInit = document.querySelector('.course-tab-navigation .tab-link.active');
     if (activeTabOnInit && currentCourseIdForJS) {
         const activeTabName = activeTabOnInit.dataset.tab;
-        if (activeTabName === 'stream') loadAnnouncements(currentCourseIdForJS);
+        if (activeTabName === 'stream') loadAnnouncements(currentCourseIdForJS); 
         else if (activeTabName === 'assignments' && assignmentSortSelect) loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
         else if (activeTabName === 'people') loadCourseParticipants(currentCourseIdForJS);
         else if (activeTabName === 'my-grades' && !isCurrentUserTeacherOfThisCourse) loadMyGrades(currentCourseIdForJS);
         else if (activeTabName === 'grades' && isCurrentUserTeacherOfThisCourse) loadTeacherGradesSummary(currentCourseIdForJS);
+    } else if (currentCourseIdForJS) {
+        loadAnnouncements(currentCourseIdForJS); // За замовчуванням завантажуємо стрічку, якщо нічого не активно
     }
+
     if(assignmentSortSelect && currentCourseIdForJS) {
         assignmentSortSelect.addEventListener('change', function() { loadAssignments(currentCourseIdForJS, this.value); });
     }
@@ -552,11 +750,44 @@ document.addEventListener('DOMContentLoaded', function() {
                    if(courseBannerElement) courseBannerElement.style.backgroundColor = updatedData.color;
                    breadcrumbCourseNameElement.textContent = updatedData.course_name;
                    document.title = updatedData.course_name + ' - Assignet';
-                   const existingJoinCodeP = courseBannerElement.querySelector('.course-join-code');
+                   
+                   const joinCodeContainer = courseBannerElement.querySelector('.course-join-code-container');
                    if (updatedData.join_code_visible && joinCodeFromDB) {
-                       if (existingJoinCodeP) { existingJoinCodeP.innerHTML = `Код курсу: <strong>${joinCodeFromDB}</strong>`; existingJoinCodeP.style.display = 'inline-block'; }
-                       else { const newJoinCodeP = document.createElement('p'); newJoinCodeP.classList.add('course-join-code'); newJoinCodeP.innerHTML = `Код курсу: <strong>${joinCodeFromDB}</strong>`; courseBannerTitleElement.parentNode.insertBefore(newJoinCodeP, courseBannerTitleElement.nextSibling); }
-                   } else { if (existingJoinCodeP) existingJoinCodeP.style.display = 'none'; }
+                       if (joinCodeContainer) {
+                           joinCodeContainer.style.display = 'inline-flex';
+                           const strongTag = joinCodeContainer.querySelector('#courseJoinCodeText');
+                           if(strongTag) strongTag.textContent = joinCodeFromDB;
+                       } else {
+                           const newJoinCodeDiv = document.createElement('div');
+                           newJoinCodeDiv.classList.add('course-join-code-container');
+                           newJoinCodeDiv.innerHTML = `
+                               <span class="course-join-code-label">Код курсу: </span>
+                               <strong id="courseJoinCodeText">${joinCodeFromDB}</strong>
+                               <button type="button" id="copyJoinCodeBtn" class="copy-join-code-btn" title="Копіювати код">
+                                   <i class="fas fa-copy"></i>
+                               </button>
+                               <span id="copyJoinCodeFeedback" class="copy-feedback-message"></span>`;
+                           courseBannerElement.appendChild(newJoinCodeDiv);
+                           const newCopyBtn = newJoinCodeDiv.querySelector('#copyJoinCodeBtn');
+                           const newCodeTextEl = newJoinCodeDiv.querySelector('#courseJoinCodeText');
+                           const newFeedbackEl = newJoinCodeDiv.querySelector('#copyJoinCodeFeedback');
+                           if (newCopyBtn && newCodeTextEl && newFeedbackEl) { // ЗМІНА: перевірка на існування нових елементів
+                               newCopyBtn.addEventListener('click', function() { // ЗМІНА: Обробник для новоствореної кнопки
+                                   navigator.clipboard.writeText(newCodeTextEl.innerText).then(() => {
+                                       newFeedbackEl.textContent = 'Скопійовано!'; newFeedbackEl.style.backgroundColor = '#28a745';
+                                       newFeedbackEl.classList.add('visible');
+                                       setTimeout(() => newFeedbackEl.classList.remove('visible'), 1900);
+                                   }).catch(err => {
+                                       console.error('Помилка копіювання: ', err); newFeedbackEl.textContent = 'Помилка!';
+                                       newFeedbackEl.style.backgroundColor = '#dc3545'; newFeedbackEl.classList.add('visible');
+                                       setTimeout(() => newFeedbackEl.classList.remove('visible'), 1900);
+                                   });
+                               });
+                           }
+                       }
+                   } else {
+                       if (joinCodeContainer) joinCodeContainer.style.display = 'none';
+                   }
                 } else { alert(result.message || 'Помилка збереження налаштувань.');}
             } catch (error) { console.error('Помилка при збереженні налаштувань курсу:', error); alert(`Сталася помилка: ${error.message}`);}
         });
@@ -612,13 +843,12 @@ document.addEventListener('DOMContentLoaded', function() {
         let filterContainer = document.getElementById('courseSectionsFilter');
         if (!filterContainer) { filterContainer = document.createElement('div'); filterContainer.id = 'courseSectionsFilter'; filterContainer.classList.add('sections-filter-container');
             const assignmentsTabPane = document.getElementById('tab-assignments');
-            // Змінено: вставляємо перед assignments-controls, якщо він існує, інакше перед assignmentsListArea
-             const assignmentsControlsDiv = assignmentsTabPane.querySelector('.assignments-tab-content-wrapper .assignments-controls'); // Шукаємо всередині нової обгортки
-            if (assignmentsControlsDiv) { // Якщо .assignments-controls існує
+            const assignmentsControlsDiv = assignmentsTabPane.querySelector('.assignments-tab-content-wrapper .assignments-controls'); 
+            if (assignmentsControlsDiv) { 
                  assignmentsControlsDiv.parentNode.insertBefore(filterContainer, assignmentsControlsDiv);
-            } else if (assignmentsListArea) { // Якщо .assignments-controls немає, але є .assignmentsListArea
+            } else if (assignmentsListArea) { 
                 assignmentsListArea.parentNode.insertBefore(filterContainer, assignmentsListArea);
-            } else if (assignmentsTabPane) { // Якщо немає ні того, ні іншого, вставляємо на початок вкладки
+            } else if (assignmentsTabPane) { 
                 const wrapper = assignmentsTabPane.querySelector('.assignments-tab-content-wrapper');
                 if (wrapper) {
                     wrapper.insertBefore(filterContainer, wrapper.firstChild);
