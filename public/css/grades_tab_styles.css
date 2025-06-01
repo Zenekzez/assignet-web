@@ -256,3 +256,39 @@
     color: #dc3545; /* Червоний для пропущених */
     font-weight: 500;
 }
+
+/* --- СТИЛІ ДЛЯ ЖУРНАЛУ ОЦІНОК ВИКЛАДАЧА --- */
+/* ... (існуючі стилі) ... */
+
+.teacher-grades-summary-table td.student-name-cell {
+    font-weight: 500;
+    background-color: #fdfdfd; 
+    position: sticky;
+    left: 0;
+    z-index: 1; 
+    white-space: normal;
+    /* display: flex; /* Для вирівнювання аватарки та тексту */
+    /* align-items: center; /* Для вирівнювання аватарки та тексту */
+}
+
+.student-info-grades-table {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Відстань між аватаркою та текстом */
+}
+
+.student-avatar-grades-table {
+    width: 32px; /* Розмір аватарки */
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    flex-shrink: 0; /* Щоб аватарка не стискалася */
+}
+
+.teacher-grades-summary-table tbody td.student-name-cell small {
+    display: block;
+    font-weight: normal;
+    color: #777;
+    font-size: 0.9em;
+}

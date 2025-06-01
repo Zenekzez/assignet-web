@@ -13,20 +13,20 @@
 <title>Головна - Assignet</title>
 <style>
     /* Стилі, специфічні для контенту home.php (сітка курсів, плейсхолдери, правий сайдбар, модальні вікна) */
-    .main-content-home { /* Перейменовано з main-content, щоб уникнути конфлікту, якщо header встановлює глобальний margin */
+    .main-content-home {
         flex-grow: 1;
-        padding: 0; /* Забираємо padding, якщо page-content-wrapper його обробляє */
+        padding: 0; 
         box-sizing: border-box;
         overflow-y: auto;
         height: 100%;
         position: relative;
         z-index: 1;
-        display: flex; /* Дозволяє головній області та правому сайдбару розташовуватися поруч */
+        display: flex; 
     }
 
     .courses-area {
         flex-grow: 1;
-        padding: 25px; /* Внутрішній padding для області курсів */
+        padding: 25px; 
         overflow-y: auto;
     }
 
@@ -74,7 +74,7 @@
         flex-grow: 1;
         background-color: #fff;
     }
-    .card-body h5 {
+    .card-body h5 { /* Стиль для заголовка "Опис курсу" якщо він буде відновлений */
         margin-top: 0;
         margin-bottom: 8px;
         font-size: 1em;
@@ -91,9 +91,9 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        min-height: calc(1.5em * 3); /* Приблизно 3 рядки */
+        min-height: calc(1.5em * 3); 
     }
-    .course-color-default { background-color: #78909c; } /* Додайте інші специфічні класи кольорів, якщо потрібно */
+    .course-color-default { background-color: #78909c; } 
 
     .courses-placeholder {
         padding: 20px; text-align: center; color: #777; font-style: italic;
@@ -106,27 +106,24 @@
     }
 
     .right-sidebar {
-        width: 280px;
+        width: 280px; 
         background-color: #fff;
-        padding: 20px;
+        padding: 20px; 
         box-sizing: border-box;
         border-left: 1px solid #e0e0e0;
         overflow-y: auto;
-        height: 100%; /* Повна висота батьківського елемента */
+        height: 100%; 
         z-index: 1000;
-        transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Додано opacity для плавнішого приховування/відображення */
+        transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
     }
-    .right-sidebar.hidden {
-        width: 0; /* Згортаємо ширину */
+    .right-sidebar.hidden { /* Цей клас тепер буде керувати видимістю */
+        width: 0; 
         padding: 0;
         border-left: none;
-        opacity: 0; /* Зникання */
-        overflow: hidden; /* Приховуємо вміст при згортанні */
+        opacity: 0; 
+        overflow: hidden; 
     }
-    .right-sidebar h3 { margin-top: 0; color: #555; font-size: 1.2em; margin-bottom: 20px; }
-    .widget { margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border: 1px solid #e7e7e7; border-radius: 5px; }
-    .widget h4 { margin-top: 0; margin-bottom: 10px; font-size: 1em; }
-    .widget p { font-size: 0.9em; color: #666; }
+    /* Видалені стилі .right-sidebar h3 та .widget */
 
 </style>
 
@@ -140,10 +137,7 @@
             </div>
         </div>
 
-        <aside class="right-sidebar" id="rightSidebar">
-            <h3>Віджети</h3>
-            <div class="widget"><h4>Віджет 1</h4><p>Контент...</p></div>
-            <div class="widget"><h4>Віджет 2</h4><p>Контент...</p></div>
+        <aside class="right-sidebar hidden" id="rightSidebar"> 
             </aside>
     </div>
 </main>
@@ -174,8 +168,8 @@
     </div>
 </div>
 
-</div> <script>
-// ... (JavaScript для home.php залишається тут, як у попередній відповіді) ...
+</div> 
+<script>
 const CURRENT_USER_USERNAME_HOME = "<?php echo $current_username_for_js_home; ?>";
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -193,8 +187,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const joinCourseFormActual = document.getElementById('joinCourseFormActual');
 
     const rightSidebar = document.getElementById('rightSidebar');
-    const mainContentHome = document.getElementById('mainContentHome');
-    const coursesArea = document.querySelector('.courses-area');
+    // const mainContentHome = document.getElementById('mainContentHome'); // Не використовується для логіки сайдбару без віджетів
+    // const coursesArea = document.querySelector('.courses-area'); // Не використовується для логіки сайдбару без віджетів
 
 
     function updateCoursesPlaceholderVisibility() {
@@ -213,10 +207,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const header = document.createElement('div');
         header.classList.add('card-header');
-        if (course.color_hex) {
+        if (course.color_hex) { 
             header.style.backgroundColor = course.color_hex;
         } else {
-            header.classList.add('course-color-default'); 
+            header.classList.add(course.color_class || 'course-color-default'); 
         }
             
         const title = document.createElement('h4');
@@ -224,22 +218,18 @@ document.addEventListener('DOMContentLoaded', function () {
         
         const author = document.createElement('span');
         author.classList.add('course-author');
-        author.textContent = course.author_username || CURRENT_USER_USERNAME_HOME;
+        author.textContent = course.author_username || CURRENT_USER_USERNAME_HOME; 
         
         header.appendChild(title);
         header.appendChild(author);
 
         const body = document.createElement('div');
         body.classList.add('card-body');
-        
-        // const descriptionTitle = document.createElement('h5');
-        // descriptionTitle.textContent = 'Опис курсу';
-        
+                
         const descriptionText = document.createElement('p');
         descriptionText.classList.add('description-text');
         descriptionText.textContent = course.description || 'Немає опису.';
         
-        // body.appendChild(descriptionTitle);
         body.appendChild(descriptionText);
         
         cardLink.appendChild(header);
@@ -250,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     async function loadUserCourses() {
         try {
-            const response = await fetch('../../src/get_user_courses.php', {
+            const response = await fetch('../../src/get_user_courses.php', { 
                 method: 'GET',
                 headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
             });
@@ -262,25 +252,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             const data = await response.json();
 
-            if (data.status === 'success') {
+            if (data.status === 'success') { 
                 if(coursesGridContainer) coursesGridContainer.innerHTML = '';
 
-                if (data.teaching_courses && Array.isArray(data.teaching_courses)) {
+                if (data.teaching_courses && Array.isArray(data.teaching_courses)) { 
                     data.teaching_courses.forEach(course => {
                         addCourseCardToDashboard({
                             id: course.id, name: course.name, description: course.description,
-                            color_hex: course.color_hex, author_username: course.author_username || CURRENT_USER_USERNAME_HOME
+                            color_hex: course.color_hex,
+                            author_username: course.author_username || CURRENT_USER_USERNAME_HOME
                         });
                     });
                 }
                 
-                if (data.enrolled_courses && Array.isArray(data.enrolled_courses)) {
+                if (data.enrolled_courses && Array.isArray(data.enrolled_courses)) { 
                     data.enrolled_courses.forEach(course => {
                         let existingCard = coursesGridContainer.querySelector(`.course-card[data-course-id="${course.id}"]`);
                         if (!existingCard) { 
                              addCourseCardToDashboard({
                                 id: course.id, name: course.name, description: course.description,
-                                color_hex: course.color_hex, author_username: course.author_username
+                                color_hex: course.color_hex, 
+                                author_username: course.author_username 
                             });
                         }
                     });
@@ -342,13 +334,13 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('description', courseDescription);
 
             try {
-                const response = await fetch('../../src/create_course_process.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/create_course_process.php', { method: 'POST', body: formData }); 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => null);
                     throw new Error(errorData?.message || `Помилка сервера: ${response.statusText}`);
                 }
                 const data = await response.json();
-                if (data.status === 'success' && data.course) {
+                if (data.status === 'success' && data.course) { 
                     addCourseCardToDashboard({ 
                         id: data.course.id, name: data.course.name, description: data.course.description,
                         color_hex: data.course.color_hex, 
@@ -377,16 +369,22 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('course_code', courseCode);
 
             try {
-                const response = await fetch('../../src/join_course_process.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/join_course_process.php', { method: 'POST', body: formData }); 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => null);
                     throw new Error(errorData?.message || `Помилка сервера: ${response.statusText}`);
                 }
                 const data = await response.json();
-                if (data.status === 'success' && data.course) {
+                if (data.status === 'success' && data.course) { 
                     let existingCard = coursesGridContainer.querySelector(`.course-card[data-course-id="${data.course.id}"]`);
                     if (!existingCard) {
-                         addCourseCardToDashboard(data.course); 
+                         addCourseCardToDashboard({ 
+                            id: data.course.id,
+                            name: data.course.name,
+                            description: data.course.description,
+                            color_hex: data.course.color_hex, 
+                            author_username: data.course.author_username
+                         }); 
                     }
                     updateCoursesPlaceholderVisibility();
                     joinCourseModal.style.display = 'none';
@@ -401,18 +399,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    const screenBreakpointRightSidebar = 1199.98;
+    // Логіка для адаптивності правого сайдбару
+    const screenBreakpointRightSidebar = 1199.98; 
     function applyRightSidebarResponsive() {
-        if (!rightSidebar || !coursesArea) return;
+        if (!rightSidebar) return; // Якщо сайдбар видалено з HTML, нічого не робимо
         const screenWidth = window.innerWidth;
         if (screenWidth <= screenBreakpointRightSidebar) {
             rightSidebar.classList.add('hidden');
         } else {
-            rightSidebar.classList.remove('hidden');
+            // Якщо сайдбар має клас 'hidden' (як зараз за замовчуванням), 
+            // то він залишиться прихованим на великих екранах.
+            // Якщо ви хочете, щоб він був видимий на десктопі (і приховувався тільки на мобільних),
+            // то приберіть клас 'hidden' з тегу <aside> в HTML
+            // і розкоментуйте рядок нижче:
+            // rightSidebar.classList.remove('hidden');
         }
     }
-    window.addEventListener('resize', applyRightSidebarResponsive);
-    applyRightSidebarResponsive(); 
+    if (rightSidebar) { // Виконуємо тільки якщо сайдбар існує в DOM
+        window.addEventListener('resize', applyRightSidebarResponsive);
+        applyRightSidebarResponsive(); // Застосувати при завантаженні
+    }
+    
 
     loadUserCourses(); 
 });

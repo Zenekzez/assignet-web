@@ -337,7 +337,7 @@ if ($action === 'get_submission_for_grading') {
 
         // 2. Отримати список студентів курсу
         $stmt_students = $conn->prepare(
-            "SELECT u.user_id, u.first_name, u.last_name, u.username
+            "SELECT u.user_id, u.first_name, u.last_name, u.username, u.avatar_path
              FROM users u
              JOIN enrollments e ON u.user_id = e.student_id
              WHERE e.course_id = ?
@@ -370,6 +370,7 @@ if ($action === 'get_submission_for_grading') {
                     'first_name' => $student['first_name'],
                     'last_name' => $student['last_name'],
                     'username' => $student['username'],
+                    'avatar_path' => $student['avatar_path'],
                     'grades_by_assignment_id' => []
                 ];
 
