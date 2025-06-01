@@ -1,35 +1,28 @@
 <?php
-    // Файл: public/html/settings.php
-    // Повністю оновлений файл
-    require_once 'templates/header.php'; // Підключаємо хедер і сайдбар
+    // File: public/html/settings.php
+    if (session_status() == PHP_SESSION_NONE) { 
+        session_start();
+    }
+    // $show_add_course_button_on_home = false; // Ця кнопка не потрібна на сторінці налаштувань
+    require_once __DIR__ . '/templates/header.php'; 
 
-    // Отримуємо актуальні дані користувача з сесії
     $current_first_name = htmlspecialchars($_SESSION['db_first_name'] ?? '', ENT_QUOTES, 'UTF-8');
     $current_last_name = htmlspecialchars($_SESSION['db_last_name'] ?? '', ENT_QUOTES, 'UTF-8');
     $current_username = htmlspecialchars($_SESSION['username'] ?? 'Невідомий користувач', ENT_QUOTES, 'UTF-8');
     
-    // Формування шляху до аватарки
-    // Припускаємо, що ваш веб-сервер налаштований так, що корінь сайту - це папка public/
-    // Якщо ні, вам потрібно буде скоригувати $base_url_for_images
-    $base_url_for_images = '../'; // Якщо settings.php в public/html/, то ../ веде до public/
-                                  // Якщо ваш сайт налаштований так, що public/ є коренем, то можна залишити порожнім або '/'
-    
-    $default_avatar_rel_path = 'assets/default_avatar.png'; // Шлях відносно public/
-    $current_avatar_display_path = $default_avatar_rel_path; // За замовчуванням
+    $default_avatar_web_path = '../assets/default_avatar.png'; 
+    $avatar_display_path = $default_avatar_web_path;
 
-    if (!empty($_SESSION['db_avatar_path'])) {
-        // Перевіряємо, чи шлях до аватарки не є шляхом до стандартного аватара,
-        // щоб уникнути подвійного додавання $base_url_for_images
-        if ($_SESSION['db_avatar_path'] !== $default_avatar_rel_path) {
-             $current_avatar_display_path = htmlspecialchars($_SESSION['db_avatar_path'], ENT_QUOTES, 'UTF-8');
-        }
+    if (!empty($_SESSION['db_avatar_path']) && $_SESSION['db_avatar_path'] !== 'assets/default_avatar.png') {
+         $avatar_display_path = '../' . htmlspecialchars($_SESSION['db_avatar_path'], ENT_QUOTES, 'UTF-8');
+    } else if (!empty($_SESSION['db_avatar_path']) && $_SESSION['db_avatar_path'] === 'assets/default_avatar.png'){
+        $avatar_display_path = '../' . htmlspecialchars($_SESSION['db_avatar_path'], ENT_QUOTES, 'UTF-8');
     }
-    // Повний шлях для тегу <img> або style background-image
-    $avatar_src = $base_url_for_images . $current_avatar_display_path;
-
 ?>
 <title>Налаштування - Assignet</title>
-<main class="settings-main-content">
+<link rel="stylesheet" href="../css/settings_styles.css">
+
+<main class="page-content-wrapper settings-main-content">
     <div class="settings-container">
         <h1>Налаштування профілю</h1>
 
@@ -40,14 +33,16 @@
             <form id="avatarForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="avatarFile">Виберіть файл (PNG, JPEG, до 2MB)</label>
-                    <div class="avatar-preview" id="avatarPreview" style="background-image: url('<?php echo $avatar_src; ?>?t=<?php echo time(); ?>');">
-                        </div>
+                    <div class="avatar-preview" id="avatarPreview" style="background-image: url('<?php echo $avatar_display_path; ?>?t=<?php echo time(); ?>');">
+                    </div>
                     <input type="file" id="avatarFile" name="avatarFile" accept="image/png, image/jpeg">
                     <small id="avatarError" style="color: red; display: none;"></small>
                 </div>
                 <button type="submit" class="settings-button">Завантажити аватарку</button>
             </form>
         </section>
+
+        <hr>
 
         <section class="settings-section">
             <h2>Особиста інформація</h2>
@@ -65,13 +60,15 @@
                     <input type="text" id="lastName" name="lastName" value="<?php echo $current_last_name; ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="username">Змінити юзернейм</label>
-                    <input type="text" id="username" name="username" value="<?php echo $current_username; ?>" required>
+                    <label for="usernameInputSettings">Змінити юзернейм</label>
+                    <input type="text" id="usernameInputSettings" name="username" value="<?php echo $current_username; ?>" required>
                     <small>Від 3 до 20 символів (літери, цифри, '_')</small>
                 </div>
                 <button type="submit" class="settings-button">Зберегти інформацію</button>
             </form>
         </section>
+
+        <hr>
 
         <section class="settings-section">
             <h2>Змінити пароль</h2>
@@ -93,14 +90,17 @@
             </form>
         </section>
 
+        <hr>
+        
         <section class="settings-section">
             <h2>Вихід з акаунту</h2>
-            <a href="../../src/logout.php" class="logout-button">Вийти</a>
+            <a href="../../src/logout.php" class="logout-button"><i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>Вийти</a>
         </section>
     </div>
 </main>
 
-<script>
+</div> <script>
+// ... (JavaScript для settings.php залишається тут, як у попередній відповіді) ...
 document.addEventListener('DOMContentLoaded', function() {
     const messageContainer = document.getElementById('messageContainer');
     const avatarForm = document.getElementById('avatarForm');
@@ -114,15 +114,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const displayLastName = document.getElementById('displayLastName');
     const displayUsername = document.getElementById('displayUsername');
     
-    // Припускаємо, що шлях до public/ є коренем для веб-доступу
-    // Якщо ваш settings.php знаходиться в public/html/, то шлях до public/ буде '../'
-    const baseImageUrl = '../'; 
-    const defaultAvatarRelPath = 'assets/default_avatar.png';
+    const baseAvatarUrlSettings = '../'; 
 
 
     function showMessage(type, text) {
         messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
-        setTimeout(() => { messageContainer.innerHTML = ''; }, 5000);
+        setTimeout(() => { 
+            if (messageContainer.firstChild && messageContainer.firstChild.textContent === text) {
+                 messageContainer.innerHTML = ''; 
+            }
+        }, 5000);
     }
 
     function validateAvatarFile(file) {
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
             avatarError.style.display = 'block';
             return false;
         }
-        const maxSize = 2 * 1024 * 1024; // 2MB
+        const maxSize = 2 * 1024 * 1024; 
         if (file.size > maxSize) {
             avatarError.textContent = 'Файл занадто великий. Максимальний розмір - 2MB.';
             avatarError.style.display = 'block';
@@ -170,6 +171,10 @@ document.addEventListener('DOMContentLoaded', function() {
         avatarForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const file = avatarFile.files[0];
+            if (!file) { 
+                 showMessage('error', 'Будь ласка, виберіть файл для завантаження.');
+                 return;
+            }
             if (!validateAvatarFile(file)) {
                 return;
             }
@@ -188,15 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (result.status === 'success') {
                     showMessage('success', result.message);
                     if (result.new_avatar_url) {
-                        // result.new_avatar_url - це шлях відносно папки public/ (наприклад, 'uploads/avatars/файл.jpg')
-                        const newAvatarDisplayUrl = baseImageUrl + result.new_avatar_url + `?t=${new Date().getTime()}`;
+                        const newAvatarDisplayUrl = baseAvatarUrlSettings + result.new_avatar_url + `?t=${new Date().getTime()}`;
                         avatarPreview.style.backgroundImage = `url(${newAvatarDisplayUrl})`;
-                        
-                        // Оновлення аватарки в хедері, якщо вона там є
-                        const headerUserAvatar = document.getElementById('headerUserAvatar'); // Потрібно додати цей ID в header.php
-                        if (headerUserAvatar) {
-                            headerUserAvatar.src = newAvatarDisplayUrl;
-                        }
                     }
                 } else {
                     showMessage('error', result.message || 'Помилка завантаження аватарки.');
@@ -211,10 +209,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (profileInfoForm) {
         profileInfoForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const formData = new FormData(this);
-            const dataToSend = Object.fromEntries(formData.entries());
+            const dataToSend = {
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                username: document.getElementById('usernameInputSettings').value.trim()
+            };
 
-            if (!dataToSend.firstName.trim() || !dataToSend.lastName.trim() || !dataToSend.username.trim()) {
+            if (!dataToSend.firstName || !dataToSend.lastName || !dataToSend.username) {
                 showMessage('error', 'Ім\'я, прізвище та юзернейм не можуть бути порожніми.');
                 return;
             }
@@ -238,17 +239,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (displayFirstName) displayFirstName.textContent = dataToSend.firstName || 'Не вказано';
                     if (displayLastName) displayLastName.textContent = dataToSend.lastName || 'Не вказано';
                     if (displayUsername) displayUsername.textContent = dataToSend.username;
-                    
-                    // Оновлення імені/прізвища в хедері, якщо вони там відображаються
-                    const headerUserFullName = document.getElementById('headerUserFullName'); // Потрібно додати цей ID в header.php
-                    if(headerUserFullName) {
-                        headerUserFullName.textContent = `${dataToSend.firstName} ${dataToSend.lastName}`;
-                    }
-                    const headerUsernameDisplay = document.getElementById('headerUsernameDisplay'); // Якщо є окремий елемент для юзернейма
-                     if (headerUsernameDisplay && result.new_username) {
-                        headerUsernameDisplay.textContent = result.new_username;
-                    }
-
                 } else {
                     showMessage('error', result.message);
                 }
@@ -303,3 +293,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+</body>
+</html>

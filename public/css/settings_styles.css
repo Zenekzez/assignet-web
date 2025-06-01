@@ -1,0 +1,188 @@
+/* public/css/settings_styles.css */
+
+/* Main content area for settings page, assumes it's inside .page-content-wrapper from header.php */
+.settings-main-content {
+    /* This class is on the <main> tag in settings.php */
+    /* page-content-wrapper will handle margins and flex behavior if needed */
+}
+
+.settings-container {
+    background-color: #fff;
+    padding: 25px 35px; /* Increased padding */
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.08); /* Softer shadow */
+    max-width: 750px; 
+    margin: 0 auto; 
+}
+
+.settings-container h1 {
+    font-size: 1.8em; /* Slightly smaller h1 */
+    color: #202124;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 500;
+}
+
+.settings-section {
+    margin-bottom: 35px; /* Increased spacing */
+    padding-bottom: 25px;
+    border-bottom: 1px solid #f0f0f0; /* Lighter separator */
+}
+.settings-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.settings-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4em; /* Adjusted size */
+    color: #3c4043;
+    font-weight: 500;
+}
+
+.form-group {
+    margin-bottom: 20px; /* Increased spacing */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px; /* Increased space */
+    font-weight: 500;
+    color: #5f6368;
+    font-size: 0.9em; /* Slightly smaller label */
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="file"] {
+    width: 100%; /* Full width */
+    padding: 10px 12px; /* Comfortable padding */
+    border: 1px solid #dadce0; /* Standard border */
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box; /* Include padding and border in width */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus {
+    border-color: var(--button-primary-bg, #1a73e8);
+    outline: none;
+    box-shadow: 0 0 0 1px var(--button-primary-bg, #1a73e8);
+}
+
+.form-group input[type="file"] {
+    padding: 8px 10px; 
+    border: 1px solid #ccc; /* Keep it simple for file input */
+}
+.form-group input[type="file"]::-webkit-file-upload-button {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    color: #495057;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color .15s ease-in-out,border-color .15s ease-in-out;
+}
+.form-group input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+
+.form-group small {
+    display: block;
+    font-size: 0.8em; /* Smaller helper text */
+    color: #5f6368;
+    margin-top: 6px;
+}
+
+.settings-button, .logout-button {
+    background-color: var(--button-primary-bg, #1a73e8);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 0.95em; /* Standard button font size */
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 10px;
+    text-decoration: none;
+    display: inline-flex; /* For icon alignment if needed */
+    align-items: center;
+    justify-content: center;
+}
+.settings-button:hover, .logout-button:hover {
+    background-color: var(--button-primary-hover-bg, #1765cf);
+    box-shadow: 0 1px 2px 0 rgba(26,115,232,0.451), 0 1px 3px 1px rgba(26,115,232,0.302);
+}
+
+.logout-button {
+    background-color: #d9534f; /* Red for logout/destructive actions */
+}
+.logout-button:hover {
+    background-color: #c9302c;
+    box-shadow: 0 1px 2px 0 rgba(217,83,79,0.451), 0 1px 3px 1px rgba(217,83,79,0.302);
+}
+
+.avatar-preview {
+    width: 120px; /* Larger preview */
+    height: 120px;
+    border-radius: 50%;
+    background-color: #f0f2f5; /* Match body background */
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 15px; /* More space */
+    border: 3px solid #fff; /* White border for a cleaner look */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+#messageContainer {
+    margin-bottom: 20px;
+}
+.message {
+    padding: 12px 18px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    border: 1px solid transparent;
+}
+.message.success {
+    background-color: #e6f4ea; /* Softer green */
+    color: #1e8e3e;
+    border-color: #a8d8b6;
+}
+.message.error {
+    background-color: #fce8e6; /* Softer red */
+    color: #d93025;
+    border-color: #f5c1bc;
+}
+.message.loading {
+    background-color: #e8f0fe; /* Softer blue for loading */
+    color: #1967d2;
+    border-color: #c4d8fc;
+}
+
+.settings-section p {
+    margin-bottom: 10px;
+    color: #3c4043;
+    font-size: 1em;
+    line-height: 1.6;
+}
+.settings-section p strong {
+    color: #202124;
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 25px 0;
+}
