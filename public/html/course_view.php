@@ -214,18 +214,25 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
         <h2>Створити нове завдання</h2>
         <form id="createAssignmentFormInternal" class="course-form">
             <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id_get); ?>">
-            <div class="form-group-modal">
-                <label for="assignment_title_modal">Назва завдання:</label>
-                <input type="text" id="assignment_title_modal" name="assignment_title" class="form-control-modal" required>
+
+            <div class="form-group-modal-infield">
+                <label for="assignment_title_modal" class="form-label-infield">Назва завдання:</label>
+                <input type="text" id="assignment_title_modal" name="assignment_title" class="form-control-modal-infield" required>
             </div>
-            <div class="form-group-modal">
-                <label for="assignment_description_modal">Опис:</label>
-                <textarea id="assignment_description_modal" name="assignment_description" rows="5" class="form-control-modal"></textarea>
+
+            <div class="form-group-modal-infield">
+                <label for="assignment_description_modal" class="form-label-infield">Опис:</label>
+                <textarea id="assignment_description_modal" name="assignment_description" rows="5" class="form-control-modal-infield"></textarea>
             </div>
-            <div class="form-group-modal">
-                <label for="assignment_section_title_modal">Розділ/Тема (необов'язково):</label>
-                <input type="text" id="assignment_section_title_modal" name="assignment_section_title" class="form-control-modal" placeholder="Наприклад: Тиждень 1, Модуль А">
+
+            <div class="form-group-modal-infield">
+                <label for="assignment_section_create_modal" class="form-label-infield">Розділ/Тема (новий або існуючий):</label>
+                <input type="text" id="assignment_section_create_modal" name="assignment_section_title" class="form-control-modal-infield" list="existing_sections_list_create" placeholder="Наприклад: Тиждень 1, Модуль А">
+                <datalist id="existing_sections_list_create">
+                    </datalist>
+                <small>Залиште порожнім, щоб додати завдання без розділу.</small>
             </div>
+            
             <div class="form-row-modal">
                 <div class="form-group-modal half-width">
                     <label for="assignment_max_points_modal">Макс. балів:</label>
@@ -237,6 +244,47 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
                 </div>
             </div>
             <button type="submit" class="submit-button-modal">Створити завдання</button>
+        </form>
+    </div>
+</div>
+
+<div id="editAssignmentModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content create-assignment-modal-content"> 
+        <button class="modal-close-btn" id="closeEditAssignmentModalBtn" aria-label="Закрити">&times;</button>
+        <h2>Редагувати завдання</h2>
+        <form id="editAssignmentFormInternal" class="course-form">
+            <input type="hidden" name="assignment_id_edit" id="assignment_id_edit">
+            <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id_get); ?>">
+
+            <div class="form-group-modal-infield">
+                <label for="assignment_title_edit_modal" class="form-label-infield">Назва завдання:</label>
+                <input type="text" id="assignment_title_edit_modal" name="assignment_title" class="form-control-modal-infield" required>
+            </div>
+
+            <div class="form-group-modal-infield">
+                <label for="assignment_description_edit_modal" class="form-label-infield">Опис:</label>
+                <textarea id="assignment_description_edit_modal" name="assignment_description" rows="5" class="form-control-modal-infield"></textarea>
+            </div>
+
+            <div class="form-group-modal-infield">
+                <label for="assignment_section_edit_modal" class="form-label-infield">Розділ/Тема (новий або існуючий):</label>
+                <input type="text" id="assignment_section_edit_modal" name="assignment_section_title" class="form-control-modal-infield" list="existing_sections_list_edit" placeholder="Наприклад: Тиждень 1, Модуль А">
+                <datalist id="existing_sections_list_edit">
+                    </datalist>
+                <small>Залиште порожнім, щоб додати завдання без розділу.</small>
+            </div>
+            
+            <div class="form-row-modal">
+                <div class="form-group-modal half-width"> 
+                    <label for="assignment_max_points_edit_modal">Макс. балів:</label>
+                    <input type="number" id="assignment_max_points_edit_modal" name="assignment_max_points" min="0" max="100" class="form-control-modal" required>
+                </div>
+                <div class="form-group-modal half-width">
+                    <label for="assignment_due_date_edit_modal">Дата та час здачі:</label>
+                    <input type="datetime-local" id="assignment_due_date_edit_modal" name="assignment_due_date" class="form-control-modal" required>
+                </div>
+            </div>
+            <button type="submit" class="submit-button-modal">Зберегти зміни</button>
         </form>
     </div>
 </div>
@@ -276,6 +324,63 @@ document.addEventListener('DOMContentLoaded', function() {
     const myGradesArea = document.getElementById('myGradesArea');
     const teacherGradesSummaryArea = document.getElementById('teacherGradesSummaryArea');
 
+    const editAssignmentModal = document.getElementById('editAssignmentModal');
+    const closeEditAssignmentModalBtn = document.getElementById('closeEditAssignmentModalBtn');
+    const editAssignmentFormInternal = document.getElementById('editAssignmentFormInternal');
+    const assignmentIdEditInput = document.getElementById('assignment_id_edit');
+    const assignmentTitleEditModal = document.getElementById('assignment_title_edit_modal');
+    const assignmentDescriptionEditModal = document.getElementById('assignment_description_edit_modal');
+    const assignmentSectionTitleEditModal = document.getElementById('assignment_section_edit_modal'); // For Edit Modal
+    const assignmentMaxPointsEditModal = document.getElementById('assignment_max_points_edit_modal');
+    const assignmentDueDateEditModal = document.getElementById('assignment_due_date_edit_modal');
+
+    let allExistingSections = []; 
+
+    async function fetchAndPopulateExistingSections(courseId) {
+        const datalistCreate = document.getElementById('existing_sections_list_create');
+        const datalistEdit = document.getElementById('existing_sections_list_edit');
+
+        if (!isCurrentUserTeacherOfThisCourse) return; 
+        
+        if (!datalistCreate || !datalistEdit) {
+            return; 
+        }
+        
+        try {
+            const response = await fetch(`../../src/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=created_at_asc`);
+            if (!response.ok) {
+                console.error("Could not fetch assignments to get sections");
+                return;
+            }
+            const result = await response.json();
+            if (result.status === 'success' && result.assignments) {
+                const uniqueSections = new Set();
+                result.assignments.forEach(asm => {
+                    if (asm.section_title && asm.section_title.trim() !== '') {
+                        uniqueSections.add(asm.section_title.trim());
+                    }
+                });
+                allExistingSections = Array.from(uniqueSections).sort();
+
+                datalistCreate.innerHTML = ''; 
+                allExistingSections.forEach(section => {
+                    const optionCreate = document.createElement('option');
+                    optionCreate.value = section;
+                    datalistCreate.appendChild(optionCreate);
+                });
+                
+                datalistEdit.innerHTML = '';   
+                allExistingSections.forEach(section => {
+                    const optionEdit = document.createElement('option');
+                    optionEdit.value = section;
+                    datalistEdit.appendChild(optionEdit);
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching or populating existing sections:", error);
+        }
+    }
+
 
     function htmlspecialchars(str) {
         if (typeof str !== 'string') return '';
@@ -309,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!courseId || !myGradesArea) return;
         myGradesArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження ваших оцінок...</p>';
         try {
-            const response = await fetch(`../../src/grades_actions.php?action=get_my_grades_for_course&course_id=${courseId}`);
+            const response = await fetch(`../../src/grading_actions.php?action=get_my_grades_for_course&course_id=${courseId}`);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
                 throw new Error(errorData.message);
@@ -373,14 +478,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const now = new Date();
         switch (statusCode) {
             case 'submitted': statusText = 'Здано'; statusClass = 'submission-status-submitted'; break;
-            case 'graded': statusClass = 'submission-status-graded'; break;
+            case 'graded': statusClass = 'submission-status-graded'; break; 
             case 'missed': statusText = 'Пропущено'; statusClass = 'submission-status-missed'; break;
             case 'pending_submission':
             default:
                 if (dueDate && dueDate < now) {
                     statusText = 'Пропущено'; statusClass = 'submission-status-missed';
                 } else {
-                    statusText = '–'; statusClass = 'status-not-submitted';
+                    statusText = '–'; statusClass = 'status-not-submitted'; 
                 }
                 break;
         }
@@ -438,9 +543,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             if(gradeData.grade !== null) cell.classList.add('graded');
                             else if (gradeData.status === 'submitted') cell.classList.add('submitted-needs-grading');
                         } else {
-                            const assignmentDetails = result.assignments.find(a => a.assignment_id === assignment.assignment_id);
-                            const statusInfo = getStatusTextAndClassForTeacher(null, assignmentDetails ? assignmentDetails.due_date : null);
-                             cell.innerHTML = `<span class="${statusInfo.class}">${statusInfo.text}</span>`;
+                             const assignmentDetailsForStatus = result.assignments.find(a => a.assignment_id.toString() === assignment.assignment_id.toString());
+                             const statusInfo = getStatusTextAndClassForTeacher(
+                                gradeData ? gradeData.status : 'pending_submission', 
+                                assignmentDetailsForStatus ? assignmentDetailsForStatus.due_date : null
+                            );
+                            cell.innerHTML = `<span class="${statusInfo.class}">${statusInfo.text}</span>`;
                         }
                     });
                 });
@@ -454,7 +562,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Tab switching logic
     tabLinks.forEach(link => {
         link.addEventListener('click', function(event) {
             event.preventDefault();
@@ -467,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (breadcrumbCurrentTab) breadcrumbCurrentTab.textContent = this.textContent;
             if (courseBannerElement) courseBannerElement.style.display = (targetTab === 'stream') ? 'flex' : 'none';
 
-            if (targetTab === 'assignments' && currentCourseIdForJS) loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
+            if (targetTab === 'assignments' && currentCourseIdForJS && assignmentSortSelect) loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
             else if (targetTab === 'stream' && currentCourseIdForJS) loadAnnouncements(currentCourseIdForJS);
             else if (targetTab === 'people' && currentCourseIdForJS) loadCourseParticipants(currentCourseIdForJS);
             else if (targetTab === 'my-grades' && currentCourseIdForJS && !isCurrentUserTeacherOfThisCourse) loadMyGrades(currentCourseIdForJS);
@@ -475,22 +582,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initial load for active tab
     const activeTabOnInit = document.querySelector('.course-tab-navigation .tab-link.active');
     if (activeTabOnInit && currentCourseIdForJS) {
         const activeTabName = activeTabOnInit.dataset.tab;
         if (activeTabName === 'stream') loadAnnouncements(currentCourseIdForJS);
-        else if (activeTabName === 'assignments') loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
+        else if (activeTabName === 'assignments' && assignmentSortSelect) loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
         else if (activeTabName === 'people') loadCourseParticipants(currentCourseIdForJS);
         else if (activeTabName === 'my-grades' && !isCurrentUserTeacherOfThisCourse) loadMyGrades(currentCourseIdForJS);
         else if (activeTabName === 'grades' && isCurrentUserTeacherOfThisCourse) loadTeacherGradesSummary(currentCourseIdForJS);
     }
+    if(assignmentSortSelect && currentCourseIdForJS) {
+        assignmentSortSelect.addEventListener('change', function() {
+            loadAssignments(currentCourseIdForJS, this.value);
+        });
+    }
 
-    // Functions for other tabs (loadAnnouncements, loadAssignments, loadCourseParticipants, etc.)
-    // Ensure they are defined as in previous responses or integrated here if not already.
-    // For brevity, I'm assuming they are present from previous steps.
-    // Example:
-    async function loadAnnouncements(courseId) { /* ... implementation ... */ 
+    async function loadAnnouncements(courseId) { 
         if (!courseId || !announcementsArea) return;
         announcementsArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження оголошень...</p>';
         try {
@@ -600,22 +707,20 @@ document.addEventListener('DOMContentLoaded', function() {
                    if(courseBannerElement) courseBannerElement.style.backgroundColor = updatedData.color;
                    breadcrumbCourseNameElement.textContent = updatedData.course_name;
                    document.title = updatedData.course_name + ' - Assignet';
-                   if (courseJoinCodeElement) {
-                       if (updatedData.join_code_visible && joinCodeFromDB) {
-                           courseJoinCodeElement.innerHTML = `Код курсу: <strong>${joinCodeFromDB}</strong>`;
-                           courseJoinCodeElement.style.display = 'inline-block';
+                   
+                   const existingJoinCodeP = courseBannerElement.querySelector('.course-join-code');
+                   if (updatedData.join_code_visible && joinCodeFromDB) {
+                       if (existingJoinCodeP) {
+                           existingJoinCodeP.innerHTML = `Код курсу: <strong>${joinCodeFromDB}</strong>`;
+                           existingJoinCodeP.style.display = 'inline-block';
                        } else {
-                           courseJoinCodeElement.style.display = 'none';
+                            const newJoinCodeP = document.createElement('p');
+                            newJoinCodeP.classList.add('course-join-code');
+                            newJoinCodeP.innerHTML = `Код курсу: <strong>${joinCodeFromDB}</strong>`;
+                            courseBannerTitleElement.parentNode.insertBefore(newJoinCodeP, courseBannerTitleElement.nextSibling);
                        }
-                   } else if (updatedData.join_code_visible && joinCodeFromDB && courseBannerElement) {
-                        const newJoinCodeP = document.createElement('p');
-                        newJoinCodeP.classList.add('course-join-code');
-                        newJoinCodeP.innerHTML = `Код курсу: <strong>${joinCodeFromDB}</strong>`;
-                        if(courseBannerTitleElement.nextSibling) {
-                            courseBannerElement.insertBefore(newJoinCodeP, courseBannerTitleElement.nextSibling);
-                        } else {
-                            courseBannerElement.appendChild(newJoinCodeP);
-                        }
+                   } else {
+                       if (existingJoinCodeP) existingJoinCodeP.style.display = 'none';
                    }
                 } else {
                    alert(result.message || 'Помилка збереження налаштувань.');
@@ -626,8 +731,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
     async function loadAssignments(courseId, sortBy = 'due_date_asc') {
-         if (!courseId || !assignmentsListArea) {
+        if (!courseId || !assignmentsListArea) {
             console.warn("loadAssignments: courseId або assignmentsListArea не знайдено.");
             return;
         }
@@ -640,75 +746,219 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(`HTTP помилка! Статус: ${response.status}`);
             }
             const result = await response.json();
+
             if (result.status === 'success' && result.assignments) {
                 isCurrentUserTeacherOfThisCourse = result.is_teacher_of_course;
-                assignmentsListArea.innerHTML = '';
+                assignmentsListArea.innerHTML = ''; 
+
+                const uniqueSectionsForDatalist = new Set();
+                result.assignments.forEach(asm => {
+                    if (asm.section_title && asm.section_title.trim() !== '') {
+                        uniqueSectionsForDatalist.add(asm.section_title.trim());
+                    }
+                });
+                allExistingSections = Array.from(uniqueSectionsForDatalist).sort();
+                
                 if (result.assignments.length > 0) {
+                    const assignmentsBySection = {};
                     result.assignments.forEach(asm => {
-                        const asmElement = document.createElement('div');
-                        asmElement.classList.add('assignment-item-card');
-                        let deadlineLabel = '';
-                        const dueDateObj = asm.due_date ? new Date(asm.due_date) : null;
-                        const now = new Date();
-                        if (asm.is_deadline_soon && !(dueDateObj && dueDateObj < now && asm.submission_status !== 'submitted' && asm.submission_status !== 'graded')) {
-                             asmElement.classList.add('deadline-approaching');
-                             deadlineLabel = '<span class="deadline-soon-label"><i class="fas fa-bell"></i> Термін здачі скоро!</span>';
+                        const sectionKey = asm.section_title || 'Інші завдання'; 
+                        if (!assignmentsBySection[sectionKey]) {
+                            assignmentsBySection[sectionKey] = [];
                         }
-                        if (dueDateObj && dueDateObj < now && asm.submission_status !== 'submitted' && asm.submission_status !== 'graded' && asm.submission_status !== 'missed') {
-                             deadlineLabel = '<span class="deadline-past-label"><i class="fas fa-exclamation-circle"></i> Термін здачі минув</span>';
-                        }
-                        let submissionInfo = '';
-                        if (!isCurrentUserTeacherOfThisCourse) {
-                           if (asm.submission_status === 'submitted') {
-                               submissionInfo = '<span class="submission-status submitted"><i class="fas fa-check-circle"></i> Здано</span>';
-                           } else if (asm.submission_status === 'graded') {
-                               submissionInfo = `<span class="submission-status graded"><i class="fas fa-award"></i> Оцінено</span>`;
-                           } else if (dueDateObj && dueDateObj < now) {
-                               submissionInfo = '<span class="submission-status missed"><i class="fas fa-times-circle"></i> Пропущено</span>';
-                           } else {
-                               submissionInfo = '<span class="submission-status pending"><i class="fas fa-hourglass-half"></i> Не здано</span>';
-                           }
-                        }
-                        let shortDescription = asm.description || '';
-                        if (shortDescription.length > 100) {
-                            shortDescription = shortDescription.substring(0, 100) + '...';
-                        }
-                        asmElement.innerHTML = `
-                            <div class="assignment-card-header">
-                                <h3 class="assignment-title"><a href="assignment_view.php?assignment_id=${asm.assignment_id}">${asm.title}</a></h3>
-                                ${deadlineLabel}
-                            </div>
-                            <div class="assignment-card-body">
-                                ${asm.section_title ? `<p class="assignment-section"><i class="fas fa-folder-open"></i> Розділ: <strong>${asm.section_title}</strong></p>` : ''}
-                                <p class="assignment-dates">
-                                    <i class="fas fa-calendar-plus"></i> Опубліковано: ${asm.created_at_formatted}
-                                    ${asm.updated_at_formatted ? `( <i class="fas fa-edit"></i> Змінено: ${asm.updated_at_formatted})` : ''}
-                                </p>
-                                <p class="assignment-due"><i class="fas fa-calendar-times"></i> Здати до: <strong>${asm.due_date_formatted}</strong></p>
-                                <p class="assignment-points"><i class="fas fa-star"></i> Макс. балів: ${asm.max_points}</p>
-                                ${shortDescription ? `<p class="assignment-description-short">${shortDescription}</p>` : ''}
-                            </div>
-                            <div class="assignment-card-footer">
-                                ${isCurrentUserTeacherOfThisCourse ? `<a href="submissions_view.php?assignment_id=${asm.assignment_id}" class="button-link view-submissions-link"><i class="fas fa-list-check"></i> Здані роботи</a>` : submissionInfo}
-                                <a href="assignment_view.php?assignment_id=${asm.assignment_id}" class="button-link view-assignment-link"><i class="fas fa-eye"></i> Детальніше</a>
-                            </div>
-                        `;
-                        assignmentsListArea.appendChild(asmElement);
+                        assignmentsBySection[sectionKey].push(asm);
                     });
+
+                    createSectionFilter(Object.keys(assignmentsBySection));
+
+                    for (const sectionTitle in assignmentsBySection) {
+                        const sectionContainer = document.createElement('div');
+                        sectionContainer.classList.add('assignment-section-container');
+                        sectionContainer.dataset.sectionTitle = sectionTitle; 
+
+                        const sectionHeader = document.createElement('h3');
+                        sectionHeader.classList.add('section-title-header');
+                        sectionHeader.textContent = sectionTitle;
+                        sectionContainer.appendChild(sectionHeader);
+
+                        const assignmentsGrid = document.createElement('div'); 
+                        assignmentsGrid.classList.add('assignments-grid-internal'); 
+
+                        assignmentsBySection[sectionTitle].forEach(asm => {
+                            const asmElement = document.createElement('div');
+                            asmElement.classList.add('assignment-item-card-compact');
+                            asmElement.dataset.assignmentId = asm.assignment_id;
+
+                            let deadlineLabel = '';
+                            const dueDateObj = asm.due_date ? new Date(asm.due_date) : null;
+                            const now = new Date();
+                            if (asm.is_deadline_soon && !(dueDateObj && dueDateObj < now && asm.submission_status !== 'submitted' && asm.submission_status !== 'graded')) {
+                                deadlineLabel = '<span class="deadline-indicator-compact soon"><i class="fas fa-bell"></i> Скоро</span>';
+                            } else if (dueDateObj && dueDateObj < now && asm.submission_status !== 'submitted' && asm.submission_status !== 'graded' && asm.submission_status !== 'missed') {
+                                deadlineLabel = '<span class="deadline-indicator-compact past"><i class="fas fa-exclamation-circle"></i> Прострочено</span>';
+                            }
+
+                            let submissionInfoCompact = '';
+                            if (!isCurrentUserTeacherOfThisCourse) {
+                                const statusInfo = getStatusTextAndClass(asm.submission_status, asm.due_date);
+                                submissionInfoCompact = `<span class="submission-status-compact ${statusInfo.class}">${statusInfo.text}</span>`;
+                            }
+                            
+                            let teacherActionsMenu = '';
+                            let teacherSubmissionsButton = '';
+                            if (isCurrentUserTeacherOfThisCourse) {
+                                teacherActionsMenu = `
+                                    <div class="assignment-actions-menu-compact">
+                                        <button class="action-menu-toggle-compact" aria-label="Дії із завданням"><i class="fas fa-ellipsis-v"></i></button>
+                                        <div class="action-dropdown-compact">
+                                            <a href="#" class="edit-assignment-link-compact" data-assignment-id="${asm.assignment_id}"><i class="fas fa-edit"></i> Редагувати</a>
+                                            <a href="#" class="delete-assignment-link-compact" data-assignment-id="${asm.assignment_id}"><i class="fas fa-trash"></i> Видалити</a>
+                                        </div>
+                                    </div>
+                                `;
+                                teacherSubmissionsButton = `<a href="submissions_view.php?assignment_id=${asm.assignment_id}" class="button-link-compact view-submissions-link-compact"><i class="fas fa-list-check"></i> Здані роботи</a>`;
+                            }
+
+                            asmElement.innerHTML = `
+                                <div class="card-content-compact">
+                                    <div class="card-title-line-compact">
+                                        <h4 class="assignment-title-compact">
+                                            <a href="assignment_view.php?assignment_id=${asm.assignment_id}">${asm.title}</a>
+                                            ${deadlineLabel ? ` ${deadlineLabel}` : ''}
+                                        </h4>
+                                        ${teacherActionsMenu}
+                                    </div>
+                                    <div class="card-meta-line-compact">
+                                        ${asm.due_date_formatted !== 'Не вказано' ? `<span>Здати до: <strong>${asm.due_date_formatted}</strong></span>` : '<span>Без терміну</span>'}
+                                        <span class="meta-divider-compact">|</span>
+                                        <span>Бали: ${asm.max_points}</span>
+                                    </div>
+                                    ${!isCurrentUserTeacherOfThisCourse && submissionInfoCompact ? `<div class="card-status-line-compact">${submissionInfoCompact}</div>` : ''}
+                                    ${isCurrentUserTeacherOfThisCourse ? `<div class="card-teacher-actions-line-compact">${teacherSubmissionsButton}</div>` : ''}
+                                </div>
+                            `;
+                            assignmentsGrid.appendChild(asmElement);
+
+                            if (isCurrentUserTeacherOfThisCourse) {
+                                const menuToggle = asmElement.querySelector('.action-menu-toggle-compact');
+                                const dropdown = asmElement.querySelector('.action-dropdown-compact');
+                                if(menuToggle && dropdown){
+                                    menuToggle.addEventListener('click', (e) => {
+                                        e.stopPropagation();
+                                        document.querySelectorAll('.action-dropdown-compact.visible').forEach(d => {
+                                            if (d !== dropdown) d.classList.remove('visible');
+                                        });
+                                        dropdown.classList.toggle('visible');
+                                    });
+                                    const editLink = asmElement.querySelector('.edit-assignment-link-compact');
+                                    const deleteLink = asmElement.querySelector('.delete-assignment-link-compact');
+                                    if (editLink) {
+                                        editLink.addEventListener('click', (e) => {
+                                            e.preventDefault(); handleEditAssignmentClick(asm.assignment_id); dropdown.classList.remove('visible');
+                                        });
+                                    }
+                                    if (deleteLink) {
+                                        deleteLink.addEventListener('click', (e) => {
+                                            e.preventDefault(); handleDeleteAssignmentClick(asm.assignment_id); dropdown.classList.remove('visible');
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                        sectionContainer.appendChild(assignmentsGrid);
+                        assignmentsListArea.appendChild(sectionContainer);
+                    }
+                    document.addEventListener('click', function(event) {
+                        document.querySelectorAll('.action-dropdown-compact.visible').forEach(dropdown => {
+                            if (!dropdown.parentElement.contains(event.target)) {
+                                dropdown.classList.remove('visible');
+                            }
+                        });
+                    });
+
                 } else {
                     assignmentsListArea.innerHTML = '<p>Завдань для цього курсу поки що немає.</p>';
+                    createSectionFilter([]); 
                 }
             } else {
                 assignmentsListArea.innerHTML = `<p>Не вдалося завантажити завдання: ${result.message || 'Помилка сервера'}</p>`;
                 console.error("Error in result from get_assignments: ", result);
+                createSectionFilter([]);
             }
         } catch (error) {
             console.error("Помилка AJAX при завантаженні завдань:", error);
             if (assignmentsListArea) assignmentsListArea.innerHTML = '<p>Сталася помилка при завантаженні завдань. Спробуйте оновити сторінку.</p>';
+            createSectionFilter([]);
         }
     }
+
+    function createSectionFilter(sections) {
+        let filterContainer = document.getElementById('courseSectionsFilter');
+        if (!filterContainer) {
+            filterContainer = document.createElement('div');
+            filterContainer.id = 'courseSectionsFilter';
+            filterContainer.classList.add('sections-filter-container');
+            const assignmentsTabPane = document.getElementById('tab-assignments');
+            const controls = assignmentsTabPane.querySelector('.assignments-controls');
+            if (controls) {
+                controls.parentNode.insertBefore(filterContainer, controls);
+            } else if (assignmentsListArea) {
+                 assignmentsListArea.parentNode.insertBefore(filterContainer, assignmentsListArea);
+            } else if (assignmentsTabPane) { 
+                assignmentsTabPane.insertBefore(filterContainer, assignmentsTabPane.firstChild);
+            }
+        }
+        filterContainer.innerHTML = ''; 
+
+        if (sections.length <= 1 && (sections.length === 0 || sections[0] === 'Інші завдання')) { 
+            filterContainer.style.display = 'none';
+            return;
+        }
+         filterContainer.style.display = 'flex';
+
+        const allSectionsButton = document.createElement('button');
+        allSectionsButton.textContent = 'Всі завдання';
+        allSectionsButton.classList.add('section-filter-btn', 'active');
+        allSectionsButton.addEventListener('click', () => filterAssignmentsBySection('all'));
+        filterContainer.appendChild(allSectionsButton);
+
+        sections.forEach(sectionTitle => {
+            if (sectionTitle === 'Інші завдання' && sections.length === 1) return;
+            const button = document.createElement('button');
+            button.textContent = sectionTitle;
+            button.classList.add('section-filter-btn');
+            button.addEventListener('click', () => filterAssignmentsBySection(sectionTitle));
+            filterContainer.appendChild(button);
+        });
+    }
+
+    function filterAssignmentsBySection(selectedSectionTitle) {
+        const sectionContainers = assignmentsListArea.querySelectorAll('.assignment-section-container');
+        const filterButtons = document.querySelectorAll('#courseSectionsFilter .section-filter-btn');
+
+        filterButtons.forEach(btn => {
+            if (selectedSectionTitle === 'all' && btn.textContent === 'Всі завдання') {
+                btn.classList.add('active');
+            } else {
+                btn.classList.toggle('active', btn.textContent === selectedSectionTitle);
+            }
+        });
+
+        sectionContainers.forEach(container => {
+            if (selectedSectionTitle === 'all' || container.dataset.sectionTitle === selectedSectionTitle) {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        });
+    }
+    
     if (showCreateAssignmentModalBtn && createAssignmentModal) {
          showCreateAssignmentModalBtn.addEventListener('click', () => {
+            if (createAssignmentFormInternal) createAssignmentFormInternal.reset();
+            if (currentCourseIdForJS) { 
+                fetchAndPopulateExistingSections(currentCourseIdForJS);
+            }
             createAssignmentModal.style.display = 'flex';
         });
     }
@@ -738,10 +988,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Будь ласка, заповніть назву, бали та дату здачі.');
                 return;
             }
-            if (parseInt(maxPoints) < 0 || parseInt(maxPoints) > 100) { // Added check for > 100
-                alert('Кількість балів повинна бути від 0 до 100.'); // Updated message
+             if (parseInt(maxPoints) < 0 || parseInt(maxPoints) > 100) {
+                alert('Кількість балів повинна бути від 0 до 100.');
                 return;
             }
+
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Створення...';
+
             try {
                 const response = await fetch('../../src/course_actions.php', {
                     method: 'POST',
@@ -752,8 +1008,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(result.message);
                     createAssignmentModal.style.display = 'none';
                     this.reset();
-                    if (currentCourseIdForJS) {
-                        loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
+                    if (currentCourseIdForJS && assignmentSortSelect) {
+                        loadAssignments(currentCourseIdForJS, assignmentSortSelect.value); 
                     }
                 } else {
                     alert(`Помилка: ${result.message || 'Не вдалося створити завдання.'}`);
@@ -761,9 +1017,159 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error('Помилка AJAX при створенні завдання:', error);
                 alert('Сталася помилка на клієнті при створенні завдання. Деталі в консолі.');
+            } finally {
+                 submitButton.disabled = false;
+                 submitButton.innerHTML = originalButtonText;
             }
         });
     }
+    
+    if (closeEditAssignmentModalBtn && editAssignmentModal) {
+        closeEditAssignmentModalBtn.addEventListener('click', () => {
+            editAssignmentModal.style.display = 'none';
+            if(editAssignmentFormInternal) editAssignmentFormInternal.reset();
+        });
+    }
+    if (editAssignmentModal) {
+        editAssignmentModal.addEventListener('click', (event) => {
+            if (event.target === editAssignmentModal) {
+                editAssignmentModal.style.display = 'none';
+                if(editAssignmentFormInternal) editAssignmentFormInternal.reset();
+            }
+        });
+    }
+
+    async function handleEditAssignmentClick(assignmentId) {
+        if (!editAssignmentModal || !isCurrentUserTeacherOfThisCourse || !assignmentIdEditInput) return;
+        if (editAssignmentFormInternal) editAssignmentFormInternal.reset(); 
+
+        if (currentCourseIdForJS) { 
+            await fetchAndPopulateExistingSections(currentCourseIdForJS);
+        }
+
+        try {
+            const response = await fetch(`../../src/course_actions.php?action=get_assignment_details_for_edit&assignment_id=${assignmentId}`);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Server error for get_assignment_details_for_edit:", errorText);
+                throw new Error('Network response was not ok for fetching assignment details.');
+            }
+            const result = await response.json();
+
+            if (result.status === 'success' && result.assignment) {
+                const asm = result.assignment;
+                assignmentIdEditInput.value = asm.assignment_id;
+                assignmentTitleEditModal.value = asm.title;
+                assignmentDescriptionEditModal.value = asm.description || '';
+                
+                const sectionInputEdit = document.getElementById('assignment_section_edit_modal');
+                if (sectionInputEdit) sectionInputEdit.value = asm.section_title || '';
+                
+                assignmentMaxPointsEditModal.value = asm.max_points;
+                
+                if (asm.due_date) {
+                    const dateStr = asm.due_date.replace(' ', 'T'); 
+                    const date = new Date(dateStr);
+                    const timezoneOffset = date.getTimezoneOffset() * 60000; 
+                    const localISOTime = (new Date(date.getTime() - timezoneOffset)).toISOString().slice(0,16);
+                    assignmentDueDateEditModal.value = localISOTime;
+                } else {
+                    assignmentDueDateEditModal.value = '';
+                }
+                editAssignmentModal.style.display = 'flex';
+            } else {
+                alert(`Помилка завантаження даних завдання: ${result.message || 'Невідома помилка'}`);
+            }
+        } catch (error) {
+            console.error('Error fetching assignment details for edit:', error);
+            alert('Не вдалося завантажити дані завдання для редагування.');
+        }
+    }
+
+    if (editAssignmentFormInternal) {
+        editAssignmentFormInternal.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            formData.append('action', 'update_assignment');
+
+            const title = formData.get('assignment_title').trim();
+            const maxPoints = formData.get('assignment_max_points');
+            const dueDate = formData.get('assignment_due_date');
+
+            if (!title || !maxPoints || !dueDate) {
+                alert('Будь ласка, заповніть назву, бали та дату здачі.');
+                return;
+            }
+            if (parseInt(maxPoints) < 0 || parseInt(maxPoints) > 100) {
+                alert('Кількість балів повинна бути від 0 до 100.');
+                return;
+            }
+
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Збереження...';
+
+            try {
+                const response = await fetch('../../src/course_actions.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    alert(result.message || 'Завдання успішно оновлено!');
+                    editAssignmentModal.style.display = 'none';
+                    this.reset();
+                    if (currentCourseIdForJS && assignmentSortSelect) {
+                        loadAssignments(currentCourseIdForJS, assignmentSortSelect.value); 
+                    }
+                } else {
+                    alert(`Помилка оновлення завдання: ${result.message || 'Не вдалося оновити завдання.'}`);
+                }
+            } catch (error) {
+                console.error('AJAX error updating assignment:', error);
+                alert('Сталася помилка на клієнті при оновленні завдання.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+    }
+
+    async function handleDeleteAssignmentClick(assignmentId) {
+        if (!isCurrentUserTeacherOfThisCourse) return;
+
+        if (confirm(`Ви впевнені, що хочете видалити це завдання? Цю дію неможливо буде скасувати, і всі пов'язані з ним здані роботи також будуть видалені.`)) {
+            const cardToDelete = document.querySelector(`.assignment-item-card-compact[data-assignment-id="${assignmentId}"]`);
+            
+            try {
+                const formData = new FormData();
+                formData.append('action', 'delete_assignment');
+                formData.append('assignment_id', assignmentId);
+                formData.append('course_id', currentCourseIdForJS);
+
+                const response = await fetch('../../src/course_actions.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    alert(result.message || 'Завдання успішно видалено!');
+                    if (currentCourseIdForJS && assignmentSortSelect) {
+                        loadAssignments(currentCourseIdForJS, assignmentSortSelect.value);
+                    }
+                } else {
+                    alert(`Помилка видалення завдання: ${result.message || 'Не вдалося видалити завдання.'}`);
+                }
+            } catch (error) {
+                console.error('AJAX error deleting assignment:', error);
+                alert('Сталася помилка на клієнті при видаленні завдання.');
+            }
+        }
+    }
+
      function createUserListItem(user, isTeacherContext = false, isCurrentUserTheTeacher = false) {
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('person-item');
@@ -861,3 +1267,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
+</body>
+</html>

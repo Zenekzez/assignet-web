@@ -28,13 +28,13 @@ function isUserTeacherOfCourse($conn, $userId, $courseId) {
     $stmt->bind_param("ii", $courseId, $userId);
     $stmt->execute();
     $result = $stmt->get_result();
+    $is_teacher = $result->num_rows > 0;
     $stmt->close();
-    return $result->num_rows > 0;
+    return $is_teacher;
 }
 
 
 if ($action === 'create_announcement') {
-    // ... (код як у попередній відповіді) ...
      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $course_id = filter_input(INPUT_POST, 'course_id', FILTER_VALIDATE_INT);
         $content = trim($_POST['announcement_content'] ?? '');
@@ -70,13 +70,40 @@ if ($action === 'create_announcement') {
         $response['message'] = 'Некоректний метод запиту для створення оголошення.';
     }
 } elseif ($action === 'get_announcements') {
-    // ... (код як у попередній відповіді) ...
      if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $course_id = filter_input(INPUT_GET, 'course_id', FILTER_VALIDATE_INT);
 
         if (!$course_id) {
             $response['message'] = 'ID курсу не вказано.';
         } else {
+            // Перевірка, чи користувач є студентом або викладачем курсу (для доступу до оголошень)
+            $can_view_sql = "SELECT 
+                                CASE
+                                    WHEN EXISTS (SELECT 1 FROM courses WHERE course_id = ? AND author_id = ?) THEN 1
+                                    WHEN EXISTS (SELECT 1 FROM enrollments WHERE course_id = ? AND student_id = ?) THEN 1
+                                    ELSE 0
+                                END AS can_view";
+            $stmt_can_view = $conn->prepare($can_view_sql);
+            if ($stmt_can_view) {
+                $stmt_can_view->bind_param("iiii", $course_id, $current_user_id, $course_id, $current_user_id);
+                $stmt_can_view->execute();
+                $result_can_view = $stmt_can_view->get_result();
+                $can_view_data = $result_can_view->fetch_assoc();
+                $stmt_can_view->close();
+
+                if (!$can_view_data || $can_view_data['can_view'] != 1) {
+                    $response['message'] = 'У вас немає доступу для перегляду оголошень цього курсу.';
+                    echo json_encode($response);
+                    exit();
+                }
+            } else {
+                 $response['message'] = 'Помилка перевірки доступу до оголошень.';
+                 error_log("DB error checking announcement view permissions: " . $conn->error);
+                 echo json_encode($response);
+                 exit();
+            }
+
+
             $stmt = $conn->prepare("SELECT ca.*, u.username AS author_username, u.avatar_path AS author_avatar_path
                                     FROM course_announcements ca
                                     JOIN users u ON ca.user_id = u.user_id
@@ -88,7 +115,8 @@ if ($action === 'create_announcement') {
                 $result = $stmt->get_result();
                 $announcements = [];
                 while ($row = $result->fetch_assoc()) {
-                    $row['content'] = htmlspecialchars($row['content']); 
+                    // HTML екранування для контенту, який буде виводитися як HTML (наприклад, з <br>)
+                    $row['content'] = htmlspecialchars($row['content'], ENT_QUOTES, 'UTF-8');
                     $announcements[] = $row;
                 }
                 $response['status'] = 'success';
@@ -97,6 +125,7 @@ if ($action === 'create_announcement') {
                 $stmt->close();
             } else {
                 $response['message'] = 'Помилка отримання оголошень: ' . $conn->error;
+                error_log("DB get_announcements prepare error: " . $conn->error);
             }
         }
     } else {
@@ -108,11 +137,13 @@ if ($action === 'create_announcement') {
         $course_name = trim($_POST['course_name'] ?? '');
         $description = trim($_POST['description'] ?? '');
         $color = trim($_POST['color'] ?? '#007bff');
-        $join_code_visible = isset($_POST['join_code_visible']) && $_POST['join_code_visible'] == '1' ? 1 : 0; // Обробка чекбоксу
+        // Обробка чекбоксу: 1 якщо встановлено, 0 якщо ні.
+        $join_code_visible = isset($_POST['join_code_visible']) && $_POST['join_code_visible'] == '1' ? 1 : 0;
+
 
         if (!$course_id || empty($course_name)) {
             $response['message'] = 'ID курсу або назва курсу не можуть бути порожніми.';
-        } elseif (!preg_match('/^#[0-9A-Fa-f]{6}$/i', $color)) { // Додав i для нечутливості до регістру
+        } elseif (!preg_match('/^#[0-9A-Fa-f]{6}$/i', $color)) { 
              $response['message'] = 'Некоректний формат кольору. Очікується HEX (напр. #RRGGBB).';
         } elseif (!isUserTeacherOfCourse($conn, $current_user_id, $course_id)) {
             $response['message'] = 'У вас немає прав для зміни налаштувань цього курсу.';
@@ -121,13 +152,13 @@ if ($action === 'create_announcement') {
             if ($stmt) {
                 $stmt->bind_param("sssii", $course_name, $description, $color, $join_code_visible, $course_id);
                 if ($stmt->execute()) {
-                     $response['status'] = 'success'; // Навіть якщо нічого не змінилося, запит успішний
+                     $response['status'] = 'success'; 
                      $response['message'] = $stmt->affected_rows > 0 ? 'Налаштування курсу успішно оновлено!' : 'Дані не змінилися або вже були оновлені.';
                      $response['updated_data'] = [
                          'course_name' => $course_name,
                          'description' => $description,
                          'color' => $color,
-                         'join_code_visible' => (bool)$join_code_visible
+                         'join_code_visible' => (bool)$join_code_visible // Повертаємо як boolean для JS
                      ];
                 } else {
                     $response['message'] = 'Помилка оновлення налаштувань: ' . $stmt->error;
@@ -143,15 +174,10 @@ if ($action === 'create_announcement') {
         $response['message'] = 'Некоректний метод запиту для оновлення налаштувань.';
     }
 }
-
-// ... (існуючі блоки if/elseif для інших actions) ...
-
-// НОВИЙ БЛОК ДЛЯ СТВОРЕННЯ ЗАВДАННЯ
 elseif ($action === 'create_assignment') {
     $course_id_form = filter_input(INPUT_POST, 'course_id', FILTER_VALIDATE_INT);
 
-    // КРИТИЧНО: Перевірка, чи є користувач викладачем цього курсу
-    if (!$course_id_form || !isUserTeacherOfCourse($conn, $current_user_id, $course_id_form)) { //
+    if (!$course_id_form || !isUserTeacherOfCourse($conn, $current_user_id, $course_id_form)) { 
         $response['message'] = 'У вас немає прав для створення завдань в цьому курсі.';
         echo json_encode($response);
         exit();
@@ -163,17 +189,17 @@ elseif ($action === 'create_assignment') {
         $max_points = filter_input(INPUT_POST, 'assignment_max_points', FILTER_VALIDATE_INT);
         $due_date_str = trim($_POST['assignment_due_date'] ?? '');
         $section_title = trim($_POST['assignment_section_title'] ?? null);
-        if ($section_title === '') { // Якщо передано порожній рядок, зберігаємо NULL
+        if ($section_title === '') { 
             $section_title = null;
         }
-
-         if ($max_points !== false && $max_points > 100) {
-            $response['message'] = 'Максимальна кількість балів не може перевищувати 100.';
+        
+        if ($max_points !== false && ($max_points < 0 || $max_points > 100)) { // Додано перевірку < 0
+            $response['message'] = 'Максимальна кількість балів повинна бути від 0 до 100.';
             echo json_encode($response);
             exit();
         }
         
-        if (empty($title) || $max_points === false || $max_points < 0 || empty($due_date_str)) {
+        if (empty($title) || $max_points === false || empty($due_date_str)) { // $max_points < 0 вже перевірено
             $response['message'] = 'Будь ласка, заповніть усі обов\'язкові поля: назва, бали, дата здачі.';
             echo json_encode($response);
             exit();
@@ -195,7 +221,6 @@ elseif ($action === 'create_assignment') {
                 $new_assignment_id = $stmt_insert_assignment->insert_id;
                 $response['status'] = 'success';
                 $response['message'] = 'Завдання успішно створено!';
-                // Повертаємо дані про створене завдання, щоб JavaScript міг його додати до списку без перезавантаження
                 $response['assignment'] = [
                     'assignment_id' => $new_assignment_id,
                     'course_id' => $course_id_form,
@@ -207,10 +232,10 @@ elseif ($action === 'create_assignment') {
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                     'created_at_formatted' => date('d.m.Y H:i'),
-                    'updated_at_formatted' => null, // Бо щойно створене
+                    'updated_at_formatted' => null, 
                     'due_date_formatted' => $due_date_obj->format('d.m.Y H:i'),
-                    'is_deadline_soon' => false, // Розрахунок is_deadline_soon краще робити при отриманні
-                    'submission_status' => 'pending_submission' // Для нового завдання у студента ще немає здачі
+                    'is_deadline_soon' => false, 
+                    'submission_status' => 'pending_submission' 
                 ];
             } else {
                 $response['message'] = 'Помилка створення завдання в БД: ' . $stmt_insert_assignment->error;
@@ -224,26 +249,50 @@ elseif ($action === 'create_assignment') {
     } else {
         $response['message'] = 'Некоректний метод запиту для створення завдання.';
     }
-
-// НОВИЙ БЛОК ДЛЯ ОТРИМАННЯ ЗАВДАНЬ
 } elseif ($action === 'get_assignments') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $course_id_get = filter_input(INPUT_GET, 'course_id', FILTER_VALIDATE_INT);
-        $sort_by = $_GET['sort_by'] ?? 'due_date_asc'; // Отримуємо параметр сортування
+        $sort_by = $_GET['sort_by'] ?? 'due_date_asc'; 
 
         if (!$course_id_get) {
             $response['message'] = 'ID курсу не вказано.';
             echo json_encode($response);
             exit();
         }
+        
+        // Перевірка, чи користувач є студентом або викладачем курсу (для доступу до завдань)
+        $can_view_sql_asm = "SELECT 
+                            CASE
+                                WHEN EXISTS (SELECT 1 FROM courses WHERE course_id = ? AND author_id = ?) THEN 1
+                                WHEN EXISTS (SELECT 1 FROM enrollments WHERE course_id = ? AND student_id = ?) THEN 1
+                                ELSE 0
+                            END AS can_view";
+        $stmt_can_view_asm = $conn->prepare($can_view_sql_asm);
+        if ($stmt_can_view_asm) {
+            $stmt_can_view_asm->bind_param("iiii", $course_id_get, $current_user_id, $course_id_get, $current_user_id);
+            $stmt_can_view_asm->execute();
+            $result_can_view_asm = $stmt_can_view_asm->get_result();
+            $can_view_data_asm = $result_can_view_asm->fetch_assoc();
+            $stmt_can_view_asm->close();
+
+            if (!$can_view_data_asm || $can_view_data_asm['can_view'] != 1) {
+                $response['message'] = 'У вас немає доступу для перегляду завдань цього курсу.';
+                echo json_encode($response);
+                exit();
+            }
+        } else {
+             $response['message'] = 'Помилка перевірки доступу до завдань.';
+             error_log("DB error checking assignment view permissions: " . $conn->error);
+             echo json_encode($response);
+             exit();
+        }
+
 
         $assignments_list = [];
-        // Базовий SQL, сортування буде додано динамічно
         $sql_assignments_base = "SELECT assignment_id, title, description, max_points, due_date, section_title, created_at, updated_at
                                  FROM assignments
                                  WHERE course_id = ?";
 
-        // Динамічне додавання ORDER BY
         $order_by_clause = "";
         switch ($sort_by) {
             case 'created_at_desc':
@@ -267,34 +316,52 @@ elseif ($action === 'create_assignment') {
             $stmt_assignments->bind_param("i", $course_id_get);
             $stmt_assignments->execute();
             $result_assignments = $stmt_assignments->get_result();
-            $now = new DateTime(); // Поточний час
+            $now = new DateTime(); 
 
-            // Визначаємо, чи є поточний користувач викладачем цього курсу
-            $is_current_user_teacher_of_this_course = isUserTeacherOfCourse($conn, $current_user_id, $course_id_get); //
+            $is_current_user_teacher_of_this_course = isUserTeacherOfCourse($conn, $current_user_id, $course_id_get); 
 
             while ($row = $result_assignments->fetch_assoc()) {
                 $row['is_deadline_soon'] = false;
+                $due_date_obj = null; // Ініціалізація
                 if ($row['due_date']) {
-                    $due_date_obj = new DateTime($row['due_date']);
-                    $time_diff = $now->diff($due_date_obj);
-                    $row['is_deadline_soon'] = ($due_date_obj > $now && $time_diff->days <= 3 && !$time_diff->invert);
-                    $row['due_date_formatted'] = $due_date_obj->format('d.m.Y H:i');
+                    try { // Додано try-catch для new DateTime
+                        $due_date_obj = new DateTime($row['due_date']);
+                        $time_diff = $now->diff($due_date_obj);
+                        $row['is_deadline_soon'] = ($due_date_obj > $now && $time_diff->days <= 3 && !$time_diff->invert);
+                        $row['due_date_formatted'] = $due_date_obj->format('d.m.Y H:i');
+                    } catch (Exception $e) {
+                        error_log("Invalid due_date format for assignment " . $row['assignment_id'] . ": " . $row['due_date']);
+                        $row['due_date_formatted'] = 'Некоректна дата';
+                    }
                 } else {
                     $row['due_date_formatted'] = 'Не вказано';
                 }
 
-                $created_at_obj = new DateTime($row['created_at']);
-                $row['created_at_formatted'] = $created_at_obj->format('d.m.Y H:i');
-
-                $updated_at_obj = new DateTime($row['updated_at']);
-                if ($updated_at_obj->getTimestamp() > $created_at_obj->getTimestamp() + 5) {
-                    $row['updated_at_formatted'] = $updated_at_obj->format('d.m.Y H:i');
-                } else {
-                    $row['updated_at_formatted'] = null;
+                try { // Додано try-catch для new DateTime
+                    $created_at_obj = new DateTime($row['created_at']);
+                    $row['created_at_formatted'] = $created_at_obj->format('d.m.Y H:i');
+                } catch (Exception $e) {
+                    error_log("Invalid created_at format for assignment " . $row['assignment_id'] . ": " . $row['created_at']);
+                    $row['created_at_formatted'] = 'Некоректна дата';
+                    $created_at_obj = null; // переконатися, що об'єкт не використовується далі
                 }
 
-                // Отримання статусу здачі для студента
-                $row['submission_status'] = 'not_applicable'; // Якщо викладач або не студент
+
+                try { // Додано try-catch для new DateTime
+                    $updated_at_obj = new DateTime($row['updated_at']);
+                     // Перевірка, чи $created_at_obj існує перед використанням
+                    if ($created_at_obj && $updated_at_obj->getTimestamp() > $created_at_obj->getTimestamp() + 5) { // 5 секунд різниці
+                        $row['updated_at_formatted'] = $updated_at_obj->format('d.m.Y H:i');
+                    } else {
+                        $row['updated_at_formatted'] = null;
+                    }
+                } catch (Exception $e) {
+                     error_log("Invalid updated_at format for assignment " . $row['assignment_id'] . ": " . $row['updated_at']);
+                     $row['updated_at_formatted'] = null;
+                }
+                
+
+                $row['submission_status'] = 'not_applicable'; 
                 if (!$is_current_user_teacher_of_this_course) {
                     $stmt_submission_status = $conn->prepare("SELECT status FROM submissions WHERE assignment_id = ? AND student_id = ? ORDER BY submission_date DESC LIMIT 1");
                     if ($stmt_submission_status) {
@@ -304,19 +371,23 @@ elseif ($action === 'create_assignment') {
                         if ($submission = $result_submission_status->fetch_assoc()) {
                             $row['submission_status'] = $submission['status'];
                         } else {
-                            $row['submission_status'] = 'pending_submission';
+                            // Якщо немає здачі, перевіряємо, чи не пропущено
+                            if ($due_date_obj && $due_date_obj < $now) {
+                                $row['submission_status'] = 'missed';
+                            } else {
+                                $row['submission_status'] = 'pending_submission';
+                            }
                         }
                         $stmt_submission_status->close();
                     } else {
-                        $row['submission_status'] = 'error_fetching_status'; // Помилка запиту
+                        error_log("DB prepare error for submission status: " . $conn->error);
+                        $row['submission_status'] = 'error_fetching_status'; 
                     }
                 }
                 
-                // Екранування HTML для безпеки перед відправкою на клієнт
                 $row['title'] = htmlspecialchars($row['title']);
-                $row['description'] = htmlspecialchars($row['description'] ?? ''); // Опис може бути довгим, тому обережно з ним на картці
+                $row['description'] = htmlspecialchars($row['description'] ?? ''); 
                 $row['section_title'] = $row['section_title'] ? htmlspecialchars($row['section_title']) : null;
-
 
                 $assignments_list[] = $row;
             }
@@ -324,6 +395,7 @@ elseif ($action === 'create_assignment') {
             $response['status'] = 'success';
             $response['assignments'] = $assignments_list;
             $response['is_teacher_of_course'] = $is_current_user_teacher_of_this_course;
+            unset($response['message']);
 
         } else {
             $response['message'] = 'Помилка отримання списку завдань: ' . $conn->error;
@@ -333,12 +405,213 @@ elseif ($action === 'create_assignment') {
         $response['message'] = 'Некоректний метод запиту для отримання завдань.';
     }
 }
+// NEW ACTION: get_assignment_details_for_edit
+elseif ($action === 'get_assignment_details_for_edit') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $assignment_id_get = filter_input(INPUT_GET, 'assignment_id', FILTER_VALIDATE_INT);
+
+        if (!$assignment_id_get) {
+            $response['message'] = 'ID завдання не вказано.';
+            echo json_encode($response);
+            exit();
+        }
+
+        $stmt_course_id = $conn->prepare("SELECT course_id FROM assignments WHERE assignment_id = ?");
+        if (!$stmt_course_id) {
+             $response['message'] = 'Помилка підготовки запиту (перевірка ID курсу).';
+             error_log("DB prepare error (course_id check for edit assignment): " . $conn->error);
+             echo json_encode($response);
+             exit();
+        }
+        $stmt_course_id->bind_param("i", $assignment_id_get);
+        $stmt_course_id->execute();
+        $result_course_id = $stmt_course_id->get_result();
+        if (!($course_data_row = $result_course_id->fetch_assoc())) {
+            $response['message'] = 'Завдання не знайдено (для перевірки курсу).';
+            $stmt_course_id->close();
+            echo json_encode($response);
+            exit();
+        }
+        $course_id_for_check = $course_data_row['course_id'];
+        $stmt_course_id->close();
+
+        if (!isUserTeacherOfCourse($conn, $current_user_id, $course_id_for_check)) {
+            $response['message'] = 'У вас немає прав для редагування цього завдання.';
+            echo json_encode($response);
+            exit();
+        }
+
+        $stmt_assignment = $conn->prepare("SELECT assignment_id, title, description, max_points, due_date, section_title FROM assignments WHERE assignment_id = ?");
+        if ($stmt_assignment) {
+            $stmt_assignment->bind_param("i", $assignment_id_get);
+            $stmt_assignment->execute();
+            $result_assignment = $stmt_assignment->get_result();
+            if ($assignment_data = $result_assignment->fetch_assoc()) {
+                // Decode HTML entities for editing in form fields
+                $assignment_data['title'] = htmlspecialchars_decode($assignment_data['title'], ENT_QUOTES);
+                $assignment_data['description'] = htmlspecialchars_decode($assignment_data['description'] ?? '', ENT_QUOTES);
+                $assignment_data['section_title'] = $assignment_data['section_title'] ? htmlspecialchars_decode($assignment_data['section_title'], ENT_QUOTES) : null;
+                
+                $response['status'] = 'success';
+                $response['assignment'] = $assignment_data;
+            } else {
+                $response['message'] = 'Завдання не знайдено.';
+            }
+            $stmt_assignment->close();
+        } else {
+            $response['message'] = 'Помилка отримання даних завдання: ' . $conn->error;
+            error_log('DB get assignment details for edit error: ' . $conn->error);
+        }
+    } else {
+        $response['message'] = 'Некоректний метод запиту для отримання деталей завдання.';
+    }
+}
+// NEW ACTION: update_assignment
+elseif ($action === 'update_assignment') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $assignment_id_edit = filter_input(INPUT_POST, 'assignment_id_edit', FILTER_VALIDATE_INT);
+        $course_id_form = filter_input(INPUT_POST, 'course_id', FILTER_VALIDATE_INT);
+        $title = trim($_POST['assignment_title'] ?? '');
+        $description = trim($_POST['assignment_description'] ?? '');
+        $max_points = filter_input(INPUT_POST, 'assignment_max_points', FILTER_VALIDATE_INT);
+        $due_date_str = trim($_POST['assignment_due_date'] ?? '');
+        $section_title = trim($_POST['assignment_section_title'] ?? null);
+        if ($section_title === '') $section_title = null;
+
+        if (!$assignment_id_edit || !$course_id_form) {
+            $response['message'] = 'ID завдання або курсу не вказано.';
+            echo json_encode($response);
+            exit();
+        }
+        if (!isUserTeacherOfCourse($conn, $current_user_id, $course_id_form)) {
+            $response['message'] = 'У вас немає прав для оновлення завдань в цьому курсі.';
+            echo json_encode($response);
+            exit();
+        }
+        if (empty($title) || $max_points === false || $max_points < 0 || empty($due_date_str)) {
+            $response['message'] = 'Будь ласка, заповніть усі обов\'язкові поля: назва, бали, дата здачі.';
+            echo json_encode($response);
+            exit();
+        }
+         if ($max_points > 100) {
+            $response['message'] = 'Максимальна кількість балів не може перевищувати 100.';
+            echo json_encode($response);
+            exit();
+        }
+        try {
+            $due_date_obj = new DateTime($due_date_str);
+            $due_date_sql = $due_date_obj->format('Y-m-d H:i:s');
+        } catch (Exception $e) {
+            $response['message'] = 'Некоректний формат дати здачі.';
+            echo json_encode($response);
+            exit();
+        }
+
+        $stmt_update_assignment = $conn->prepare("UPDATE assignments SET title = ?, description = ?, max_points = ?, due_date = ?, section_title = ?, updated_at = NOW() WHERE assignment_id = ? AND course_id = ?");
+        if ($stmt_update_assignment) {
+            $stmt_update_assignment->bind_param("ssissii", $title, $description, $max_points, $due_date_sql, $section_title, $assignment_id_edit, $course_id_form);
+            if ($stmt_update_assignment->execute()) {
+                if ($stmt_update_assignment->affected_rows > 0) {
+                    $response['status'] = 'success';
+                    $response['message'] = 'Завдання успішно оновлено!';
+                } else {
+                     $check_stmt = $conn->prepare("SELECT COUNT(*) as count FROM assignments WHERE assignment_id = ? AND course_id = ?");
+                     $check_stmt->bind_param("ii", $assignment_id_edit, $course_id_form);
+                     $check_stmt->execute();
+                     $check_result = $check_stmt->get_result()->fetch_assoc();
+                     if ($check_result['count'] > 0) {
+                        $response['status'] = 'success';
+                        $response['message'] = 'Дані не змінилися або вже були оновлені.';
+                     } else {
+                        $response['message'] = 'Помилка оновлення: завдання не знайдено або не належить вказаному курсу.';
+                     }
+                     $check_stmt->close();
+                }
+            } else {
+                $response['message'] = 'Помилка оновлення завдання в БД: ' . $stmt_update_assignment->error;
+                error_log('DB assignment update error: ' . $stmt_update_assignment->error);
+            }
+            $stmt_update_assignment->close();
+        } else {
+            $response['message'] = 'Помилка підготовки запиту для оновлення завдання: ' . $conn->error;
+            error_log('DB assignment update prepare error: ' . $conn->error);
+        }
+    } else {
+        $response['message'] = 'Некоректний метод запиту для оновлення завдання.';
+    }
+}
+// NEW ACTION: delete_assignment
+elseif ($action === 'delete_assignment') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $assignment_id_delete = filter_input(INPUT_POST, 'assignment_id', FILTER_VALIDATE_INT);
+        $course_id_form = filter_input(INPUT_POST, 'course_id', FILTER_VALIDATE_INT);
+
+        if (!$assignment_id_delete || !$course_id_form) {
+            $response['message'] = 'ID завдання або курсу не вказано.';
+            echo json_encode($response);
+            exit();
+        }
+        if (!isUserTeacherOfCourse($conn, $current_user_id, $course_id_form)) {
+            $response['message'] = 'У вас немає прав для видалення завдань в цьому курсі.';
+            echo json_encode($response);
+            exit();
+        }
+
+        $conn->begin_transaction(); // Start transaction
+
+        try {
+            // Delete related submissions
+            $stmt_delete_submissions = $conn->prepare("DELETE FROM submissions WHERE assignment_id = ?");
+            if (!$stmt_delete_submissions) {
+                throw new Exception("Помилка підготовки видалення пов'язаних здач: " . $conn->error);
+            }
+            $stmt_delete_submissions->bind_param("i", $assignment_id_delete);
+            if (!$stmt_delete_submissions->execute()) {
+                throw new Exception("Помилка видалення пов'язаних здач: " . $stmt_delete_submissions->error);
+            }
+            $stmt_delete_submissions->close();
+
+            // Delete the assignment
+            $stmt_delete_assignment = $conn->prepare("DELETE FROM assignments WHERE assignment_id = ? AND course_id = ?");
+            if (!$stmt_delete_assignment) {
+                throw new Exception("Помилка підготовки запиту для видалення завдання: " . $conn->error);
+            }
+            $stmt_delete_assignment->bind_param("ii", $assignment_id_delete, $course_id_form);
+            if ($stmt_delete_assignment->execute()) {
+                if ($stmt_delete_assignment->affected_rows > 0) {
+                    $conn->commit(); // Commit transaction
+                    $response['status'] = 'success';
+                    $response['message'] = 'Завдання та пов\'язані з ним здані роботи успішно видалено!';
+                } else {
+                    // This case might mean the assignment was already deleted or didn't match course_id
+                    // but submissions might have been deleted if they existed.
+                    // If submissions were deleted, it's still a form of success.
+                    // Or, it's possible no submissions existed and the assignment was not found / did not match.
+                    // To be more precise, one could check affected_rows of submissions deletion too.
+                    // For now, if assignment deletion shows 0 affected, we treat it as "not found".
+                    $conn->rollback(); // Rollback if assignment itself wasn't deleted
+                    $response['message'] = 'Завдання не знайдено для видалення або вже було видалено.';
+                }
+            } else {
+                throw new Exception("Помилка видалення завдання з БД: " . $stmt_delete_assignment->error);
+            }
+            $stmt_delete_assignment->close();
+
+        } catch (Exception $e) {
+            $conn->rollback(); // Rollback on any error
+            $response['message'] = $e->getMessage();
+            error_log('DB assignment/submissions delete error: ' . $e->getMessage());
+        }
+
+    } else {
+        $response['message'] = 'Некоректний метод запиту для видалення завдання.';
+    }
+}
 
 // ДЛЯ СТОРІНКИ assignment_view.php - деталі завдання + статус здачі студента
 elseif ($action === 'get_assignment_submission_details') { // JavaScript буде викликати цю дію
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $assignment_id = filter_input(INPUT_GET, 'assignment_id', FILTER_VALIDATE_INT);
-        // $current_user_id вже має бути визначено з сесії
 
         if (!$assignment_id) {
             $response['message'] = 'ID завдання не вказано.';
@@ -348,21 +621,41 @@ elseif ($action === 'get_assignment_submission_details') { // JavaScript буд�
 
         $assignment_details = null;
         $submission_details = null;
+        $is_teacher_of_course = false; // Default to false
 
-        // 1. Отримати деталі завдання
-        $stmt_ass = $conn->prepare("SELECT a.*, c.author_id as course_author_id FROM assignments a JOIN courses c ON a.course_id = c.course_id WHERE a.assignment_id = ?");
+        $stmt_ass = $conn->prepare(
+            "SELECT a.*, c.author_id as course_author_id, c.course_id 
+             FROM assignments a 
+             JOIN courses c ON a.course_id = c.course_id 
+             WHERE a.assignment_id = ?"
+        );
         if ($stmt_ass) {
             $stmt_ass->bind_param("i", $assignment_id);
             $stmt_ass->execute();
             $result_ass = $stmt_ass->get_result();
             if ($row_ass = $result_ass->fetch_assoc()) {
                 $assignment_details = $row_ass;
-                // Екранування для безпечного виведення (якщо потрібно відправляти HTML)
-                // $assignment_details['title'] = htmlspecialchars($row_ass['title']);
-                // $assignment_details['description'] = nl2br(htmlspecialchars($row_ass['description'] ?? ''));
+                $is_teacher_of_course = ($current_user_id == $assignment_details['course_author_id']);
+
+                // Перевірка чи студент зарахований на курс, якщо він не викладач
+                if (!$is_teacher_of_course) {
+                    $stmt_check_enrollment = $conn->prepare("SELECT 1 FROM enrollments WHERE course_id = ? AND student_id = ?");
+                    $stmt_check_enrollment->bind_param("ii", $assignment_details['course_id'], $current_user_id);
+                    $stmt_check_enrollment->execute();
+                    if($stmt_check_enrollment->get_result()->num_rows == 0) {
+                        $response['message'] = 'Ви не зараховані на курс, до якого належить це завдання.';
+                        $stmt_ass->close();
+                        $stmt_check_enrollment->close();
+                        echo json_encode($response);
+                        exit();
+                    }
+                    $stmt_check_enrollment->close();
+                }
+
             }
             $stmt_ass->close();
         }
+
 
         if (!$assignment_details) {
             $response['message'] = 'Завдання не знайдено.';
@@ -370,9 +663,6 @@ elseif ($action === 'get_assignment_submission_details') { // JavaScript буд�
             exit();
         }
         
-        $is_teacher_of_course = ($current_user_id == $assignment_details['course_author_id']);
-
-        // 2. Якщо користувач не викладач, отримати деталі його здачі
         if (!$is_teacher_of_course) {
             $stmt_sub = $conn->prepare("SELECT * FROM submissions WHERE assignment_id = ? AND student_id = ? ORDER BY submission_date DESC LIMIT 1");
             if ($stmt_sub) {
@@ -381,16 +671,16 @@ elseif ($action === 'get_assignment_submission_details') { // JavaScript буд�
                 $result_sub = $stmt_sub->get_result();
                 if ($row_sub = $result_sub->fetch_assoc()) {
                     $submission_details = $row_sub;
-                    // $submission_details['submission_text'] = nl2br(htmlspecialchars($row_sub['submission_text'] ?? ''));
-                    // $submission_details['feedback'] = nl2br(htmlspecialchars($row_sub['feedback'] ?? ''));
                 }
                 $stmt_sub->close();
+            } else {
+                 error_log("DB prepare error for student submission details: " . $conn->error);
             }
         }
 
         $response['status'] = 'success';
         $response['assignment_details'] = $assignment_details;
-        $response['submission_details'] = $submission_details; // Буде null, якщо викладач або студент ще не здавав
+        $response['submission_details'] = $submission_details; 
         $response['is_teacher_of_course'] = $is_teacher_of_course;
 
     } else {
@@ -400,6 +690,7 @@ elseif ($action === 'get_assignment_submission_details') { // JavaScript буд�
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($current_user_id)) {
         $assignment_id = filter_input(INPUT_POST, 'assignment_id', FILTER_VALIDATE_INT);
         $submission_text = trim($_POST['submission_text'] ?? null);
+        $assignment_data_for_paths = null; // Для шляхів файлів
 
         if (!$assignment_id) {
             $response['message'] = 'ID завдання не вказано.';
@@ -407,44 +698,68 @@ elseif ($action === 'get_assignment_submission_details') { // JavaScript буд�
             exit();
         }
 
-        // Перевірка, чи користувач не є викладачем курсу (студенти не повинні здавати завдання у своїх курсах)
-        // і чи курс взагалі існує для цього завдання
-        $stmt_course_check = $conn->prepare("SELECT c.author_id FROM assignments a JOIN courses c ON a.course_id = c.course_id WHERE a.assignment_id = ?");
-        if ($stmt_course_check) {
-            $stmt_course_check->bind_param("i", $assignment_id);
-            $stmt_course_check->execute();
-            $course_info_res = $stmt_course_check->get_result();
-            if ($course_info = $course_info_res->fetch_assoc()) {
-                if ($course_info['author_id'] == $current_user_id) {
+        $stmt_assignment_info = $conn->prepare("SELECT a.course_id, c.author_id FROM assignments a JOIN courses c ON a.course_id = c.course_id WHERE a.assignment_id = ?");
+        if ($stmt_assignment_info) {
+            $stmt_assignment_info->bind_param("i", $assignment_id);
+            $stmt_assignment_info->execute();
+            $result_assignment_info = $stmt_assignment_info->get_result();
+            if ($assignment_info_row = $result_assignment_info->fetch_assoc()) {
+                $assignment_data_for_paths = $assignment_info_row; // Зберігаємо для шляхів
+                if ($assignment_info_row['author_id'] == $current_user_id) {
                     $response['message'] = 'Викладачі не можуть здавати завдання.';
                     echo json_encode($response);
                     exit();
                 }
+                // Перевірка, чи студент зарахований на курс
+                $stmt_check_enrollment = $conn->prepare("SELECT 1 FROM enrollments WHERE course_id = ? AND student_id = ?");
+                $stmt_check_enrollment->bind_param("ii", $assignment_info_row['course_id'], $current_user_id);
+                $stmt_check_enrollment->execute();
+                if($stmt_check_enrollment->get_result()->num_rows == 0) {
+                    $response['message'] = 'Ви не можете здати завдання, оскільки не зараховані на цей курс.';
+                     $stmt_check_enrollment->close();
+                     $stmt_assignment_info->close();
+                    echo json_encode($response);
+                    exit();
+                }
+                $stmt_check_enrollment->close();
+
             } else {
                 $response['message'] = 'Завдання або курс не знайдено.';
+                 $stmt_assignment_info->close();
                 echo json_encode($response);
                 exit();
             }
-            $stmt_course_check->close();
+            $stmt_assignment_info->close();
+        } else {
+            $response['message'] = 'Помилка перевірки курсу: ' . $conn->error;
+             error_log("DB course check error for submission: " . $conn->error);
+            echo json_encode($response);
+            exit();
         }
 
 
         $file_path_db = null;
-        // Обробка завантаження файлу
         if (isset($_FILES['submission_file']) && $_FILES['submission_file']['error'] == UPLOAD_ERR_OK) {
-            $upload_dir_relative = '../public/uploads/submissions/'; // Шлях відносно цього скрипта (src)
-            $upload_dir_absolute = realpath(__DIR__ . '/' . $upload_dir_relative);
-
-            if (!$upload_dir_absolute) { // Якщо realpath не спрацював (шлях не існує)
-                 // Спробуємо створити відносно __DIR__
-                $upload_dir_absolute = __DIR__ . '/' . $upload_dir_relative;
+            // Переконуємося, що $assignment_data_for_paths отримано
+            if (!$assignment_data_for_paths || !isset($assignment_data_for_paths['course_id'])) {
+                 $response['message'] = 'Помилка: не вдалося визначити ID курсу для збереження файлу.';
+                 error_log('Failed to get course_id for submission file path.');
+                 echo json_encode($response);
+                 exit();
             }
-            $upload_dir_absolute .= '/course_' . $assignment_data['course_id'] . '/assignment_' . $assignment_id . '/student_' . $current_user_id . '/';
+
+            $upload_dir_relative = '../public/uploads/submissions/'; 
+            // Використовуємо __DIR__ для отримання абсолютного шляху до поточного каталогу (src)
+            $base_dir_for_upload = dirname(__DIR__); // Це буде корінь проекту, якщо src знаходиться в корені
+
+            $course_id_for_path = $assignment_data_for_paths['course_id'];
+            $structure = 'course_' . $course_id_for_path . '/assignment_' . $assignment_id . '/student_' . $current_user_id . '/';
+            $upload_dir_absolute = $base_dir_for_upload . '/public/uploads/submissions/' . $structure;
 
 
             if (!is_dir($upload_dir_absolute)) {
                 if (!mkdir($upload_dir_absolute, 0775, true)) {
-                    $response['message'] = 'Не вдалося створити директорію для завантаження файлу: ' . $upload_dir_absolute;
+                    $response['message'] = 'Не вдалося створити директорію для завантаження файлу: ' . $upload_dir_absolute . '. Перевірте права доступу до папки public/uploads.';
                     error_log('Failed to create submission directory: ' . $upload_dir_absolute);
                     echo json_encode($response);
                     exit();
@@ -452,24 +767,33 @@ elseif ($action === 'get_assignment_submission_details') { // JavaScript буд�
             }
 
             $file_extension = strtolower(pathinfo($_FILES['submission_file']['name'], PATHINFO_EXTENSION));
-            // Додай перевірку на дозволені розширення файлів, якщо потрібно
-            // $allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'png', 'zip'];
-            // if (!in_array($file_extension, $allowed_extensions)) { ... }
+            $allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'zip'];
+            if (!in_array($file_extension, $allowed_extensions)) {
+                 $response['message'] = 'Неприпустимий тип файлу. Дозволені: PDF, DOC, DOCX, TXT, JPG, PNG, ZIP.';
+                 echo json_encode($response);
+                 exit();
+            }
+            if ($_FILES['submission_file']['size'] > 2 * 1024 * 1024) { // 2MB
+                $response['message'] = 'Файл занадто великий. Максимальний розмір - 2MB.';
+                echo json_encode($response);
+                exit();
+            }
+
 
             $new_filename = uniqid('sub_', true) . '.' . $file_extension;
             $upload_path_absolute_file = $upload_dir_absolute . $new_filename;
 
             if (move_uploaded_file($_FILES['submission_file']['tmp_name'], $upload_path_absolute_file)) {
-                // Шлях для збереження в БД (відносний до папки public)
-                $file_path_db = 'uploads/submissions/course_' . $assignment_data['course_id'] . '/assignment_' . $assignment_id . '/student_' . $current_user_id . '/' . $new_filename;
+                $file_path_db = 'uploads/submissions/' . $structure . $new_filename;
             } else {
-                $response['message'] = 'Помилка переміщення завантаженого файлу.';
-                error_log('File move error for submission. Target: ' . $upload_path_absolute_file);
+                $response['message'] = 'Помилка переміщення завантаженого файлу. Код помилки: ' . $_FILES['submission_file']['error'];
+                error_log('File move error for submission. Target: ' . $upload_path_absolute_file . '. Error code: ' . $_FILES['submission_file']['error']);
                 echo json_encode($response);
                 exit();
             }
         } elseif (isset($_FILES['submission_file']) && $_FILES['submission_file']['error'] != UPLOAD_ERR_NO_FILE) {
             $response['message'] = 'Помилка завантаження файлу: код ' . $_FILES['submission_file']['error'];
+            error_log('File upload error code for submission: ' . $_FILES['submission_file']['error']);
             echo json_encode($response);
             exit();
         }
@@ -480,32 +804,50 @@ elseif ($action === 'get_assignment_submission_details') { // JavaScript буд�
             exit();
         }
 
-
-        // Перевірка, чи вже є здача, і оновлення або вставка
-        $stmt_check_sub = $conn->prepare("SELECT submission_id FROM submissions WHERE assignment_id = ? AND student_id = ?");
+        $stmt_check_sub = $conn->prepare("SELECT submission_id, file_path FROM submissions WHERE assignment_id = ? AND student_id = ? ORDER BY submission_date DESC LIMIT 1");
+        if (!$stmt_check_sub) {
+            $response['message'] = 'Помилка підготовки перевірки існуючої здачі: ' . $conn->error;
+            error_log('DB check existing submission prepare error: ' . $conn->error);
+            echo json_encode($response);
+            exit();
+        }
         $stmt_check_sub->bind_param("ii", $assignment_id, $current_user_id);
         $stmt_check_sub->execute();
         $result_check_sub = $stmt_check_sub->get_result();
         $existing_submission = $result_check_sub->fetch_assoc();
         $stmt_check_sub->close();
 
-        if ($existing_submission) { // Оновлюємо існуючу здачу
+        if ($existing_submission) { 
             $submission_id_to_update = $existing_submission['submission_id'];
-            // Тут можна додати логіку видалення старого файлу, якщо він замінюється
+            $old_file_path_db = $existing_submission['file_path'];
+
+            // Видалення старого файлу, якщо завантажено новий і старий файл існував
+            if ($file_path_db && $old_file_path_db) {
+                $old_file_server_path = dirname(__DIR__) . '/public/' . $old_file_path_db;
+                if (file_exists($old_file_server_path)) {
+                    unlink($old_file_server_path);
+                }
+            }
+            // Якщо новий файл не завантажено, але текст змінено, зберігаємо старий шлях до файлу
+            $final_file_path_for_update = $file_path_db ?? $old_file_path_db;
+
+
             $stmt_update_sub = $conn->prepare("UPDATE submissions SET submission_date = NOW(), file_path = ?, submission_text = ?, status = 'submitted', grade = NULL, graded_at = NULL, feedback = NULL WHERE submission_id = ?");
             if ($stmt_update_sub) {
-                $stmt_update_sub->bind_param("ssi", $file_path_db, $submission_text, $submission_id_to_update);
+                $stmt_update_sub->bind_param("ssi", $final_file_path_for_update, $submission_text, $submission_id_to_update);
                 if ($stmt_update_sub->execute()) {
                     $response['status'] = 'success';
                     $response['message'] = 'Роботу успішно оновлено та здано!';
                 } else {
                     $response['message'] = 'Помилка оновлення здачі: ' . $stmt_update_sub->error;
+                    error_log('DB update submission execute error: ' . $stmt_update_sub->error);
                 }
                 $stmt_update_sub->close();
             } else {
                  $response['message'] = 'Помилка підготовки оновлення здачі: ' . $conn->error;
+                 error_log('DB update submission prepare error: ' . $conn->error);
             }
-        } else { // Вставляємо нову здачу
+        } else { 
             $stmt_insert_sub = $conn->prepare("INSERT INTO submissions (assignment_id, student_id, submission_date, file_path, submission_text, status) VALUES (?, ?, NOW(), ?, ?, 'submitted')");
             if ($stmt_insert_sub) {
                 $stmt_insert_sub->bind_param("iiss", $assignment_id, $current_user_id, $file_path_db, $submission_text);
@@ -514,16 +856,21 @@ elseif ($action === 'get_assignment_submission_details') { // JavaScript буд�
                     $response['message'] = 'Роботу успішно здано!';
                 } else {
                     $response['message'] = 'Помилка збереження здачі: ' . $stmt_insert_sub->error;
+                     error_log('DB insert submission execute error: ' . $stmt_insert_sub->error);
                 }
                 $stmt_insert_sub->close();
             } else {
                  $response['message'] = 'Помилка підготовки збереження здачі: ' . $conn->error;
+                 error_log('DB insert submission prepare error: ' . $conn->error);
             }
         }
     } else {
         $response['message'] = 'Некоректний метод або користувач не авторизований.';
     }
+} else {
+  $response['message'] = "Невідома дія: " . htmlspecialchars($action);
 }
+
 
 $conn->close();
 echo json_encode($response);
