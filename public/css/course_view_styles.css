@@ -702,3 +702,10 @@ table {
 td, th {
     word-wrap: break-word; 
 }
+
+.assignments-tab-content-wrapper {
+    max-width: 900px; /* Ви можете змінити це значення на бажану максимальну ширину */
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%; /* Забезпечує, що обгортка буде адаптивною до менших екранів */
+}

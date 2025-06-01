@@ -6,6 +6,13 @@
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.07);
     margin-top: 20px; /* Якщо банер не відображається на цій сторінці */
+
+    /* --- Додані рядки для центрування --- */
+    max-width: 960px;  /* Ви можете обрати іншу ширину, наприклад, 900px, 1140px */
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%; /* Забезпечує адаптивність на менших екранах до max-width */
+    /* --- Кінець доданих рядків --- */
 }
 
 .assignment-header-details h1 {
@@ -68,8 +75,6 @@ hr.assignment-divider {
     color: #333;
 }
 
-/* Стилі для форми здачі (спадкують .form-group-modal, .form-control-modal, .submit-button-modal з course_view_styles.css, якщо вони глобальні) */
-/* Або додай їх сюди, якщо вони унікальні */
 #submitAssignmentForm .form-group-modal {
     margin-bottom: 18px;
 }
@@ -94,15 +99,13 @@ hr.assignment-divider {
     resize: vertical;
 }
 #submitAssignmentForm .submit-button-modal {
-    /* Стилі для кнопки здачі, якщо вони відрізняються від кнопки створення курсу/оголошення */
-    background-color: #007bff; /* Наприклад, синій */
+    background-color: #007bff;
     margin-top: 10px;
 }
 #submitAssignmentForm .submit-button-modal:hover {
     background-color: #0056b3;
 }
 
-/* Стилі для відображення статусу зданої роботи */
 #studentSubmissionArea .submission-status {
     display: inline-block;
     padding: 6px 12px;
@@ -111,17 +114,14 @@ hr.assignment-divider {
     font-size: 0.9em;
     margin-bottom: 10px;
 }
-/* Використовуй ті ж самі класи статусів, що й на картках завдань */
-.submission-status.submitted { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;}
-.submission-status.graded { background-color: #cff4fc; color: #055160; border: 1px solid #b6effb;}
-/* Додай інші статуси, якщо потрібно */
+.submission-status.submitted { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;} /* */
+.submission-status.graded { background-color: #cff4fc; color: #055160; border: 1px solid #b6effb;} /* */
 
 #studentSubmissionArea p {
     margin-bottom: 8px;
     line-height: 1.5;
 }
 
-/* Кнопка для викладача "Переглянути здані роботи" */
 #teacherAssignmentActions .view-submissions-link {
-    /* Стилі успадковуються з .button-link, якщо вони глобальні */
+    /* Specific styles if needed, otherwise inherited */
 }

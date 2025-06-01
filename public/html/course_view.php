@@ -4,7 +4,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 // $show_add_course_button_on_home = false; // Ця змінна не потрібна тут
-require_once __DIR__ . '/templates/header.php'; 
+require_once __DIR__ . '/templates/header.php';
 
 require_once __DIR__ . '/../../src/connect.php'; // Переконайтеся, що connect.php підключається
 
@@ -57,7 +57,7 @@ if (!$course_id_get) {
 }
 
 if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
-    define('WEB_ROOT_REL_FROM_HTML_CV', '../'); 
+    define('WEB_ROOT_REL_FROM_HTML_CV', '../');
 }
 ?>
 
@@ -120,22 +120,24 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
 
                 <div id="tab-assignments" class="tab-pane">
                     <h2>Завдання</h2>
-                    <?php if ($is_teacher): ?>
-                        <button id="showCreateAssignmentModalBtn" class="course-action-button">
-                            <i class="fas fa-plus"></i> Створити завдання
-                        </button>
-                    <?php endif; ?>
-                    <div class="assignments-controls">
-                        <label for="assignmentSortSelect">Сортувати:</label>
-                        <select id="assignmentSortSelect" class="form-control-sm">
-                            <option value="due_date_asc">Датою здачі (спочатку найближчі)</option>
-                            <option value="due_date_desc">Датою здачі (спочатку найпізніші)</option>
-                            <option value="created_at_desc">Датою публікації (спочатку нові)</option>
-                            <option value="created_at_asc">Датою публікації (спочатку старі)</option>
-                        </select>
-                    </div>
-                    <div id="assignmentsListArea">
-                        <p><i class="fas fa-spinner fa-spin"></i> Завантаження завдань...</p>
+                    <div class="assignments-tab-content-wrapper"> 
+                        <?php if ($is_teacher): ?>
+                            <button id="showCreateAssignmentModalBtn" class="course-action-button">
+                                <i class="fas fa-plus"></i> Створити завдання
+                            </button>
+                        <?php endif; ?>
+                        <div class="assignments-controls">
+                            <label for="assignmentSortSelect">Сортувати:</label>
+                            <select id="assignmentSortSelect" class="form-control-sm">
+                                <option value="due_date_asc">Датою здачі (спочатку найближчі)</option>
+                                <option value="due_date_desc">Датою здачі (спочатку найпізніші)</option>
+                                <option value="created_at_desc">Датою публікації (спочатку нові)</option>
+                                <option value="created_at_asc">Датою публікації (спочатку старі)</option>
+                            </select>
+                        </div>
+                        <div id="assignmentsListArea">
+                            <p><i class="fas fa-spinner fa-spin"></i> Завантаження завдань...</p>
+                        </div>
                     </div>
                 </div>
 
@@ -239,7 +241,7 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
 </div>
 
 <div id="editAssignmentModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content create-assignment-modal-content"> 
+    <div class="modal-content create-assignment-modal-content">
         <button class="modal-close-btn" id="closeEditAssignmentModalBtn" aria-label="Закрити">&times;</button>
         <h2>Редагувати завдання</h2>
         <form id="editAssignmentFormInternal" class="course-form">
@@ -260,7 +262,7 @@ if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) {
                 <small>Залиште порожнім, щоб додати завдання без розділу.</small>
             </div>
             <div class="form-row-modal">
-                <div class="form-group-modal half-width"> 
+                <div class="form-group-modal half-width">
                     <label for="assignment_max_points_edit_modal">Макс. балів:</label>
                     <input type="number" id="assignment_max_points_edit_modal" name="assignment_max_points" min="0" max="100" class="form-control-modal" required>
                 </div>
@@ -317,19 +319,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const assignmentIdEditInput = document.getElementById('assignment_id_edit');
     const assignmentTitleEditModal = document.getElementById('assignment_title_edit_modal');
     const assignmentDescriptionEditModal = document.getElementById('assignment_description_edit_modal');
-    const assignmentSectionTitleEditModal = document.getElementById('assignment_section_edit_modal'); 
+    const assignmentSectionTitleEditModal = document.getElementById('assignment_section_edit_modal');
     const assignmentMaxPointsEditModal = document.getElementById('assignment_max_points_edit_modal');
     const assignmentDueDateEditModal = document.getElementById('assignment_due_date_edit_modal');
 
-    let allExistingSections = []; 
+    let allExistingSections = [];
 
     async function fetchAndPopulateExistingSections(courseId) {
         const datalistCreate = document.getElementById('existing_sections_list_create');
         const datalistEdit = document.getElementById('existing_sections_list_edit');
 
-        if (!isCurrentUserTeacherOfThisCourse) return; 
-        if (!datalistCreate || !datalistEdit) return; 
-        
+        if (!isCurrentUserTeacherOfThisCourse) return;
+        if (!datalistCreate || !datalistEdit) return;
+
         try {
             const response = await fetch(`../../src/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=created_at_asc`);
             if (!response.ok) { console.error("Could not fetch assignments to get sections"); return; }
@@ -342,12 +344,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 allExistingSections = Array.from(uniqueSections).sort();
-                datalistCreate.innerHTML = ''; 
+                datalistCreate.innerHTML = '';
                 allExistingSections.forEach(section => {
                     const optionCreate = document.createElement('option'); optionCreate.value = section;
                     datalistCreate.appendChild(optionCreate);
                 });
-                datalistEdit.innerHTML = '';   
+                datalistEdit.innerHTML = '';
                 allExistingSections.forEach(section => {
                     const optionEdit = document.createElement('option'); optionEdit.value = section;
                     datalistEdit.appendChild(optionEdit);
@@ -419,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dueDate = dueDateStr ? new Date(dueDateStr) : null; const now = new Date();
         switch (statusCode) {
             case 'submitted': statusText = 'Здано'; statusClass = 'submission-status-submitted'; break;
-            case 'graded': statusClass = 'submission-status-graded'; break; 
+            case 'graded': statusClass = 'submission-status-graded'; break;
             case 'missed': statusText = 'Пропущено'; statusClass = 'submission-status-missed'; break;
             case 'pending_submission': default:
                 if (dueDate && dueDate < now) { statusText = 'Пропущено'; statusClass = 'submission-status-missed'; }
@@ -501,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
         assignmentSortSelect.addEventListener('change', function() { loadAssignments(currentCourseIdForJS, this.value); });
     }
 
-    async function loadAnnouncements(courseId) { 
+    async function loadAnnouncements(courseId) {
         if (!courseId || !announcementsArea) return;
         announcementsArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження оголошень...</p>';
         try {
@@ -568,7 +570,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) { const errorText = await response.text(); console.error("Server error response text for get_assignments:", errorText); throw new Error(`HTTP помилка! Статус: ${response.status}`); }
             const result = await response.json();
             if (result.status === 'success' && result.assignments) {
-                isCurrentUserTeacherOfThisCourse = result.is_teacher_of_course; assignmentsListArea.innerHTML = ''; 
+                isCurrentUserTeacherOfThisCourse = result.is_teacher_of_course; assignmentsListArea.innerHTML = '';
                 const uniqueSectionsForDatalist = new Set();
                 result.assignments.forEach(asm => { if (asm.section_title && asm.section_title.trim() !== '') { uniqueSectionsForDatalist.add(asm.section_title.trim()); } });
                 allExistingSections = Array.from(uniqueSectionsForDatalist).sort();
@@ -577,9 +579,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     result.assignments.forEach(asm => { const sectionKey = asm.section_title || 'Інші завдання'; if (!assignmentsBySection[sectionKey]) { assignmentsBySection[sectionKey] = []; } assignmentsBySection[sectionKey].push(asm); });
                     createSectionFilter(Object.keys(assignmentsBySection));
                     for (const sectionTitle in assignmentsBySection) {
-                        const sectionContainer = document.createElement('div'); sectionContainer.classList.add('assignment-section-container'); sectionContainer.dataset.sectionTitle = sectionTitle; 
+                        const sectionContainer = document.createElement('div'); sectionContainer.classList.add('assignment-section-container'); sectionContainer.dataset.sectionTitle = sectionTitle;
                         const sectionHeader = document.createElement('h3'); sectionHeader.classList.add('section-title-header'); sectionHeader.textContent = sectionTitle; sectionContainer.appendChild(sectionHeader);
-                        const assignmentsGrid = document.createElement('div'); assignmentsGrid.classList.add('assignments-grid-internal'); 
+                        const assignmentsGrid = document.createElement('div'); assignmentsGrid.classList.add('assignments-grid-internal');
                         assignmentsBySection[sectionTitle].forEach(asm => {
                             const asmElement = document.createElement('div'); asmElement.classList.add('assignment-item-card-compact'); asmElement.dataset.assignmentId = asm.assignment_id;
                             let deadlineLabel = ''; const dueDateObj = asm.due_date ? new Date(asm.due_date) : null; const now = new Date();
@@ -609,11 +611,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function createSectionFilter(sections) {
         let filterContainer = document.getElementById('courseSectionsFilter');
         if (!filterContainer) { filterContainer = document.createElement('div'); filterContainer.id = 'courseSectionsFilter'; filterContainer.classList.add('sections-filter-container');
-            const assignmentsTabPane = document.getElementById('tab-assignments'); const controls = assignmentsTabPane.querySelector('.assignments-controls');
-            if (controls) { controls.parentNode.insertBefore(filterContainer, controls); }
-            else if (assignmentsListArea) { assignmentsListArea.parentNode.insertBefore(filterContainer, assignmentsListArea); }
-            else if (assignmentsTabPane) { assignmentsTabPane.insertBefore(filterContainer, assignmentsTabPane.firstChild); } }
-        filterContainer.innerHTML = ''; 
+            const assignmentsTabPane = document.getElementById('tab-assignments');
+            // Змінено: вставляємо перед assignments-controls, якщо він існує, інакше перед assignmentsListArea
+             const assignmentsControlsDiv = assignmentsTabPane.querySelector('.assignments-tab-content-wrapper .assignments-controls'); // Шукаємо всередині нової обгортки
+            if (assignmentsControlsDiv) { // Якщо .assignments-controls існує
+                 assignmentsControlsDiv.parentNode.insertBefore(filterContainer, assignmentsControlsDiv);
+            } else if (assignmentsListArea) { // Якщо .assignments-controls немає, але є .assignmentsListArea
+                assignmentsListArea.parentNode.insertBefore(filterContainer, assignmentsListArea);
+            } else if (assignmentsTabPane) { // Якщо немає ні того, ні іншого, вставляємо на початок вкладки
+                const wrapper = assignmentsTabPane.querySelector('.assignments-tab-content-wrapper');
+                if (wrapper) {
+                    wrapper.insertBefore(filterContainer, wrapper.firstChild);
+                } else {
+                    assignmentsTabPane.insertBefore(filterContainer, assignmentsTabPane.firstChild);
+                }
+            }
+        }
+        filterContainer.innerHTML = '';
         if (sections.length <= 1 && (sections.length === 0 || sections[0] === 'Інші завдання')) { filterContainer.style.display = 'none'; return; }
         filterContainer.style.display = 'flex';
         const allSectionsButton = document.createElement('button'); allSectionsButton.textContent = 'Всі завдання'; allSectionsButton.classList.add('section-filter-btn', 'active');
@@ -629,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
         filterButtons.forEach(btn => { if (selectedSectionTitle === 'all' && btn.textContent === 'Всі завдання') { btn.classList.add('active'); } else { btn.classList.toggle('active', btn.textContent === selectedSectionTitle); }});
         sectionContainers.forEach(container => { if (selectedSectionTitle === 'all' || container.dataset.sectionTitle === selectedSectionTitle) { container.style.display = 'block'; } else { container.style.display = 'none'; } });
     }
-    
+
     if (showCreateAssignmentModalBtn && createAssignmentModal) {
          showCreateAssignmentModalBtn.addEventListener('click', () => { if (createAssignmentFormInternal) createAssignmentFormInternal.reset(); if (currentCourseIdForJS) { fetchAndPopulateExistingSections(currentCourseIdForJS); } createAssignmentModal.style.display = 'flex'; }); }
     if (closeCreateAssignmentModalBtn && createAssignmentModal) { closeCreateAssignmentModalBtn.addEventListener('click', () => { createAssignmentModal.style.display = 'none'; if(createAssignmentFormInternal) createAssignmentFormInternal.reset(); }); }
@@ -650,13 +664,13 @@ document.addEventListener('DOMContentLoaded', function() {
             } finally { submitButton.disabled = false; submitButton.innerHTML = originalButtonText; }
         });
     }
-    
+
     if (closeEditAssignmentModalBtn && editAssignmentModal) { closeEditAssignmentModalBtn.addEventListener('click', () => { editAssignmentModal.style.display = 'none'; if(editAssignmentFormInternal) editAssignmentFormInternal.reset(); }); }
     if (editAssignmentModal) { editAssignmentModal.addEventListener('click', (event) => { if (event.target === editAssignmentModal) { editAssignmentModal.style.display = 'none'; if(editAssignmentFormInternal) editAssignmentFormInternal.reset(); } });}
 
     async function handleEditAssignmentClick(assignmentId) {
         if (!editAssignmentModal || !isCurrentUserTeacherOfThisCourse || !assignmentIdEditInput) return;
-        if (editAssignmentFormInternal) editAssignmentFormInternal.reset(); 
+        if (editAssignmentFormInternal) editAssignmentFormInternal.reset();
         if (currentCourseIdForJS) { await fetchAndPopulateExistingSections(currentCourseIdForJS); }
         try {
             const response = await fetch(`../../src/course_actions.php?action=get_assignment_details_for_edit&assignment_id=${assignmentId}`);
