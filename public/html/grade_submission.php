@@ -25,26 +25,28 @@ $default_avatar_web_path = WEB_ROOT_REL_FROM_HTML . 'assets/default_avatar.png';
 <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML; ?>css/course_view_styles.css">
 <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML; ?>css/grading_styles.css">
 
-<div class="course-view-main-content" id="gradingPageContainer">
-    <div class="course-header-bar" id="gradingBreadcrumbs" style="display:none;">
-        <div class="breadcrumbs">
-            <a href="home.php">Мої курси</a> &gt;
-            <a id="breadcrumbCourseName" href="#">Курс</a> &gt;
-            <a id="breadcrumbAssignmentName" href="#">Завдання</a> &gt;
-            <a id="breadcrumbSubmissionsList" href="#">Здані роботи</a> &gt;
-            <span>Оцінювання: <span id="breadcrumbStudentName">Студент</span></span>
+<main class="page-content-wrapper"> 
+    <div class="course-view-main-content" id="gradingPageContainer">
+        <div class="course-header-bar" id="gradingBreadcrumbs" style="display:none;">
+            <div class="breadcrumbs">
+                <a href="home.php">Мої курси</a> &gt;
+                <a id="breadcrumbCourseName" href="#">Курс</a> &gt;
+                <a id="breadcrumbAssignmentName" href="#">Завдання</a> &gt;
+                <a id="breadcrumbSubmissionsList" href="#">Здані роботи</a> &gt;
+                <span>Оцінювання: <span id="breadcrumbStudentName">Студент</span></span>
+            </div>
+        </div>
+
+        <div id="submissionDetailArea" class="submission-grading-container">
+            <p class="loading-text"><i class="fas fa-spinner fa-spin"></i> Завантаження даних роботи...</p>
+            <?php if (!$submission_id_get): ?>
+                <p class="error-text">Помилка: ID зданої роботи не було передано.</p>
+            <?php endif; ?>
         </div>
     </div>
+</main>
 
-    <div id="submissionDetailArea" class="submission-grading-container">
-        <p class="loading-text"><i class="fas fa-spinner fa-spin"></i> Завантаження даних роботи...</p>
-        <?php if (!$submission_id_get): ?>
-            <p class="error-text">Помилка: ID зданої роботи не було передано.</p>
-        <?php endif; ?>
-    </div>
-</div>
-
-<script>
+</div> <script>
 const CURRENT_SUBMISSION_ID = <?php echo $submission_id_get ? json_encode((int)$submission_id_get) : 'null'; ?>;
 const ASSET_BASE_PATH_FROM_HTML = '<?php echo WEB_ROOT_REL_FROM_HTML; ?>';
 const DEFAULT_AVATAR_URL_JS = ASSET_BASE_PATH_FROM_HTML + 'assets/default_avatar.png';
@@ -64,11 +66,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (submissionDetailArea.querySelector('.loading-text')) {
                  submissionDetailArea.querySelector('.loading-text').style.display = 'none';
             }
+             // Якщо ID не передано, можна також відобразити помилку тут, а не лише через PHP
+            if (!submissionDetailArea.querySelector('.error-text') && !document.querySelector('.error-text')) { // Перевірка, чи PHP вже не вивів помилку
+                submissionDetailArea.innerHTML = '<p class="error-text">Помилка: ID зданої роботи не було передано.</p>';
+            }
             return;
         }
+        
+        // Очищаємо область перед завантаженням, якщо там немає повідомлення про помилку з PHP
         if (!submissionDetailArea.querySelector('.error-text')) {
             submissionDetailArea.innerHTML = '<p class="loading-text"><i class="fas fa-spinner fa-spin"></i> Завантаження даних роботи...</p>';
         }
+
 
         try {
             const response = await fetch(`../../src/grading_actions.php?action=get_submission_for_grading&submission_id=${CURRENT_SUBMISSION_ID}`);
@@ -82,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const details = result.submission_details;
                 displaySubmissionDetails(details);
                 updateBreadcrumbsAndTitle(details);
-                gradingBreadcrumbs.style.display = 'block';
+                gradingBreadcrumbs.style.display = 'block'; // Показуємо breadcrumbs після успішного завантаження
             } else {
                 submissionDetailArea.innerHTML = `<p class="error-text">Не вдалося завантажити дані: ${result.message || 'Помилка сервера'}</p>`;
             }
@@ -259,6 +268,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (CURRENT_SUBMISSION_ID) {
         loadSubmissionForGrading();
+    } else {
+        // Якщо PHP вже вивів помилку, не перезаписуємо її
+        if (!document.querySelector('.error-text')) { // Перевірка, чи PHP вже не вивів помилку
+             submissionDetailArea.innerHTML = '<p class="error-text">Помилка: ID зданої роботи не вказано.</p>';
+        }
+        // Приховуємо індикатор завантаження, якщо він ще є
+        const loadingTextElement = submissionDetailArea.querySelector('.loading-text');
+        if(loadingTextElement) loadingTextElement.style.display = 'none';
     }
 });
 </script>
+</body>
+</html>

@@ -47,7 +47,10 @@ if (!$assignment_id_get) {
     if (!$assignment_data || !$is_teacher_of_this_course) {
         // Завдання не знайдено або користувач не є викладачем цього курсу
         // Показати помилку доступу або перенаправити
-        echo "<div class='course-view-main-content'><div class='course-not-found'><h1>Доступ заборонено</h1><p>Ви не маєте прав для перегляду цієї сторінки або завдання не існує.</p><a href='home.php' class='button'>На головну</a></div></div>";
+        // Додаємо обгортку page-content-wrapper і для повідомлення про помилку, щоб воно не ховалося під сайдбар
+        echo "<main class='page-content-wrapper'><div class='course-view-main-content'><div class='course-not-found'><h1>Доступ заборонено</h1><p>Ви не маєте прав для перегляду цієї сторінки або завдання не існує.</p><a href='home.php' class='button'>На головну</a></div></div></main>";
+        // Також потрібно підключити </div></body></html>, які йдуть з header.php, або просто завершити скрипт
+        // Оскільки header.php вже підключено, exit() достатньо
         exit();
     }
 
@@ -79,76 +82,91 @@ $page_title = "Здані роботи: " . ($assignment_data ? htmlspecialchars
 
 <title><?php echo $page_title; ?> - Assignet</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="../css/course_view_styles.css"> <link rel="stylesheet" href="../css/submissions_view_styles.css"> <div class="course-view-main-content">
-    <?php if ($assignment_data && $is_teacher_of_this_course): ?>
-        <div class="course-header-bar">
-            <div class="breadcrumbs">
-                <a href="home.php">Мої курси</a> &gt;
-                <a href="course_view.php?course_id=<?php echo htmlspecialchars($assignment_data['course_id']); ?>"><?php echo $course_name_for_breadcrumb; ?></a> &gt;
-                <a href="course_view.php?course_id=<?php echo htmlspecialchars($assignment_data['course_id']); ?>#assignments">Завдання</a> &gt;
-                <a href="assignment_view.php?assignment_id=<?php echo $assignment_id_get; ?>"><?php echo htmlspecialchars($assignment_data['assignment_title']); ?></a> &gt;
-                <span>Здані роботи</span>
+<link rel="stylesheet" href="../css/course_view_styles.css">
+<link rel="stylesheet" href="../css/submissions_view_styles.css">
+
+<main class="page-content-wrapper"> 
+    <div class="course-view-main-content">
+        <?php if ($assignment_data && $is_teacher_of_this_course): ?>
+            <div class="course-header-bar">
+                <div class="breadcrumbs">
+                    <a href="home.php">Мої курси</a> &gt;
+                    <a href="course_view.php?course_id=<?php echo htmlspecialchars($assignment_data['course_id']); ?>"><?php echo $course_name_for_breadcrumb; ?></a> &gt;
+                    <a href="course_view.php?course_id=<?php echo htmlspecialchars($assignment_data['course_id']); ?>#assignments">Завдання</a> &gt;
+                    <a href="assignment_view.php?assignment_id=<?php echo $assignment_id_get; ?>"><?php echo htmlspecialchars($assignment_data['assignment_title']); ?></a> &gt;
+                    <span>Здані роботи</span>
+                </div>
             </div>
-        </div>
 
-        <div class="submissions-container tab-pane active"> <h2>Здані роботи для: "<?php echo htmlspecialchars($assignment_data['assignment_title']); ?>"</h2>
+            <div class="submissions-container tab-pane active">
+                <h2>Здані роботи для: "<?php echo htmlspecialchars($assignment_data['assignment_title']); ?>"</h2>
 
-            <?php if (!empty($submissions)): ?>
-                <table class="submissions-table">
-                    <thead>
-                        <tr>
-                            <th>Студент</th>
-                            <th>Дата здачі</th>
-                            <th>Статус</th>
-                            <th>Оцінка</th>
-                            <th>Дії</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($submissions as $sub): ?>
+                <?php if (!empty($submissions)): ?>
+                    <table class="submissions-table">
+                        <thead>
                             <tr>
-                                <td><?php echo htmlspecialchars($sub['first_name'] . ' ' . $sub['last_name']); ?> (<?php echo htmlspecialchars($sub['student_username']); ?>)</td>
-                                <td><?php echo $sub['submission_date'] ? (new DateTime($sub['submission_date']))->format('d.m.Y H:i') : '(-)'; ?></td>
-                                <td>
-                                    <?php
-                                    $statusText = 'Не здано'; $statusClass = 'pending';
-                                    if ($sub['status']) {
-                                        switch($sub['status']) {
-                                            case 'submitted': $statusText = 'Здано'; $statusClass = 'submitted'; break;
-                                            case 'graded': $statusText = 'Оцінено'; $statusClass = 'graded'; break;
-                                            case 'missed': $statusText = 'Пропущено'; $statusClass = 'missed'; break; // Якщо ти будеш встановлювати такий статус
-                                            default: $statusText = htmlspecialchars($sub['status']);
-                                        }
-                                    } elseif (!$sub['submission_id'] && $assignment_data['due_date'] && new DateTime($assignment_data['due_date']) < new DateTime()) {
-                                        $statusText = 'Пропущено'; $statusClass = 'missed';
-                                    }
-                                    echo "<span class='submission-status-table {$statusClass}'>{$statusText}</span>";
-                                    ?>
-                                </td>
-                                <td><?php echo $sub['grade'] !== null ? htmlspecialchars($sub['grade']) : '–'; ?></td>
-                                <td>
-                                    <?php if ($sub['submission_id']): ?>
-                                        <a href="grade_submission.php?submission_id=<?php echo $sub['submission_id']; ?>" class="button-link grade-link">
-                                            <i class="fas fa-edit"></i> <?php echo $sub['grade'] !== null ? 'Змінити оцінку' : 'Оцінити'; ?>
-                                        </a>
-                                    <?php else: ?>
-                                        <span>–</span>
-                                    <?php endif; ?>
-                                </td>
+                                <th>Студент</th>
+                                <th>Дата здачі</th>
+                                <th>Статус</th>
+                                <th>Оцінка</th>
+                                <th>Дії</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>Ще ніхто не здав це завдання, або в курсі немає студентів.</p>
-            <?php endif; ?>
-        </div>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($submissions as $sub): ?>
+                                <tr>
+                                    <td data-label="Студент"><?php echo htmlspecialchars($sub['first_name'] . ' ' . $sub['last_name']); ?> (<?php echo htmlspecialchars($sub['student_username']); ?>)</td>
+                                    <td data-label="Дата здачі"><?php echo $sub['submission_date'] ? (new DateTime($sub['submission_date']))->format('d.m.Y H:i') : '(-)'; ?></td>
+                                    <td data-label="Статус">
+                                        <?php
+                                        $statusText = 'Не здано'; $statusClass = 'pending';
+                                        if ($sub['status']) {
+                                            switch($sub['status']) {
+                                                case 'submitted': $statusText = 'Здано'; $statusClass = 'submitted'; break;
+                                                case 'graded': $statusText = 'Оцінено'; $statusClass = 'graded'; break;
+                                                case 'missed': $statusText = 'Пропущено'; $statusClass = 'missed'; break; 
+                                                default: $statusText = htmlspecialchars($sub['status']);
+                                            }
+                                        } elseif (!$sub['submission_id'] && $assignment_data['due_date'] && new DateTime($assignment_data['due_date']) < new DateTime()) {
+                                            $statusText = 'Пропущено'; $statusClass = 'missed';
+                                        }
+                                        echo "<span class='submission-status-table {$statusClass}'>{$statusText}</span>";
+                                        ?>
+                                    </td>
+                                    <td data-label="Оцінка"><?php echo $sub['grade'] !== null ? htmlspecialchars($sub['grade']) : '–'; ?></td>
+                                    <td data-label="Дії">
+                                        <?php if ($sub['submission_id']): ?>
+                                            <a href="grade_submission.php?submission_id=<?php echo $sub['submission_id']; ?>" class="button-link grade-link">
+                                                <i class="fas fa-edit"></i> <?php echo $sub['grade'] !== null ? 'Змінити оцінку' : 'Оцінити'; ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <span>–</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <p class="no-submissions-message">Ще ніхто не здав це завдання, або в курсі немає студентів.</p>
+                <?php endif; ?>
+            </div>
 
-    <?php elseif (!$assignment_data): ?>
-        <div class="course-not-found">
-            <h1>Помилка</h1>
-            <p>Завдання не знайдено.</p>
-            <a href="home.php" class="button">На головну</a>
-        </div>
-    <?php endif; ?>
-</div>
+        <?php elseif (!$assignment_data && $assignment_id_get): // Якщо ID був, але дані не завантажились (і ми не вийшли через !is_teacher) ?>
+            <div class="course-not-found">
+                <h1>Помилка</h1>
+                <p>Завдання з ID <?php echo htmlspecialchars($assignment_id_get); ?> не знайдено.</p>
+                <a href="home.php" class="button">На головну</a>
+            </div>
+        <?php elseif (!$assignment_id_get): // Якщо ID завдання взагалі не було передано ?>
+             <div class="course-not-found">
+                <h1>Помилка</h1>
+                <p>ID завдання не було передано.</p>
+                <a href="home.php" class="button">На головну</a>
+            </div>
+        <?php endif; ?>
+    </div>
+</main> 
+
+</div> </body>
+</html>
