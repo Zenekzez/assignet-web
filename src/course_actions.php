@@ -1,9 +1,4 @@
 <?php
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -38,7 +33,6 @@ function isUserTeacherOfCourse($conn, $userId, $courseId) {
     return $is_teacher;
 }
 
-// --- Генерація унікального коду для приєднання ---
 function generateJoinCodeInternal($conn, $length = 8) {
     $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $charactersLength = strlen($characters);
@@ -68,7 +62,6 @@ function generateJoinCodeInternal($conn, $length = 8) {
     } while ($num_rows > 0);
     return $randomString;
 }
-
 
 if ($action === 'create_announcement') {
      if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -1,12 +1,9 @@
 <?php
-    // File: public/html/grades_overview.php
     if (session_status() == PHP_SESSION_NONE) { 
         session_start();
     }
-    // Для header.php, щоб підсвітити правильний пункт меню
-    // Цю змінну header.php може використовувати для визначення активного посилання
+ 
     $current_page_header = basename($_SERVER['PHP_SELF']); 
-    // $grades_link = 'grades_overview.php'; // Має бути визначено в header.php або тут
     require_once __DIR__ . '/templates/header.php'; 
 
     if (!isset($_SESSION['user_id'])) {
@@ -14,7 +11,7 @@
         exit();
     }
 ?>
-<title>Мої Оцінки - Assignet</title>
+<title>Мої Оцінки - AssignNet</title>
 <link rel="stylesheet" href="../css/grades_tab_styles.css"> <link rel="stylesheet" href="../css/course_view_styles.css"> <link rel="stylesheet" href="../css/grades_overview_styles.css"> <main class="page-content-wrapper">
     <div class="grades-overview-page-container">
         <div class="course-header-bar">

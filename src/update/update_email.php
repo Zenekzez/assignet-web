@@ -1,5 +1,4 @@
 <?php
-// File: src/update_email.php
 session_start();
 require_once 'connect.php';
 header('Content-Type: application/json');
@@ -17,9 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newEmail = trim($data['newEmail'] ?? '');
     $currentPassword = $data['passwordForEmailChange'] ?? '';
     $user_id = $_SESSION['user_id'];
-    $sessionEmail = $_SESSION['email'] ?? ''; // Поточна пошта з сесії
+    $sessionEmail = $_SESSION['email'] ?? ''; 
 
-    // --- Базова валідація ---
     if (empty($newEmail) || empty($currentPassword)) {
         $response['message'] = 'Нова електронна пошта та поточний пароль мають бути заповнені.';
         echo json_encode($response);
@@ -37,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // --- Перевірка поточного пароля ---
     $stmt_user = $conn->prepare("SELECT password_hash FROM users WHERE user_id = ?");
     if (!$stmt_user) {
         $response['message'] = 'Помилка підготовки запиту (користувач): ' . $conn->error;
@@ -57,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // --- Перевірка унікальності нової пошти (чи не зайнята іншим користувачем) ---
     $stmt_check_email = $conn->prepare("SELECT user_id FROM users WHERE email = ? AND user_id != ?");
     if (!$stmt_check_email) {
         $response['message'] = 'Помилка підготовки запиту (перевірка унікальності пошти): ' . $conn->error;
@@ -77,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $stmt_check_email->close();
 
-    // --- Оновлення пошти в базі ---
     $stmt_update = $conn->prepare("UPDATE users SET email = ? WHERE user_id = ?");
     if (!$stmt_update) {
         $response['message'] = 'Помилка підготовки запиту до БД для оновлення пошти: ' . $conn->error;
@@ -88,13 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt_update->bind_param("si", $newEmail, $user_id);
     if ($stmt_update->execute()) {
         if ($stmt_update->affected_rows > 0) {
-            $_SESSION['email'] = $newEmail; // Оновлюємо пошту в сесії
+            $_SESSION['email'] = $newEmail; 
             $response['status'] = 'success';
             $response['message'] = 'Електронну пошту успішно змінено!';
-            $response['new_email_for_display'] = $newEmail; // Для оновлення на сторінці
+            $response['new_email_for_display'] = $newEmail; 
         } else {
-            // Сюди не повинно дійти, якщо пошта дійсно нова (перевірка з sessionEmail)
-            // Але може бути, якщо в БД вже була така ж (що малоймовірно без помилки унікальності)
             $response['status'] = 'info';
             $response['message'] = 'Дані не змінилися або вже були оновлені.';
         }

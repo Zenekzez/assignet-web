@@ -1,12 +1,9 @@
 <?php
-// File: src/process_login.php
-// Додайте вибірку first_name, last_name, avatar_path, email та збереження їх у сесію
-
 session_start();
-require_once 'connect.php'; // Підключення до бази даних
+require_once 'connect.php'; 
 
 $errors = [];
-$formData = []; // Для збереження введеного логіна/пошти
+$formData = []; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $login_identifier = trim($_POST['login_identifier'] ?? '');
@@ -24,12 +21,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($errors)) {
         $is_email = filter_var($login_identifier, FILTER_VALIDATE_EMAIL);
 
-        // Додаємо вибірку first_name, last_name, avatar_path ТА email
         if ($is_email) {
-            // ЗМІНЕНО: додано `email` до запиту
             $sql = "SELECT user_id, username, email, password_hash, first_name, last_name, avatar_path FROM users WHERE email = ?";
         } else {
-            // ЗМІНЕНО: додано `email` до запиту
             $sql = "SELECT user_id, username, email, password_hash, first_name, last_name, avatar_path FROM users WHERE username = ?";
         }
 
@@ -45,11 +39,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if (password_verify($password, $user['password_hash'])) {
                     $_SESSION['user_id'] = $user['user_id'];
                     $_SESSION['username'] = $user['username'];
-                    // Зберігаємо додаткові дані в сесію
                     $_SESSION['db_first_name'] = $user['first_name'];
                     $_SESSION['db_last_name'] = $user['last_name'];
                     $_SESSION['db_avatar_path'] = $user['avatar_path'];
-                    $_SESSION['email'] = $user['email']; // ДОДАНО: Зберігаємо пошту в сесію
+                    $_SESSION['email'] = $user['email'];
 
                     header("Location: ../public/html/home.php");
                     exit();

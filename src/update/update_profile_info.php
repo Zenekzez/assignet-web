@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'connect.php'; // Ваше підключення до БД
+require_once 'connect.php'; 
 header('Content-Type: application/json');
 
 $response = ['status' => 'error', 'message' => 'Не вдалося оновити інформацію. Спробуйте пізніше.'];
@@ -18,22 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lastName = trim($data['lastName'] ?? '');
     $newUsername = trim($data['username'] ?? '');
     $user_id = $_SESSION['user_id'];
-    $currentUsername = $_SESSION['username']; // Отримуємо поточний юзернейм з сесії
+    $currentUsername = $_SESSION['username']; 
 
-    // --- Базова валідація ---
+    
     if (empty($firstName) || empty($lastName) || empty($newUsername)) {
         $response['message'] = 'Ім\'я, прізвище та юзернейм не можуть бути порожніми.';
         echo json_encode($response);
         exit();
     }
-    // Регулярний вираз для юзернейма, такий самий як на стороні клієнта та при реєстрації
     if (!preg_match("/^[a-zA-Z0-9_]{3,20}$/", $newUsername)) {
         $response['message'] = "Юзернейм має містити від 3 до 20 символів (тільки літери, цифри та знак підкреслення '_').";
         echo json_encode($response);
         exit();
     }
-    // Додайте тут валідацію для firstName та lastName, якщо потрібно (наприклад, довжина, символи)
-    // Приклад:
     if (mb_strlen($firstName) > 30 || mb_strlen($lastName) > 30) {
         $response['message'] = "Ім'я та прізвище не можуть перевищувати 30 символів.";
         echo json_encode($response);
@@ -41,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    // --- Перевірка унікальності юзернейма, якщо він змінився ---
     if ($newUsername !== $currentUsername) {
         $stmt_check_username = $conn->prepare("SELECT user_id FROM users WHERE username = ? AND user_id != ?");
         if ($stmt_check_username) {
@@ -63,29 +59,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // --- Оновлення даних в базі ---
+  
     $stmt_update = $conn->prepare("UPDATE users SET first_name = ?, last_name = ?, username = ? WHERE user_id = ?");
     if ($stmt_update) {
         $stmt_update->bind_param("sssi", $firstName, $lastName, $newUsername, $user_id);
         if ($stmt_update->execute()) {
-            // Перевіряємо, чи були реально змінені рядки
             if ($stmt_update->affected_rows > 0) {
-                // --- КРИТИЧНО: Оновлення даних в сесії ---
                 $_SESSION['db_first_name'] = $firstName;
                 $_SESSION['db_last_name'] = $lastName;
                 $_SESSION['username'] = $newUsername;
 
                 $response['status'] = 'success';
                 $response['message'] = 'Інформацію профілю успішно оновлено!';
-                // Повертаємо новий юзернейм, щоб JavaScript міг його використати (наприклад, для оновлення хедера)
                 $response['new_username'] = $newUsername;
             } else {
-                // Жоден рядок не було змінено - можливо, дані ідентичні тим, що вже є в БД
-                $_SESSION['db_first_name'] = $firstName; // Все одно оновимо сесію, про всяк випадок
+                $_SESSION['db_first_name'] = $firstName; 
                 $_SESSION['db_last_name'] = $lastName;
                 $_SESSION['username'] = $newUsername;
 
-                $response['status'] = 'success'; // Технічно, це успіх, хоча дані могли не змінитись
+                $response['status'] = 'success'; 
                 $response['message'] = 'Дані не змінилися або вже були оновлені.';
                 $response['new_username'] = $newUsername;
             }

@@ -1,40 +1,25 @@
 <?php
-session_start(); // Потрібно для доступу до змінних сесії
+session_start();
 
-// Отримуємо помилки з сесії, якщо вони є
 $errors = $_SESSION['errors'] ?? [];
-// Отримуємо дані форми з сесії (якщо потрібно відновлювати логін/пошту)
 $formData = $_SESSION['form_data'] ?? [];
 
-// Очищаємо помилки та дані з сесії, щоб вони не з'являлися знову
 unset($_SESSION['errors']);
 unset($_SESSION['form_data']);
 
-// Перевірка, чи є повідомлення про успішну реєстрацію
 $registration_success_message = '';
 if (isset($_GET['registration']) && $_GET['registration'] === 'success') {
     $registration_success_message = "Реєстрація успішна! Тепер ви можете увійти.";
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вхід - Assignet</title>
+    <title>Вхід - AssignNet</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <style>
-        /* Додатковий стиль для повідомлення про успішну реєстрацію */
-        .success-message-box {
-            background-color: #e6ffed;
-            border: 1px solid var(--green);
-            color: var(--green);
-            padding: 15px;
-            margin: 10px 10px 20px 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
 
@@ -52,7 +37,7 @@ if (isset($_GET['registration']) && $_GET['registration'] === 'success') {
         </div>
     <?php endif; ?>
 
-    <form action="../../src/process_login.php" method="post" autocomplete="on" id="loginForm">
+    <form action="../../src/auth/process_login.php" method="post" autocomplete="on" id="loginForm">
         <div class="input-container login-field-spacing <?php echo isset($errors['login_identifier']) ? 'error' : ''; ?>">
             <label for="loginIdentifierId" class="iftaLabel">Пошта або юзернейм</label>
             <input type="text" id="loginIdentifierId" class="inputField" name="login_identifier" placeholder="Ваша пошта або юзернейм"

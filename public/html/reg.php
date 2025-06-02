@@ -1,24 +1,22 @@
 <?php
-session_start(); // Потрібно для доступу до змінних сесії
+session_start(); 
 
-// Отримуємо помилки з сесії, якщо вони є
 $errors = $_SESSION['errors'] ?? [];
-// Отримуємо дані форми з сесії, якщо вони є
 $formData = $_SESSION['form_data'] ?? [];
 
-// Очищаємо помилки та дані з сесії, щоб вони не з'являлися знову при оновленні сторінки
 unset($_SESSION['errors']);
 unset($_SESSION['form_data']);
 ?>
+
 <!DOCTYPE html>
 <html lang="uk"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реєстрація - Assignet</title> <link rel="stylesheet" href="../css/styles.css"> </head>
+    <title>Реєстрація - AssignNet</title> <link rel="stylesheet" href="../css/styles.css"> </head>
 <body>
 
 <div class="container">
-    <h1 class="regHeader">Реєстрація</h1> <form action="../../src/process_registration.php" method="post" autocomplete="on" onsubmit="return validateForm()" id="registrationForm">
+    <h1 class="regHeader">Реєстрація</h1> <form action="../../src/auth/process_registration.php" method="post" autocomplete="on" onsubmit="return validateForm()" id="registrationForm">
         <div class="form-row">
             <div class="input-container <?php echo isset($errors['firstName']) ? 'error' : ''; ?>">
                 <label for="firstNid" class="iftaLabel">Ім'я</label>
