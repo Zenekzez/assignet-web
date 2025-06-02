@@ -30,7 +30,7 @@ body{
   display: inline-block;
   position: relative; 
   text-align: start;
-  margin: 20px;
+  margin: 15px;
 }
 .regHeader::after {
   content: '';
@@ -201,4 +201,8 @@ body{
 .password-rules li {
   margin-bottom: 5px;  /* Відстань між пунктами списку */
   line-height: 1.4;
+}
+
+.login-field-spacing {
+    margin-bottom: 25px; /* Або інше значення, яке відповідає reg.php */
 }

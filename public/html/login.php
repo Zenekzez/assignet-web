@@ -53,7 +53,7 @@ if (isset($_GET['registration']) && $_GET['registration'] === 'success') {
     <?php endif; ?>
 
     <form action="../../src/process_login.php" method="post" autocomplete="on" id="loginForm">
-        <div class="input-container <?php echo isset($errors['login_identifier']) ? 'error' : ''; ?>">
+        <div class="input-container login-field-spacing <?php echo isset($errors['login_identifier']) ? 'error' : ''; ?>">
             <label for="loginIdentifierId" class="iftaLabel">Пошта або юзернейм</label>
             <input type="text" id="loginIdentifierId" class="inputField" name="login_identifier" placeholder="Ваша пошта або юзернейм"
                    value="<?php echo htmlspecialchars($formData['login_identifier'] ?? ''); ?>" autofocus required>
@@ -62,7 +62,7 @@ if (isset($_GET['registration']) && $_GET['registration'] === 'success') {
             </small>
         </div>
 
-        <div class="input-container <?php echo isset($errors['password']) ? 'error' : ''; ?>">
+        <div class="input-container login-field-spacing <?php echo isset($errors['password']) ? 'error' : ''; ?>">
             <label for="passId" class="iftaLabel">Пароль</label>
             <input type="password" id="passId" class="inputField" name="password" placeholder="Ваш пароль" required>
             <small class="error-message">
