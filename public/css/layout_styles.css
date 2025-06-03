@@ -18,8 +18,8 @@ body, html {
     padding: 0;
     font-family: 'Roboto', 'Arial', sans-serif;
     background-color: var(--body-bg);
-    height: 100%;
-    overflow-x: hidden;
+    height: 100vh; /* Висота всього вікна */
+    overflow: hidden; /* ЗАБОРОНЯЄМО прокрутку на цьому рівні */
 }
 
 .app-header {
@@ -32,9 +32,9 @@ body, html {
     border-bottom: 1px solid var(--header-border-color);
     display: flex;
     align-items: center;
-    padding: 0 20px; /* Increased padding */
+    padding: 0 20px;
     box-sizing: border-box;
-    z-index: 1005;
+    z-index: 1005; /* Вищий z-index */
 }
 
 .header-left {
@@ -45,7 +45,7 @@ body, html {
 .header-title {
     font-size: 22px;
     color: var(--header-title-color);
-    font-weight: 500; /* Slightly bolder title */
+    font-weight: 500;
 }
 
 .header-right {
@@ -81,7 +81,7 @@ body, html {
 .dropdown-menu {
     display: none;
     position: absolute;
-    top: 50px; /* Adjust if header height changes */
+    top: 50px;
     right: 0;
     background-color: white;
     border: 1px solid var(--header-border-color);
@@ -89,12 +89,12 @@ body, html {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 1006;
     min-width: 200px;
-    overflow: hidden; /* Ensures rounded corners are respected by items */
+    overflow: hidden;
 }
 
 .dropdown-menu a {
     display: block;
-    padding: 10px 15px; /* Consistent padding */
+    padding: 10px 15px;
     text-decoration: none;
     color: var(--primary-text-color);
     font-size: 14px;
@@ -106,25 +106,25 @@ body, html {
 }
 
 .app-body-content {
-    padding-top: 60px; /* Height of the header */
-    height: calc(100vh - 60px);
+    padding-top: 60px; /* Відступ для хедера */
+    height: 100vh;     /* Займає всю висоту вікна (включаючи область під хедером) */
     box-sizing: border-box;
-    display: flex;
-    position: relative;
+    position: relative; /* Важливо для абсолютного позиціонування .page-content-wrapper */
+    /* display: flex; -- ВИДАЛЕНО */
 }
 
 .left-sidebar {
-    width: 260px; /* Slightly wider sidebar */
-    background-color: var(--header-bg); /* Same as header for consistency */
-    padding: 15px 0; /* Vertical padding, horizontal handled by links */
+    width: 260px;
+    background-color: var(--header-bg);
+    padding: 15px 0;
     box-sizing: border-box;
     border-right: 1px solid var(--header-border-color);
-    overflow-y: auto;
-    height: 100%; /* Full height of .app-body-content */
-    position: fixed; /* Fixed position */
-    top: 60px; /* Below the header */
+    overflow-y: auto;   /* Скрол для самої бічної панелі */
+    position: fixed;     /* Фіксована позиція */
+    top: 60px;           /* Нижче хедера */
     left: 0;
-    z-index: 1001;
+    bottom: 0;           /* Розтягується до низу */
+    z-index: 1001;       /* Щоб був над .page-content-wrapper */
 }
 
 .left-sidebar ul {
@@ -134,57 +134,62 @@ body, html {
 }
 
 .left-sidebar ul li {
-    margin: 0; /* Remove any default margins */
+    margin: 0;
 }
 
 .left-sidebar ul li a {
-    display: flex; /* Use flex for icon and text alignment */
+    display: flex;
     align-items: center;
-    padding: 12px 20px; /* Consistent padding */
+    padding: 12px 20px;
     text-decoration: none;
     color: var(--sidebar-link-color);
     font-weight: 500;
-    font-size: 14px; /* Standardized font size */
-    border-radius: 0 25px 25px 0; /* Rounded on the right, like Gmail/Classroom */
-    margin-right: 15px; /* Space for the rounded edge effect */
+    font-size: 14px;
+    border-radius: 0 25px 25px 0;
+    margin-right: 15px;
     transition: background-color 0.2s ease, color 0.2s ease;
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
 }
 
 .left-sidebar ul li a:hover {
     background-color: var(--sidebar-link-hover-bg);
-    color: var(--primary-text-color); /* Darker text on hover */
+    color: var(--primary-text-color);
 }
 
 .left-sidebar ul li a.active,
-.left-sidebar ul li a.active:hover { /* Style for active link */
+.left-sidebar ul li a.active:hover {
     background-color: var(--sidebar-link-active-bg);
     color: var(--sidebar-link-active-color);
-    font-weight: 700; /* Bolder active link */
+    font-weight: 700;
 }
 
 .left-sidebar ul li a.active i.fas {
-    color: var(--sidebar-link-active-color); /* Icon color matches active text */
+    color: var(--sidebar-link-active-color);
 }
 
 .left-sidebar ul li a i.fas {
-    margin-right: 20px; /* Increased space between icon and text */
-    font-size: 18px; /* Slightly larger icons */
-    width: 24px;     /* Fixed width for alignment */
+    margin-right: 20px;
+    font-size: 18px;
+    width: 24px;
     text-align: center;
     color: var(--sidebar-icon-color);
     transition: color 0.2s ease;
 }
 
 .page-content-wrapper {
-    margin-left: 260px; /* Same as sidebar width */
-    flex-grow: 1;
+    position: absolute;   /* Абсолютне позиціонування */
+    top: 60px;            /* Відступ для хедера (відносно body/viewport, оскільки .app-body-content має padding-top) */
+                          /* Якщо .app-body-content не мав би padding-top, то тут було б top:0; */
+    left: 260px;          /* Відступ для бічної панелі */
+    right: 0;             /* Розтягується до правого краю */
+    bottom: 0;            /* Розтягується до нижнього краю */
     padding: 25px;
     box-sizing: border-box;
-    overflow-y: auto;
-    height: 100%; 
+    overflow-y: auto;     /* ОСНОВНА ПРОКРУТКА ДЛЯ ВМІСТУ */
+    /* background-color: lightblue; /* Можеш прибрати, якщо все працює */
 }
-    /* Modal styles (basic, can be expanded) */
+
+/* Стилі для модальних вікон залишаються без змін */
 .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.6); z-index: 1010;
@@ -206,7 +211,7 @@ body, html {
     color: #5f6368; pointer-events: none; background-color: #fff; padding: 0 4px;
 }
 .modal-content .input-container .inputField {
-    border: 1px solid #dadce0; border-radius: 4px; width: 100%;
+    border: 1px solid var(--header-border-color); border-radius: 4px; width: 100%;
     padding: 20px 15px 8px 15px; font-size: 16px; box-sizing: border-box;
 }
 .modal-content .input-container .inputField:focus {
@@ -214,7 +219,7 @@ body, html {
 }
 .modal-content .input-container textarea.inputField { min-height: 80px; resize: vertical; }
 .modal-content .submit-button {
-    background-color: var(--button-primary-bg); color: var(--white, white);
+    background-color: var(--button-primary-bg); color: white;
     border-radius: 4px; border: none; font-size: 16px;
     padding: 10px 20px; cursor: pointer; display: block;
     margin: 20px auto 0 auto; transition: background-color 0.2s ease;

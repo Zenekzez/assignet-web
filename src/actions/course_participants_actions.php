@@ -1,9 +1,8 @@
 <?php
-// File: src/course_participants_actions.php
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/connect.php';
+require_once __DIR__ . '/../connect.php';
 
 header('Content-Type: application/json');
 $response = ['status' => 'error', 'message' => 'Невідома дія або помилка.'];
@@ -23,7 +22,6 @@ if (!$action) {
     exit();
 }
 
-// Функція для перевірки, чи є поточний користувач викладачем курсу
 function isUserTeacherOfCourse($conn, $userId, $courseId) {
     $stmt = $conn->prepare("SELECT author_id FROM courses WHERE course_id = ? AND author_id = ?");
     if (!$stmt) return false;
@@ -35,7 +33,6 @@ function isUserTeacherOfCourse($conn, $userId, $courseId) {
     return $is_teacher;
 }
 
-// Функція для перевірки, чи може користувач переглядати учасників курсу (викладач або студент курсу)
 function canUserViewCourseParticipants($conn, $userId, $courseId) {
     if (isUserTeacherOfCourse($conn, $userId, $courseId)) {
         return true;
@@ -69,7 +66,6 @@ if ($action === 'get_course_participants') {
         $teacher_data = null;
         $students_data = [];
 
-        // Отримати дані викладача
         $stmt_teacher = $conn->prepare(
             "SELECT u.user_id, u.username, u.first_name, u.last_name, u.avatar_path
              FROM users u
@@ -91,7 +87,6 @@ if ($action === 'get_course_participants') {
             exit();
         }
 
-        // Отримати список студентів
         $stmt_students = $conn->prepare(
             "SELECT u.user_id, u.username, u.first_name, u.last_name, u.avatar_path
              FROM users u

@@ -1,13 +1,8 @@
 <?php
-// File: src/grading_actions.php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/connect.php';
+require_once __DIR__ . '/../connect.php';
 
 header('Content-Type: application/json');
 $response = ['status' => 'error', 'message' => 'Невідома дія або помилка.'];

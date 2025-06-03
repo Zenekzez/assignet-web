@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'connect.php'; // Підключення до БД
+require_once __DIR__ . '/../connect.php';
 
 header('Content-Type: application/json');
 $response = ['status' => 'error', 'message' => 'Не вдалося обробити запит.'];

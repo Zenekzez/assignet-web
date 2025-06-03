@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once 'connect.php'; //
+require_once __DIR__ . '/../connect.php';
 
-header('Content-Type: application/json'); // Відповідь завжди буде у форматі JSON
+header('Content-Type: application/json'); 
 
 $response = ['status' => 'error', 'message' => 'Не вдалося обробити запит.'];
 
@@ -17,27 +17,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $description = trim($_POST['description'] ?? '');
     $author_id = $_SESSION['user_id'];
 
-    // --- Валідація ---
     if (empty($course_name)) {
         $response['message'] = 'Назва курсу не може бути порожньою.';
         echo json_encode($response);
         exit();
     }
-    if (mb_strlen($course_name) > 70) { // Максимальна довжина згідно схеми БД для course_name - varchar(30), але на картці може бути більше
-        // Для таблиці courses `course_name` має varchar(30). Треба узгодити.
-        // Поки що поставимо 70 для прикладу, але краще оновити БД або тут поставити 30.
+    if (mb_strlen($course_name) > 70) { 
         $response['message'] = 'Назва курсу занадто довга (максимум 70 символів).';
         echo json_encode($response);
         exit();
     }
-     if (mb_strlen($description) > 1000) { // Обмеження для опису
+     if (mb_strlen($description) > 1000) { 
         $response['message'] = 'Опис курсу занадто довгий (максимум 1000 символів).';
         echo json_encode($response);
         exit();
     }
 
 
-    // --- Генерація унікального коду для приєднання ---
     function generateJoinCode($conn, $length = 8) {
         $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
@@ -47,7 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             for ($i = 0; $i < $length; $i++) {
                 $randomString .= $characters[rand(0, $charactersLength - 1)];
             }
-            // Перевірка на унікальність в БД
             $stmt_check = $conn->prepare("SELECT course_id FROM courses WHERE join_code = ?");
             $stmt_check->bind_param("s", $randomString);
             $stmt_check->execute();
@@ -58,23 +53,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $join_code = generateJoinCode($conn);
 
-    // --- Вибір кольору для курсу ---
-    // Кольори взяті з прикладу картки та додані ще декілька
+ 
     $default_colors = ['#f0ad4e', '#5cb85c', '#5bc0de', '#d9534f', '#ba68c8', '#7986cb', '#4db6ac', '#a1887f', '#ff8a65', '#9575cd'];
-    // CSS класи, що відповідають цим кольорам (будуть використані на фронтенді)
     $color_classes = ['course-color-orange', 'course-color-green', 'course-color-lblue', 'course-color-red', 'course-color-purple', 'course-color-indigo', 'course-color-teal', 'course-color-brown', 'course-color-deeporange', 'course-color-deeppurple'];
     $randomIndex = array_rand($default_colors);
-    $course_color_hex = $default_colors[$randomIndex]; // HEX для збереження в БД (якщо потрібно)
-    $course_color_class = $color_classes[$randomIndex]; // Клас для фронтенду
+    $course_color_hex = $default_colors[$randomIndex]; 
+    $course_color_class = $color_classes[$randomIndex];
 
 
-    // --- Додавання до бази даних ---
-    // Згідно зі схемою, `courses` має `course_name` varchar(30). Поки що це не змінено.
     $sql = "INSERT INTO courses (course_name, author_id, join_code, description, color, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
-        // `color` в БД - varchar(7). Зберігаємо HEX.
         $stmt->bind_param("sisss", $course_name, $author_id, $join_code, $description, $course_color_hex);
         if ($stmt->execute()) {
             $new_course_id = $stmt->insert_id;
@@ -86,8 +76,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'name' => $course_name,
                     'description' => $description,
                     'join_code' => $join_code,
-                    'color_class' => $course_color_class, // Надсилаємо CSS клас
-                    'author_username' => $_SESSION['username'] ?? 'Автор' // Ім'я автора з сесії
+                    'color_class' => $course_color_class, 
+                    'author_username' => $_SESSION['username'] ?? 'Автор' 
                 ]
             ];
         } else {

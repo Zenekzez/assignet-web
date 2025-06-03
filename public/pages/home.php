@@ -11,6 +11,7 @@
 
 <title>Головна - AssignNet</title>
 <link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
+<link rel="stylesheet" href="../css/home_styles.css">
 <main class="page-content-wrapper">
     <div class="main-content-home" id="mainContentHome">
         <div class="courses-area">

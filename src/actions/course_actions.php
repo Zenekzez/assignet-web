@@ -2,7 +2,7 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/connect.php'; 
+require_once __DIR__ . '/../connect.php';
 
 header('Content-Type: application/json');
 $response = ['status' => 'error', 'message' => 'Невідома дія або помилка.'];
