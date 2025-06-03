@@ -891,3 +891,27 @@ td, th {
     padding: 2px 4px;
     border-radius: 3px;
 }
+
+.existing-file-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+.existing-file-item input[type="checkbox"] {
+    margin-right: 8px;
+    width: 14px;
+    height: 14px;
+}
+.existing-file-item label {
+    cursor: pointer;
+    color: #007bff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%; /* Adjust as needed */
+}
+.existing-file-item label i {
+    margin-right: 5px;
+    color: #6c757d;
+}

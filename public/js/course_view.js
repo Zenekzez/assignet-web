@@ -14,13 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const createAnnouncementForm = document.getElementById('createAnnouncementForm');
     const announcementsArea = document.getElementById('announcementsArea');
-    // currentCourseIdForJS та isCurrentUserTeacherOfThisCourse тепер глобальні змінні
 
     const courseSettingsForm = document.getElementById('courseSettingsForm');
     const courseBannerTitleElement = document.querySelector('.course-banner-title');
     const breadcrumbCourseNameElement = document.querySelector('.breadcrumb-course-name');
 
-    let currentJoinCodeForJS = COURSE_JOIN_CODE_FROM_DB_JS; // Використовуємо передану змінну
+    let currentJoinCodeForJS = COURSE_JOIN_CODE_FROM_DB_JS;
     const displayJoinCodeSettingsElement = document.getElementById('displayJoinCodeSettings');
     const courseJoinCodeTextBannerElement = document.getElementById('courseJoinCodeTextForBanner');
 
@@ -30,12 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeCreateAssignmentModalBtn = document.getElementById('closeCreateAssignmentModalBtn');
     const createAssignmentFormInternal = document.getElementById('createAssignmentFormInternal');
     const assignmentSortSelect = document.getElementById('assignmentSortSelect');
+    const assignmentSectionsFilterContainer = document.getElementById('assignmentSectionsFilterContainer');
 
     const teacherInfoArea = document.getElementById('teacherInfoArea');
     const studentsListArea = document.getElementById('studentsListArea');
     const studentCountBadge = document.getElementById('studentCount');
-    const defaultAvatarRelPath = DEFAULT_AVATAR_REL_PATH_JS; // 'assets/default_avatar.png';
-    const baseAvatarUrl = WEB_ROOT_REL_FROM_HTML_CV_JS; // '../';
+    const defaultAvatarRelPath = DEFAULT_AVATAR_REL_PATH_JS;
+    const baseAvatarUrl = WEB_ROOT_REL_FROM_HTML_CV_JS;
 
     const myGradesArea = document.getElementById('myGradesArea');
     const teacherGradesSummaryArea = document.getElementById('teacherGradesSummaryArea');
@@ -115,9 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const deleteCourseConfirmForm = document.getElementById('deleteCourseConfirmForm');
     const deleteCourseNameInput = document.getElementById('deleteCourseNameInput');
     const confirmDeleteCourseBtn = document.getElementById('confirmDeleteCourseBtn');
-    const courseNameToConfirmDeleteSpan = document.getElementById('courseNameToConfirmDelete');
     const deleteCourseErrorDiv = document.getElementById('deleteCourseError');
-    const actualCourseName = ACTUAL_COURSE_NAME_PHP; // Використовуємо передану змінну
+    const actualCourseName = ACTUAL_COURSE_NAME_PHP;
 
     if (showDeleteCourseModalBtn && deleteCourseModal) {
         showDeleteCourseModalBtn.addEventListener('click', () => {
@@ -197,9 +196,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const datalistCreate = document.getElementById('existing_sections_list_create');
         const datalistEdit = document.getElementById('existing_sections_list_edit');
 
-        if (!IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) return;
-        if (!datalistCreate || !datalistEdit) return;
-
         try {
             const response = await fetch(`../../src/actions/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=created_at_asc`);
             if (!response.ok) { console.error("Could not fetch assignments to get sections"); return; }
@@ -212,16 +208,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 allExistingSections = Array.from(uniqueSections).sort();
-                datalistCreate.innerHTML = '';
-                allExistingSections.forEach(section => {
-                    const optionCreate = document.createElement('option'); optionCreate.value = section;
-                    datalistCreate.appendChild(optionCreate);
-                });
-                datalistEdit.innerHTML = '';
-                allExistingSections.forEach(section => {
-                    const optionEdit = document.createElement('option'); optionEdit.value = section;
-                    datalistEdit.appendChild(optionEdit);
-                });
+
+                if (datalistCreate) {
+                    datalistCreate.innerHTML = '';
+                    allExistingSections.forEach(section => {
+                        const optionCreate = document.createElement('option'); optionCreate.value = section;
+                        datalistCreate.appendChild(optionCreate);
+                    });
+                }
+                if (datalistEdit) {
+                    datalistEdit.innerHTML = '';
+                    allExistingSections.forEach(section => {
+                        const optionEdit = document.createElement('option'); optionEdit.value = section;
+                        datalistEdit.appendChild(optionEdit);
+                    });
+                }
             }
         } catch (error) { console.error("Error fetching or populating existing sections:", error); }
     }
@@ -354,8 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else { teacherGradesSummaryArea.innerHTML = `<p>Не вдалося завантажити журнал оцінок: ${result.message || 'Помилка сервера'}</p>`;}
         } catch (error) { console.error("Помилка завантаження журналу оцінок для викладача:", error); teacherGradesSummaryArea.innerHTML = `<p>Сталася помилка: ${error.message}. Спробуйте оновити сторінку.</p>`; }
     }
-    
-    // Функція завантаження оголошень
+
     async function loadAnnouncements(courseId) {
         if (!courseId || !announcementsArea) return;
         announcementsArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження оголошень...</p>';
@@ -389,13 +389,27 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) { console.error("Помилка завантаження оголошень:", error); announcementsArea.innerHTML = '<p>Сталася помилка при завантаженні оголошень. Спробуйте оновити сторінку.</p>'; }
     }
 
-    // Функція завантаження завдань
-    async function loadAssignments(courseId, sortBy = 'due_date_asc') {
+    async function loadAssignments(courseId, sortBy = 'due_date_asc', activeSectionFilter = 'all') {
         if (!courseId || !assignmentsListArea) return;
-        assignmentsListArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження завдань...</p>';
-         if (IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) { // Оновлюємо список секцій для викладача
-            await fetchAndPopulateExistingSections(courseId);
+
+        const scrollYBeforeLoad = window.scrollY;
+        let BoundingRectTopBeforeLoad = null;
+        if (assignmentsListArea.getClientRects().length > 0) {
+            BoundingRectTopBeforeLoad = assignmentsListArea.getBoundingClientRect().top;
         }
+
+        let originalMinHeight = assignmentsListArea.style.minHeight;
+        const currentActualHeight = assignmentsListArea.offsetHeight;
+
+        if (currentActualHeight > 100) { // Only set if there's significant content
+            assignmentsListArea.style.minHeight = `${currentActualHeight}px`;
+        } else if (!originalMinHeight || parseInt(originalMinHeight) < 200) { 
+            // If no minHeight or it's too small, and current height is also small, set a default
+            assignmentsListArea.style.minHeight = '300px'; // Default minimum height
+        }
+        
+        assignmentsListArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження завдань...</p>';
+
         try {
             const response = await fetch(`../../src/actions/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=${sortBy}`);
             if (!response.ok) {
@@ -403,33 +417,57 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(errorData.message);
             }
             const result = await response.json();
-            assignmentsListArea.innerHTML = ''; // Очищаємо перед рендерингом
+            
+            // Store current focused element if it's a filter button
+            const focusedElement = document.activeElement;
+            const isFilterButtonFocused = focusedElement && focusedElement.classList.contains('section-filter-btn');
+
+            assignmentsListArea.innerHTML = ''; 
+
             if (result.status === 'success' && result.assignments) {
-                if (result.assignments.length === 0) {
-                    assignmentsListArea.innerHTML = '<p>Для цього курсу ще не створено жодного завдання.</p>';
+                let assignmentsToProcess = result.assignments;
+
+                if (activeSectionFilter !== 'all' && assignmentsToProcess) {
+                    assignmentsToProcess = assignmentsToProcess.filter(asm => {
+                        const sectionTitle = (asm.section_title && asm.section_title.trim() !== '') ? asm.section_title.trim() : 'Завдання без розділу';
+                        return sectionTitle === activeSectionFilter;
+                    });
+                }
+
+                if (assignmentsToProcess.length === 0) {
+                    assignmentsListArea.innerHTML = '<p>Для цього курсу ' + (activeSectionFilter !== 'all' ? `в розділі "${htmlspecialchars(activeSectionFilter)}" ` : '') + 'ще не створено жодного завдання, або немає завдань, що відповідають фільтру.</p>';
                 } else {
                     const assignmentsBySection = {};
-                    result.assignments.forEach(asm => {
-                        const section = asm.section_title || 'Завдання без розділу';
+                    assignmentsToProcess.forEach(asm => {
+                        const section = (asm.section_title && asm.section_title.trim() !== '') ? asm.section_title.trim() : 'Завдання без розділу';
                         if (!assignmentsBySection[section]) assignmentsBySection[section] = [];
                         assignmentsBySection[section].push(asm);
                     });
-                    
-                    const sectionOrder = allExistingSections.slice(); // Копіюємо, щоб не змінити оригінал
-                    if (!sectionOrder.includes('Завдання без розділу') && assignmentsBySection['Завдання без розділу']) {
-                        sectionOrder.push('Завдання без розділу'); // Додаємо розділ "без розділу" в кінець, якщо є такі завдання
+
+                    let sectionsToDisplayOrder = [];
+                    if (activeSectionFilter !== 'all') {
+                        if (assignmentsBySection[activeSectionFilter]) {
+                            sectionsToDisplayOrder = [activeSectionFilter];
+                        }
+                    } else {
+                        sectionsToDisplayOrder = allExistingSections.filter(sectionName => assignmentsBySection[sectionName]);
+                        if (assignmentsBySection['Завдання без розділу'] && !sectionsToDisplayOrder.includes('Завдання без розділу')) {
+                            sectionsToDisplayOrder.push('Завдання без розділу');
+                        }
                     }
                     
-                    sectionOrder.forEach(sectionKey => {
-                        if (assignmentsBySection[sectionKey]) {
+                    sectionsToDisplayOrder.forEach(sectionKey => {
+                        if (assignmentsBySection[sectionKey]) { 
                             const sectionContainer = document.createElement('div');
                             sectionContainer.classList.add('assignment-section-container');
-                            if (sectionKey !== 'Завдання без розділу') {
-                                const sectionTitle = document.createElement('h3');
-                                sectionTitle.classList.add('section-title-header');
-                                sectionTitle.textContent = htmlspecialchars(sectionKey);
-                                sectionContainer.appendChild(sectionTitle);
+                            
+                            if (sectionKey !== 'Завдання без розділу' || activeSectionFilter === 'all') {
+                                const sectionTitleHeader = document.createElement('h3');
+                                sectionTitleHeader.classList.add('section-title-header');
+                                sectionTitleHeader.textContent = htmlspecialchars(sectionKey);
+                                sectionContainer.appendChild(sectionTitleHeader);
                             }
+
                             const assignmentsGrid = document.createElement('div');
                             assignmentsGrid.classList.add('assignments-grid-internal');
                             assignmentsBySection[sectionKey].forEach(asm => {
@@ -441,8 +479,41 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                 }
-            } else { assignmentsListArea.innerHTML = `<p>Не вдалося завантажити завдання: ${result.message || 'Помилка сервера'}</p>`; }
-        } catch (error) { console.error("Помилка завантаження завдань:", error); assignmentsListArea.innerHTML = '<p>Сталася помилка. Спробуйте оновити сторінку.</p>'; }
+            } else { 
+                assignmentsListArea.innerHTML = `<p>Не вдалося завантажити завдання: ${result.message || 'Помилка сервера'}</p>`; 
+            }
+            
+            // Restore focus if it was on a filter button
+            if (isFilterButtonFocused && focusedElement && typeof focusedElement.focus === 'function') {
+                focusedElement.focus({ preventScroll: true });
+            }
+
+        } catch (error) { 
+            console.error("Помилка завантаження завдань:", error); 
+            assignmentsListArea.innerHTML = '<p>Сталася помилка. Спробуйте оновити сторінку.</p>'; 
+        } finally { 
+            requestAnimationFrame(() => { 
+                requestAnimationFrame(() => { 
+                    if (BoundingRectTopBeforeLoad !== null && assignmentsListArea.getClientRects().length > 0) {
+                        const BoundingRectTopAfterLoad = assignmentsListArea.getBoundingClientRect().top;
+                        const scrollDifference = BoundingRectTopAfterLoad - BoundingRectTopBeforeLoad;
+                        // Only scroll if the difference is significant to avoid minor jitters
+                        if (Math.abs(scrollDifference) > 5) { // 5px threshold
+                             window.scrollBy(0, scrollDifference);
+                        }
+                    }
+                    // We might not need to reset minHeight if CSS min-height is consistently applied.
+                    // If we do, ensure it doesn't cause a jump if content is shorter than originalMinHeight.
+                     if (originalMinHeight && assignmentsListArea.scrollHeight < parseInt(originalMinHeight)) {
+                         assignmentsListArea.style.minHeight = ''; // Allow shrinking if new content is shorter
+                     } else if (!originalMinHeight && assignmentsListArea.scrollHeight < 300) { // 300 is default from CSS
+                         assignmentsListArea.style.minHeight = '';
+                     }
+                     // If CSS min-height is set, this JS manipulation of minHeight might not be necessary
+                     // or could be simplified to only remove it: assignmentsListArea.style.minHeight = '';
+                });
+            });
+        }
     }
     
     function createAssignmentCard(assignment, isTeacherView) {
@@ -491,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </h4>
                     ${isTeacherView ? teacherActionsMenu : ''}
                 </div>
-                ${assignment.description ? `<p style="font-size: 0.85em; color: #666; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${htmlspecialchars(assignment.description)}">${htmlspecialchars(assignment.description.substring(0,100))}${assignment.description.length > 100 ? '...' : ''}</p>` : ''}
+                
                 <div class="card-meta-line-compact">
                     ${assignment.created_at_formatted ? `<span>Опубліковано: ${assignment.created_at_formatted}</span>` : ''}
                     ${assignment.updated_at_formatted ? `<span class="meta-divider-compact">|</span><span>Оновлено: ${assignment.updated_at_formatted}</span>` : ''}
@@ -508,15 +579,78 @@ document.addEventListener('DOMContentLoaded', function() {
                             <i class="fas fa-list-check"></i> Переглянути здані роботи
                         </a>
                     </div>
-                ` : ''}
+                ` : `
+                    <div class="card-teacher-actions-line-compact" style="margin-top: 8px;">
+                        <a href="assignment_view.php?assignment_id=${assignment.assignment_id}" class="button-link-compact view-submissions-link-compact" style="font-size: 0.85em; padding: 6px 10px;">
+                            <i class="fas fa-eye"></i> Детальніше / Здати
+                        </a>
+                    </div>
+                `}
             </div>
         `;
         if(isTeacherView) {
-            item.querySelector('.action-menu-toggle-compact')?.addEventListener('click', toggleActionDropdown);
-            item.querySelector('.action-edit-assignment')?.addEventListener('click', handleEditAssignmentClick);
-            item.querySelector('.action-delete-assignment')?.addEventListener('click', handleDeleteAssignmentClick);
+            item.querySelector('.action-menu-toggle-compact')?.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                toggleActionDropdown.call(this, e); 
+            });
+            item.querySelector('.action-edit-assignment')?.addEventListener('click', function(e) { 
+                e.preventDefault(); 
+                handleEditAssignmentClick.call(this, e); 
+            });
+            item.querySelector('.action-delete-assignment')?.addEventListener('click', function(e) { 
+                e.preventDefault(); 
+                handleDeleteAssignmentClick.call(this, e); 
+            });
         }
         return item;
+    }
+
+    function renderSectionFilters() {
+        if (!assignmentSectionsFilterContainer || !IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) {
+            if(assignmentSectionsFilterContainer) assignmentSectionsFilterContainer.innerHTML = '';
+            return;
+        }
+        
+        const currentActiveFilterValue = assignmentSectionsFilterContainer.querySelector('.section-filter-btn.active')?.dataset.sectionFilter || 'all';
+        assignmentSectionsFilterContainer.innerHTML = ''; 
+
+        const allButton = document.createElement('button');
+        allButton.classList.add('section-filter-btn');
+        if (currentActiveFilterValue === 'all') allButton.classList.add('active');
+        allButton.textContent = 'Всі розділи';
+        allButton.dataset.sectionFilter = 'all';
+        allButton.addEventListener('click', handleSectionFilterClick);
+        assignmentSectionsFilterContainer.appendChild(allButton);
+
+        allExistingSections.forEach(section => {
+            if (section && section.trim() !== '') { 
+                const button = document.createElement('button');
+                button.classList.add('section-filter-btn');
+                if (currentActiveFilterValue === section) button.classList.add('active');
+                button.textContent = htmlspecialchars(section);
+                button.dataset.sectionFilter = htmlspecialchars(section); 
+                button.addEventListener('click', handleSectionFilterClick);
+                assignmentSectionsFilterContainer.appendChild(button);
+            }
+        });
+    }
+
+    function handleSectionFilterClick(event) {
+        event.preventDefault(); 
+        const selectedButton = event.currentTarget; 
+        const sectionFilterValue = selectedButton.dataset.sectionFilter;
+
+        // Зберігаємо фокус, якщо можливо
+        // selectedButton.focus({ preventScroll: true }); // Може допомогти, якщо браузер підтримує
+
+        document.querySelectorAll('#assignmentSectionsFilterContainer .section-filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        selectedButton.classList.add('active');
+
+        if (CURRENT_COURSE_ID_FOR_JS && assignmentSortSelect) {
+            loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value, sectionFilterValue);
+        }
     }
 
     function toggleActionDropdown(event) {
@@ -529,17 +663,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     document.addEventListener('click', function (event) {
         document.querySelectorAll('.action-dropdown-compact.visible').forEach(dropdown => {
-            if (!dropdown.previousElementSibling.contains(event.target)) { dropdown.classList.remove('visible'); }
+            if (!dropdown.previousElementSibling.contains(event.target) && !dropdown.contains(event.target)) {
+                 dropdown.classList.remove('visible');
+            }
         });
     });
 
-    async function handleEditAssignmentClick(event) {
-        event.preventDefault(); event.stopPropagation();
+    async function handleEditAssignmentClick(event) { 
+        event.preventDefault(); 
+        event.stopPropagation();
         const assignmentId = this.dataset.assignmentId;
         if (!assignmentId) return;
         if (editAssignmentModal && editAssignmentFormInternal) {
             editAssignmentFormInternal.reset();
-            if (CURRENT_COURSE_ID_FOR_JS) { await fetchAndPopulateExistingSections(CURRENT_COURSE_ID_FOR_JS); }
+            
             try {
                 const response = await fetch(`../../src/actions/course_actions.php?action=get_assignment_details_for_edit&assignment_id=${assignmentId}`);
                 if (!response.ok) throw new Error('Failed to fetch assignment details.');
@@ -552,8 +689,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     if(assignmentSectionTitleEditModal) assignmentSectionTitleEditModal.value = data.section_title || '';
                     if(assignmentMaxPointsEditModal) assignmentMaxPointsEditModal.value = data.max_points || '';
                     if(assignmentDueDateEditModal && data.due_date) {
-                        const localDueDate = new Date(data.due_date + 'Z').toISOString().slice(0, 16);
-                        assignmentDueDateEditModal.value = localDueDate;
+                        const date = new Date(data.due_date);
+                        const localDateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0,16);
+                        assignmentDueDateEditModal.value = localDateTime;
                     } else if (assignmentDueDateEditModal) { assignmentDueDateEditModal.value = ''; }
                     editAssignmentModal.style.display = 'flex';
                 } else { alert(result.message || 'Не вдалося завантажити дані завдання.'); }
@@ -562,8 +700,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.action-dropdown-compact.visible').forEach(d => d.classList.remove('visible'));
     }
 
-    async function handleDeleteAssignmentClick(event) {
-        event.preventDefault(); event.stopPropagation();
+    async function handleDeleteAssignmentClick(event) { 
+        event.preventDefault(); 
+        event.stopPropagation();
         const assignmentId = this.dataset.assignmentId; const assignmentTitle = this.dataset.assignmentTitle;
         if (!assignmentId || !confirm(`Ви впевнені, що хочете видалити завдання "${assignmentTitle}"? Ця дія незворотна і видалить всі пов'язані здані роботи.`)) {
             document.querySelectorAll('.action-dropdown-compact.visible').forEach(d => d.classList.remove('visible'));
@@ -575,42 +714,64 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             if (result.status === 'success') {
                 alert(result.message);
-                if (CURRENT_COURSE_ID_FOR_JS && assignmentSortSelect) { loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value); }
+                if (CURRENT_COURSE_ID_FOR_JS && assignmentSortSelect) { 
+                    const activeFilterButton = document.querySelector('#assignmentSectionsFilterContainer .section-filter-btn.active');
+                    const currentSectionFilter = activeFilterButton ? activeFilterButton.dataset.sectionFilter : 'all';
+                    loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value, currentSectionFilter); 
+                }
             } else { alert(`Помилка: ${result.message || 'Не вдалося видалити завдання.'}`); }
         } catch (error) { console.error('AJAX error deleting assignment:', error); alert('Сталася помилка на клієнті.'); }
         document.querySelectorAll('.action-dropdown-compact.visible').forEach(d => d.classList.remove('visible'));
     }
 
     tabLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault();
+        link.addEventListener('click', async function(event) { 
+            event.preventDefault(); 
             const targetTab = this.getAttribute('data-tab');
-            tabLinks.forEach(l => l.classList.remove('active')); this.classList.add('active');
+            tabLinks.forEach(l => l.classList.remove('active')); this.classList.add('active'); 
             tabPanes.forEach(pane => pane.classList.toggle('active', pane.id === 'tab-' + targetTab));
             if (breadcrumbCurrentTab) breadcrumbCurrentTab.textContent = this.textContent;
 
-            if (targetTab === 'assignments' && CURRENT_COURSE_ID_FOR_JS && assignmentSortSelect) loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value);
+            if (targetTab === 'assignments' && CURRENT_COURSE_ID_FOR_JS && assignmentSortSelect) {
+                await fetchAndPopulateExistingSections(CURRENT_COURSE_ID_FOR_JS); 
+                renderSectionFilters(); 
+                const activeFilterButton = document.querySelector('#assignmentSectionsFilterContainer .section-filter-btn.active'); 
+                const currentSectionFilter = activeFilterButton ? activeFilterButton.dataset.sectionFilter : 'all';
+                loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value, currentSectionFilter);
+            }
             else if (targetTab === 'stream' && CURRENT_COURSE_ID_FOR_JS) loadAnnouncements(CURRENT_COURSE_ID_FOR_JS);
             else if (targetTab === 'people' && CURRENT_COURSE_ID_FOR_JS) loadCourseParticipants(CURRENT_COURSE_ID_FOR_JS);
             else if (targetTab === 'my-grades' && CURRENT_COURSE_ID_FOR_JS && !IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) loadMyGrades(CURRENT_COURSE_ID_FOR_JS);
             else if (targetTab === 'grades' && CURRENT_COURSE_ID_FOR_JS && IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) loadTeacherGradesSummary(CURRENT_COURSE_ID_FOR_JS);
         });
     });
-
-    const activeTabOnInit = document.querySelector('.course-tab-navigation .tab-link.active');
-    if (activeTabOnInit && CURRENT_COURSE_ID_FOR_JS) {
-        const activeTabName = activeTabOnInit.dataset.tab;
-        if (activeTabName === 'stream') loadAnnouncements(CURRENT_COURSE_ID_FOR_JS);
-        else if (activeTabName === 'assignments' && assignmentSortSelect) loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value);
-        else if (activeTabName === 'people') loadCourseParticipants(CURRENT_COURSE_ID_FOR_JS);
-        else if (activeTabName === 'my-grades' && !IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) loadMyGrades(CURRENT_COURSE_ID_FOR_JS);
-        else if (activeTabName === 'grades' && IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) loadTeacherGradesSummary(CURRENT_COURSE_ID_FOR_JS);
-    } else if (CURRENT_COURSE_ID_FOR_JS) {
-        loadAnnouncements(CURRENT_COURSE_ID_FOR_JS);
-    }
+    
+    (async () => { 
+        const activeTabOnInit = document.querySelector('.course-tab-navigation .tab-link.active');
+        if (activeTabOnInit && CURRENT_COURSE_ID_FOR_JS) {
+            const activeTabName = activeTabOnInit.dataset.tab;
+            if (activeTabName === 'stream') loadAnnouncements(CURRENT_COURSE_ID_FOR_JS);
+            else if (activeTabName === 'assignments' && assignmentSortSelect) {
+                await fetchAndPopulateExistingSections(CURRENT_COURSE_ID_FOR_JS);
+                renderSectionFilters();
+                const activeFilterButton = document.querySelector('#assignmentSectionsFilterContainer .section-filter-btn.active');
+                const currentSectionFilter = activeFilterButton ? activeFilterButton.dataset.sectionFilter : 'all';
+                loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value, currentSectionFilter);
+            }
+            else if (activeTabName === 'people') loadCourseParticipants(CURRENT_COURSE_ID_FOR_JS);
+            else if (activeTabName === 'my-grades' && !IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) loadMyGrades(CURRENT_COURSE_ID_FOR_JS);
+            else if (activeTabName === 'grades' && IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) loadTeacherGradesSummary(CURRENT_COURSE_ID_FOR_JS);
+        } else if (CURRENT_COURSE_ID_FOR_JS) {
+            loadAnnouncements(CURRENT_COURSE_ID_FOR_JS);
+        }
+    })();
 
     if(assignmentSortSelect && CURRENT_COURSE_ID_FOR_JS) {
-        assignmentSortSelect.addEventListener('change', function() { loadAssignments(CURRENT_COURSE_ID_FOR_JS, this.value); });
+        assignmentSortSelect.addEventListener('change', function() { 
+            const activeFilterButton = document.querySelector('#assignmentSectionsFilterContainer .section-filter-btn.active');
+            const currentSectionFilter = activeFilterButton ? activeFilterButton.dataset.sectionFilter : 'all';
+            loadAssignments(CURRENT_COURSE_ID_FOR_JS, this.value, currentSectionFilter); 
+        });
     }
 
     if (createAnnouncementForm) {
@@ -724,7 +885,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (showCreateAssignmentModalBtn && createAssignmentModal) {
         showCreateAssignmentModalBtn.addEventListener('click', () => {
             if (createAssignmentFormInternal) createAssignmentFormInternal.reset();
-            if (CURRENT_COURSE_ID_FOR_JS) { fetchAndPopulateExistingSections(CURRENT_COURSE_ID_FOR_JS); }
+            if (CURRENT_COURSE_ID_FOR_JS) { fetchAndPopulateExistingSections(CURRENT_COURSE_ID_FOR_JS); } 
             createAssignmentModal.style.display = 'flex';
         });
     }
@@ -765,7 +926,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     createAssignmentModal.style.display = 'none';
                     this.reset();
                     if (CURRENT_COURSE_ID_FOR_JS && assignmentSortSelect) {
-                        loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value);
+                        await fetchAndPopulateExistingSections(CURRENT_COURSE_ID_FOR_JS); 
+                        renderSectionFilters(); 
+                        const activeFilterButton = document.querySelector('#assignmentSectionsFilterContainer .section-filter-btn.active');
+                        const currentSectionFilter = activeFilterButton ? activeFilterButton.dataset.sectionFilter : 'all';
+                        loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value, currentSectionFilter);
                     }
                 } else {
                     alert(`Помилка: ${result.message || 'Не вдалося створити завдання.'}`);
@@ -818,7 +983,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     editAssignmentModal.style.display = 'none';
                     this.reset();
                     if (CURRENT_COURSE_ID_FOR_JS && assignmentSortSelect) {
-                        loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value);
+                        await fetchAndPopulateExistingSections(CURRENT_COURSE_ID_FOR_JS); 
+                        renderSectionFilters(); 
+                        const activeFilterButton = document.querySelector('#assignmentSectionsFilterContainer .section-filter-btn.active');
+                        const currentSectionFilter = activeFilterButton ? activeFilterButton.dataset.sectionFilter : 'all';
+                        loadAssignments(CURRENT_COURSE_ID_FOR_JS, assignmentSortSelect.value, currentSectionFilter);
                     }
                 } else {
                     alert(`Помилка оновлення завдання: ${result.message || 'Не вдалося оновити завдання.'}`);
@@ -837,7 +1006,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const itemDiv = document.createElement('div'); itemDiv.classList.add('person-item'); itemDiv.dataset.userId = user.user_id;
         const avatarSrc = user.avatar_path ? (baseAvatarUrl + user.avatar_path) : (baseAvatarUrl + defaultAvatarRelPath);
         let removeButtonHTML = '';
-        // const currentUserIdFromPHP = CURRENT_USER_ID_PHP; // Використовуємо передану змінну
         if (!isTeacherContext && isCurrentUserTheTeacher && user.user_id != CURRENT_USER_ID_PHP) {
             removeButtonHTML = `<button class="remove-student-btn" data-student-id="${user.user_id}" data-student-name="${htmlspecialchars(user.first_name) || ''} ${htmlspecialchars(user.last_name) || ''}"><i class="fas fa-user-minus"></i> Видалити</button>`;
         }
@@ -889,6 +1057,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function handleRemoveStudent(event) {
+        event.preventDefault(); 
         const studentId = event.currentTarget.dataset.studentId;
         const studentName = event.currentTarget.dataset.studentName;
         if (!confirm(`Ви впевнені, що хочете видалити студента ${studentName} з курсу?`)) { return; }

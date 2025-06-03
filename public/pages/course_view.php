@@ -6,28 +6,29 @@ require_once __DIR__ . '/templates/layout.php';
 require_once __DIR__ . '/../../src/connect.php';
 
 $course_id_get = filter_input(INPUT_GET, 'course_id', FILTER_VALIDATE_INT);
-$current_user_id_php = $_SESSION['user_id'] ?? null; 
+$current_user_id_php = $_SESSION['user_id'] ?? null;
 $course_data = null;
 $author_username = 'Невідомий';
-$is_teacher_php = false; 
+$is_teacher_php = false;
 $banner_color_hex = '#007bff';
 $page_title_course = 'Курс не знайдено';
 $join_code_visible_db = true;
-$course_join_code_from_db_php = null; 
-$actual_course_name_php = ''; 
+$course_join_code_from_db_php = null;
+$actual_course_name_php = '';
 
 if (!$current_user_id_php) {
     header("Location: login.php");
     exit();
 }
 
-if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) { 
+if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) { // Перевірка, чи константа вже визначена
     define('WEB_ROOT_REL_FROM_HTML_CV_PHP', '../');
 }
 $default_avatar_rel_path_php = 'assets/default_avatar.png';
 
 
 if (!$course_id_get) {
+    // ID курсу не передано, $course_data залишається null
 } else {
     $stmt_course = $conn->prepare("SELECT course_name, author_id, color, join_code, description, join_code_visible FROM courses WHERE course_id = ?");
     if ($stmt_course) {
@@ -37,30 +38,34 @@ if (!$course_id_get) {
         if ($course_data_row = $result_course->fetch_assoc()) {
             $course_data = $course_data_row;
             $page_title_course = htmlspecialchars($course_data['course_name']);
-            $actual_course_name_php = $course_data['course_name']; 
+            $actual_course_name_php = $course_data['course_name']; // Зберігаємо реальну назву
             $banner_color_hex = (!empty($course_data['color'])) ? htmlspecialchars($course_data['color']) : '#007bff';
             $join_code_visible_db = (bool)$course_data['join_code_visible'];
             $course_join_code_from_db_php = $course_data['join_code'];
 
+            // Перевірка, чи поточний користувач є автором курсу
             if ($current_user_id_php == $course_data['author_id']) {
                 $is_teacher_php = true;
             } else {
+                // Якщо не автор, перевірити, чи зарахований на курс
                 $stmt_check_enrollment = $conn->prepare("SELECT 1 FROM enrollments WHERE course_id = ? AND student_id = ?");
                 if ($stmt_check_enrollment) {
                     $stmt_check_enrollment->bind_param("ii", $course_id_get, $current_user_id_php);
                     $stmt_check_enrollment->execute();
                     if($stmt_check_enrollment->get_result()->num_rows == 0) {
-                        $course_data = null;
+                        // Користувач не зарахований, обмежуємо доступ
+                        $course_data = null; // Скидаємо дані курсу
                         $page_title_course = 'Доступ обмежено';
                     }
                     $stmt_check_enrollment->close();
                 } else {
                     error_log("Failed to prepare statement for enrollment check: " . $conn->error);
-                    $course_data = null;
+                    $course_data = null; // Помилка підготовки запиту
                 }
             }
 
-            if ($course_data) {
+            // Отримати ім'я автора, якщо дані курсу доступні
+            if ($course_data) { // Перевіряємо, чи $course_data не null після перевірки зарахування
                 $stmt_author = $conn->prepare("SELECT username FROM users WHERE user_id = ?");
                 if ($stmt_author) {
                     $stmt_author->bind_param("i", $course_data['author_id']);
@@ -70,15 +75,18 @@ if (!$course_id_get) {
                         $author_username = $author_user_row['username'];
                     }
                     $stmt_author->close();
+                } else {
+                     error_log("Failed to prepare statement for author username: " . $conn->error);
                 }
             }
         } else {
+            // Курс не знайдено
             $course_data = null;
         }
         $stmt_course->close();
     } else {
         error_log("Failed to prepare statement for course data: " . $conn->error);
-        $course_data = null;
+        $course_data = null; // Помилка підготовки запиту
     }
 }
 ?>
@@ -160,7 +168,11 @@ if (!$course_id_get) {
                             <button id="showCreateAssignmentModalBtn" class="course-action-button">
                                 <i class="fas fa-plus"></i> Створити завдання
                             </button>
+                            
+                            <div id="assignmentSectionsFilterContainer" class="sections-filter-container" style="margin-top: 15px; margin-bottom: 15px;">
+                                </div>
                         <?php endif; ?>
+
                         <div class="assignments-controls">
                             <label for="assignmentSortSelect">Сортувати:</label>
                             <select id="assignmentSortSelect" class="form-control-sm">
@@ -263,7 +275,7 @@ if (!$course_id_get) {
                     <?php
                     if (!$course_id_get) echo "ID курсу не вказано.";
                     elseif ($page_title_course === 'Доступ обмежено') echo "Ви не зараховані на цей курс або не маєте прав для його перегляду.";
-                    else echo "Курс з ID " . htmlspecialchars($_GET['course_id']) . " не знайдено.";
+                    else echo "Курс з ID " . htmlspecialchars($_GET['course_id'] ?? 'невідомим') . " не знайдено.";
                     ?>
                 </p>
                 <a href="home.php" class="button">Повернутися на головну</a>
@@ -303,6 +315,11 @@ if (!$course_id_get) {
                         <input type="datetime-local" id="assignment_due_date_modal" name="assignment_due_date" class="form-control-modal" required>
                     </div>
                 </div>
+                 <div class="form-group-modal-infield" style="margin-top: 15px;">
+                    <label for="assignment_files_modal" class="form-label-infield" style="top: -8px;">Прикріпити файли (до 15MB кожен):</label>
+                    <input type="file" id="assignment_files_modal" name="assignment_files[]" class="form-control-modal-infield" multiple style="padding-top: 12px; padding-bottom:12px; height: auto;">
+                    <small>Ви можете вибрати декілька файлів. Дозволені типи: pdf, doc(x), ppt(x), xls(x), txt, zip, зображення, відео, аудіо.</small>
+                </div>
                 <button type="submit" class="submit-button-modal">Створити завдання</button>
             </form>
         </div>
@@ -338,6 +355,17 @@ if (!$course_id_get) {
                         <label for="assignment_due_date_edit_modal">Дата та час здачі:</label>
                         <input type="datetime-local" id="assignment_due_date_edit_modal" name="assignment_due_date" class="form-control-modal" required>
                     </div>
+                </div>
+                <div id="existingFilesEditArea" class="form-group-modal-infield" style="margin-top: 15px; display: none;">
+                    <label class="form-label-infield" style="top: -8px;">Прикріплені файли:</label>
+                    <div id="existingFilesList" style="padding-top: 10px; max-height: 150px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 5px; padding:10px;">
+                        </div>
+                    <small>Позначте файли, які потрібно видалити.</small>
+                </div>
+                <div class="form-group-modal-infield" style="margin-top: 15px;">
+                    <label for="assignment_files_edit_modal" class="form-label-infield" style="top: -8px;">Додати нові файли (до 15MB кожен):</label>
+                    <input type="file" id="assignment_files_edit_modal" name="assignment_files_edit[]" class="form-control-modal-infield" multiple style="padding-top: 12px; padding-bottom:12px; height: auto;">
+                     <small>Ви можете вибрати декілька файлів. Дозволені типи: pdf, doc(x), ppt(x), xls(x), txt, zip, зображення, відео, аудіо.</small>
                 </div>
                 <button type="submit" class="submit-button-modal">Зберегти зміни</button>
             </form>

@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['db_avatar_path'] = $user['avatar_path'];
                     $_SESSION['email'] = $user['email'];
 
-                    header("Location: ../public/pages/home.php");
+                    header("Location: ../../public/pages/home.php");
                     exit();
                 } else {
                     $errors['login_error'] = "Неправильна пошта/юзернейм або пароль.";

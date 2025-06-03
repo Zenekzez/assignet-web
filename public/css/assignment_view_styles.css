@@ -5,73 +5,90 @@
     display: flex;
     justify-content: center; /* Горизонтальне центрування дочірнього flex-елемента */
     width: 100%; /* Обгортка займає всю доступну ширину від .course-view-main-content */
-    padding: 0; /* Переконайтеся, що немає зайвих відступів, які можуть завадити */
+    padding: 0 15px; /* Додаємо бічні відступи для маленьких екранів */
+    box-sizing: border-box;
 }
 
 .assignment-detail-container {
     background-color: #fff;
-    padding: 25px 30px;
+    padding: 20px 25px; /* Трохи зменшено для мобільних */
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.07);
     margin-top: 20px;
-    margin-bottom: 20px; /* Додано для симетрії */
-
-    max-width: 960px;  /* Обмежуємо максимальну ширину */
-    width: 100%;       /* Блок намагатиметься зайняти всю ширину, надану йому max-width */
-    box-sizing: border-box; /* Важливо, якщо є padding або border */
-
-    /* Властивості для самостійного центрування (margin-left/right: auto, align-self)
-       тепер не є першочерговими, оскільки цим займається батьківська обгортка.
-       Їх можна видалити або закоментувати звідси для чистоти коду. */
-    /* margin-left: auto; */
-    /* margin-right: auto; */
-    /* align-self: center; */
+    margin-bottom: 20px; 
+    max-width: 960px;  
+    width: 100%;       
+    box-sizing: border-box; 
 }
 
+/* Адаптивність для хлібних крихт (успадковується з course_view_styles.css, але можна уточнити) */
+/* Стилі для .course-header-bar та .breadcrumbs краще тримати в course_view_styles.css, 
+   оскільки вони використовуються на обох сторінках. Тут можна лише уточнити, якщо потрібно.
+   Переконайтеся, що в course_view_styles.css .breadcrumbs має flex-wrap: wrap; */
+.course-header-bar .breadcrumbs {
+    font-size: 0.9em; 
+    line-height: 1.4; 
+    word-break: break-word; 
+    /* display: flex; -- якщо ще не встановлено в course_view_styles.css */
+    /* flex-wrap: wrap; -- якщо ще не встановлено в course_view_styles.css */
+}
+.course-header-bar .breadcrumbs span,
+.course-header-bar .breadcrumbs a {
+    display: inline; 
+    margin-right: 5px; /* Додамо невеликий відступ між елементами крихт */
+}
+.course-header-bar .breadcrumbs > span:last-child {
+    margin-right: 0;
+}
+
+
 .assignment-header-details h1 {
-    font-size: 2.2em;
+    font-size: 1.8em; 
     margin-top: 0;
     margin-bottom: 10px;
     color: #333;
+    word-break: break-word; 
 }
 
 .assignment-meta {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px 20px; /* Відстань між елементами мета-інформації */
+    flex-wrap: wrap; 
+    gap: 8px 15px; 
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 1px solid #eee;
-    font-size: 0.9em;
+    font-size: 0.85em; 
     color: #555;
 }
 .assignment-meta .meta-item {
     display: flex;
     align-items: center;
+    white-space: normal; 
 }
 .assignment-meta .meta-item i.fas {
     margin-right: 7px;
     color: #777;
 }
 .assignment-meta .meta-item.due-date.past-due {
-    color: #dc3545; /* Червоний для прострочених */
+    color: #dc3545; 
     font-weight: bold;
 }
 .assignment-meta .meta-item.due-date.due-soon {
-    color: #ffc107; /* Жовтий для тих, що скоро */
+    color: #ffc107; 
     font-weight: bold;
 }
 
 
 .assignment-description-full h3 {
-    font-size: 1.3em;
+    font-size: 1.2em; 
     margin-bottom: 10px;
     color: #444;
 }
 .assignment-description-full p {
     line-height: 1.7;
     color: #333;
-    white-space: pre-wrap; /* Зберігає переноси рядків з опису */
+    white-space: pre-wrap; 
+    word-break: break-word; /* Додано для дуже довгих слів без пробілів */
 }
 
 hr.assignment-divider {
@@ -81,12 +98,22 @@ hr.assignment-divider {
     border-top: 1px solid #eee;
 }
 
-#studentSubmissionArea h2,
-#teacherAssignmentActions h2 {
-    font-size: 1.5em;
-    margin-bottom: 15px;
+#studentSubmissionArea h4, /* Загальний стиль для заголовків в блоках */
+#teacherAttachmentsArea h4,
+#teacherAssignmentActions h2 { /* Змінено h2 на h4 для консистентності, якщо можливо в HTML */
+    font-size: 1.1em; /* Зробимо трохи меншими для внутрішніх блоків */
+    margin-top: 0;
+    margin-bottom: 12px;
     color: #333;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
 }
+#studentSubmissionArea h4 i.fas,
+#teacherAttachmentsArea h4 i.fas {
+    margin-right: 8px;
+}
+
 
 #submitAssignmentForm .form-group-modal {
     margin-bottom: 18px;
@@ -111,13 +138,7 @@ hr.assignment-divider {
     min-height: 80px;
     resize: vertical;
 }
-#submitAssignmentForm .submit-button-modal {
-    background-color: #007bff; 
-    margin-top: 10px;
-}
-#submitAssignmentForm .submit-button-modal:hover {
-    background-color: #0056b3;
-}
+
 
 #studentSubmissionArea .submission-status {
     display: inline-block;
@@ -129,15 +150,163 @@ hr.assignment-divider {
 }
 .submission-status.submitted { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;}
 .submission-status.graded { background-color: #cff4fc; color: #055160; border: 1px solid #b6effb;}
-.submission-status.pending { background-color: #fff3cd; color: #664d03; border: 1px solid #ffecb5;} /* Додано для консистенції */
-.submission-status.missed { background-color: #f8d7da; color: #58151c; border: 1px solid #f1c0c7;} /* Додано для консистенції */
+.submission-status.pending { background-color: #fff3cd; color: #664d03; border: 1px solid #ffecb5;} 
+.submission-status.missed { background-color: #f8d7da; color: #58151c; border: 1px solid #f1c0c7;} 
 
 
 #studentSubmissionArea p {
     margin-bottom: 8px;
     line-height: 1.5;
+    word-break: break-word;
 }
 
 #teacherAssignmentActions .view-submissions-link {
-    /* Specific styles if needed, otherwise inherited */
+    /* Стилі успадковуються з course_view_styles.css (.button-link) */
+    /* Можна додати специфічні тут, якщо потрібно */
+}
+
+/* Стилі для кнопки "Здати/Змінити роботу" для студента */
+.button-link.submit-assignment-btn-student,
+#submitAssignmentForm .submit-button-modal.submit-assignment-btn-student { /* Для консистентності кнопки в формі */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    font-size: 0.95em;
+    font-weight: 500;
+    color: #fff;
+    background-color: #007bff; 
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    min-width: 180px; 
+    margin-top: 10px; /* Додано відступ зверху */
+}
+
+.button-link.submit-assignment-btn-student:hover,
+#submitAssignmentForm .submit-button-modal.submit-assignment-btn-student:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.button-link.submit-assignment-btn-student i.fas {
+    margin-right: 8px;
+}
+
+
+.teacher-attachments-section {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 20px; 
+    margin-top: 20px; /* Додано для відступу від опису */
+}
+.teacher-attachments-section h4 i.fas {
+    margin-right: 8px;
+    color: #007bff;
+}
+.attachments-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+.attachments-list li {
+    margin-bottom: 8px;
+    display: flex; /* Для кращого контролю над елементами всередині */
+    flex-direction: column; /* Розміщуємо посилання і прев'ю одне під одним */
+    align-items: flex-start;
+}
+.attachments-list li a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95em;
+    display: inline-flex; /* Щоб іконка і текст були в одному рядку */
+    align-items: center;
+    word-break: break-all; /* Для дуже довгих імен файлів */
+}
+.attachments-list li a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+.attachments-list li a i.fas {
+    margin-right: 6px;
+    color: #6c757d;
+    flex-shrink: 0; /* Щоб іконка не стискалася */
+}
+.attachments-list img.attachment-thumbnail {
+     max-width: 200px; /* Збільшено максимальну ширину */
+     max-height: 150px; /* Збільшено максимальну висоту */
+     width: auto; /* Дозволяємо автоматичну ширину для збереження пропорцій */
+     height: auto; /* Дозволяємо автоматичну висоту */
+     border-radius: 4px;
+     border: 1px solid #ddd;
+     margin-top: 8px; /* Відступ від посилання на файл */
+     display: block;
+     cursor: pointer; /* Додаємо курсор, якщо будемо робити відкриття у модальному вікні */
+}
+
+
+/* Загальні медіа-запити для адаптивності сторінки */
+@media (max-width: 768px) {
+    .assignment-detail-container {
+        padding: 15px 20px;
+    }
+    .assignment-header-details h1 {
+        font-size: 1.6em;
+    }
+    .assignment-meta {
+        font-size: 0.8em;
+        gap: 5px 10px;
+    }
+    .assignment-description-full h3 {
+        font-size: 1.1em;
+    }
+    .button-link.submit-assignment-btn-student,
+    #submitAssignmentForm .submit-button-modal.submit-assignment-btn-student {
+        font-size: 0.9em;
+        padding: 8px 15px;
+        min-width: 160px;
+    }
+     .teacher-attachments-section h4,
+     #studentSubmissionArea h4 {
+        font-size: 1.0em;
+    }
+}
+
+@media (max-width: 480px) {
+    .assignment-detail-wrapper-for-centering {
+         padding: 0 10px;
+    }
+    .assignment-detail-container {
+        padding: 15px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+    .course-header-bar .breadcrumbs {
+        font-size: 0.85em;
+    }
+    .assignment-header-details h1 {
+        font-size: 1.4em;
+    }
+    .assignment-meta .meta-item i.fas {
+        margin-right: 5px;
+    }
+    .button-link.submit-assignment-btn-student,
+    #submitAssignmentForm .submit-button-modal.submit-assignment-btn-student {
+        width: 100%; 
+        font-size: 0.95em; 
+    }
+    #teacherAttachmentsArea h4, 
+    #studentSubmissionArea h4 {
+        font-size: 1.0em;
+    }
+    .attachments-list img.attachment-thumbnail {
+        max-width: 100%; /* На всю ширину батьківського li */
+        height: auto; /* Автоматична висота */
+    }
 }

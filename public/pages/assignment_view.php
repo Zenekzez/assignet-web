@@ -94,6 +94,12 @@ $page_title = $assignment_data ? htmlspecialchars($assignment_data['title']) : '
                     <p><?php echo nl2br(htmlspecialchars($assignment_data['description'] ?? 'Опис відсутній.')); ?></p>
                 </div>
 
+                <div id="teacherAttachmentsArea" class="teacher-attachments-section" style="margin-top: 20px; display: none;">
+                    <h4><i class="fas fa-paperclip"></i> Прикріплені файли:</h4>
+                    <ul id="teacherAttachmentsList" class="attachments-list"> 
+                    </ul>
+                </div>
+
                 <hr class="assignment-divider">
 
                 <?php if (!$is_teacher_of_this_course): // Блок для студента ?>
