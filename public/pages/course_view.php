@@ -21,14 +21,13 @@ if (!$current_user_id_php) {
     exit();
 }
 
-if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) { // Перевірка, чи константа вже визначена
+if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) { 
     define('WEB_ROOT_REL_FROM_HTML_CV_PHP', '../');
 }
 $default_avatar_rel_path_php = 'assets/default_avatar.png';
 
 
 if (!$course_id_get) {
-    // ID курсу не передано, $course_data залишається null
 } else {
     $stmt_course = $conn->prepare("SELECT course_name, author_id, color, join_code, description, join_code_visible FROM courses WHERE course_id = ?");
     if ($stmt_course) {
@@ -38,34 +37,30 @@ if (!$course_id_get) {
         if ($course_data_row = $result_course->fetch_assoc()) {
             $course_data = $course_data_row;
             $page_title_course = htmlspecialchars($course_data['course_name']);
-            $actual_course_name_php = $course_data['course_name']; // Зберігаємо реальну назву
+            $actual_course_name_php = $course_data['course_name']; 
             $banner_color_hex = (!empty($course_data['color'])) ? htmlspecialchars($course_data['color']) : '#007bff';
             $join_code_visible_db = (bool)$course_data['join_code_visible'];
             $course_join_code_from_db_php = $course_data['join_code'];
 
-            // Перевірка, чи поточний користувач є автором курсу
             if ($current_user_id_php == $course_data['author_id']) {
                 $is_teacher_php = true;
             } else {
-                // Якщо не автор, перевірити, чи зарахований на курс
                 $stmt_check_enrollment = $conn->prepare("SELECT 1 FROM enrollments WHERE course_id = ? AND student_id = ?");
                 if ($stmt_check_enrollment) {
                     $stmt_check_enrollment->bind_param("ii", $course_id_get, $current_user_id_php);
                     $stmt_check_enrollment->execute();
                     if($stmt_check_enrollment->get_result()->num_rows == 0) {
-                        // Користувач не зарахований, обмежуємо доступ
-                        $course_data = null; // Скидаємо дані курсу
+                        $course_data = null; 
                         $page_title_course = 'Доступ обмежено';
                     }
                     $stmt_check_enrollment->close();
                 } else {
                     error_log("Failed to prepare statement for enrollment check: " . $conn->error);
-                    $course_data = null; // Помилка підготовки запиту
+                    $course_data = null; 
                 }
             }
 
-            // Отримати ім'я автора, якщо дані курсу доступні
-            if ($course_data) { // Перевіряємо, чи $course_data не null після перевірки зарахування
+            if ($course_data) { 
                 $stmt_author = $conn->prepare("SELECT username FROM users WHERE user_id = ?");
                 if ($stmt_author) {
                     $stmt_author->bind_param("i", $course_data['author_id']);
@@ -80,13 +75,12 @@ if (!$course_id_get) {
                 }
             }
         } else {
-            // Курс не знайдено
             $course_data = null;
         }
         $stmt_course->close();
     } else {
         error_log("Failed to prepare statement for course data: " . $conn->error);
-        $course_data = null; // Помилка підготовки запиту
+        $course_data = null; 
     }
 }
 ?>
@@ -163,15 +157,14 @@ if (!$course_id_get) {
 
                 <div id="tab-assignments" class="tab-pane">
                     <h2>Завдання</h2>
-                    <div class="assignments-tab-content-wrapper">
-                        <?php if ($is_teacher_php): ?>
+                    <div class="assignments-tab-content-wrapper">                        <?php if ($is_teacher_php): ?>
                             <button id="showCreateAssignmentModalBtn" class="course-action-button">
                                 <i class="fas fa-plus"></i> Створити завдання
                             </button>
-                            
-                            <div id="assignmentSectionsFilterContainer" class="sections-filter-container" style="margin-top: 15px; margin-bottom: 15px;">
-                                </div>
                         <?php endif; ?>
+
+                        <div id="assignmentSectionsFilterContainer" class="sections-filter-container" style="margin-top: 15px; margin-bottom: 15px;">
+                        </div>
 
                         <div class="assignments-controls">
                             <label for="assignmentSortSelect">Сортувати:</label>

@@ -1,8 +1,3 @@
-// Глобальні змінні, які будуть визначені в PHP файлі
-// const CURRENT_SUBMISSION_ID_JS;
-// const ASSET_BASE_PATH_FROM_HTML_JS;
-// const DEFAULT_AVATAR_URL_JS_GLOBAL;
-
 document.addEventListener('DOMContentLoaded', function() {
     const submissionDetailArea = document.getElementById('submissionDetailArea');
     const gradingBreadcrumbs = document.getElementById('gradingBreadcrumbs');
@@ -13,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const pageTitleElement = document.querySelector('title');
 
     async function loadSubmissionForGrading() {
-        if (!CURRENT_SUBMISSION_ID_JS) { // Використовуємо глобальну змінну
+        if (!CURRENT_SUBMISSION_ID_JS) { 
             if (submissionDetailArea.querySelector('.loading-text')) {
                  submissionDetailArea.querySelector('.loading-text').style.display = 'none';
             }
@@ -28,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const response = await fetch(`../../src/actions/grading_actions.php?action=get_submission_for_grading&submission_id=${CURRENT_SUBMISSION_ID_JS}`); // Використовуємо глобальну змінну
+            const response = await fetch(`../../src/actions/grading_actions.php?action=get_submission_for_grading&submission_id=${CURRENT_SUBMISSION_ID_JS}`); 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
                 throw new Error(errorData.message);
@@ -61,7 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function displaySubmissionDetails(details) {
-        // Використовуємо глобальні змінні для шляхів
         const studentAvatarSrc = details.student_avatar_path ? (ASSET_BASE_PATH_FROM_HTML_JS + details.student_avatar_path) : DEFAULT_AVATAR_URL_JS_GLOBAL;
         let fileLinkHTML = 'Файл не прикріплено.';
         if (details.file_path) {
@@ -210,7 +204,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Використовуємо глобальну змінну для перевірки ID
     if (typeof CURRENT_SUBMISSION_ID_JS !== 'undefined' && CURRENT_SUBMISSION_ID_JS !== null) {
         loadSubmissionForGrading();
     } else {

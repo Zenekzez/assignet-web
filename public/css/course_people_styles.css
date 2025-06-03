@@ -1,19 +1,8 @@
-/* public/css/course_view_styles.css */
-
-/* ... (your existing styles) ... */
-
-/* Styles for People Tab */
 .people-list-section {
     margin-bottom: 25px;
 }
 
-.people-list-section h2 { /* Already styled by .tab-pane h2 */
-    /* margin-top: 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px; */
-}
-.people-list-section > p { /* For loading/empty messages */
+.people-list-section > p { 
     color: #6c757d;
     font-style: italic;
     padding: 15px;
@@ -27,15 +16,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px; /* Adjusted from h2 margin */
-    padding-bottom: 10px; /* Copied from h2 padding */
-    border-bottom: 1px solid #eee; /* Copied from h2 border */
+    margin-bottom: 15px; 
+    padding-bottom: 10px; 
+    border-bottom: 1px solid #eee; 
 }
 
 .students-header h2 {
-    margin-bottom: 0; /* Remove bottom margin as it's on parent now */
-    border-bottom: none; /* Remove border as it's on parent now */
-    padding-bottom: 0; /* Remove padding as it's on parent now */
+    margin-bottom: 0; 
+    border-bottom: none; 
+    padding-bottom: 0; 
 }
 
 
@@ -99,7 +88,7 @@
     cursor: pointer;
     font-size: 0.85em;
     transition: background-color 0.2s ease, color 0.2s ease;
-    margin-left: auto; /* Pushes button to the right */
+    margin-left: auto; 
 }
 .remove-student-btn i.fas {
     margin-right: 5px;
@@ -110,7 +99,6 @@
     color: white;
 }
 
-/* Adjustments for tab-pane h2 if they are too large */
 #tab-people h2 {
-    font-size: 1.6em; /* Slightly smaller for "Викладач" and "Студенти" */
+    font-size: 1.6em; 
 }

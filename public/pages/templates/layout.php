@@ -29,7 +29,9 @@
 <body>
     <header class="app-header">
         <div class="header-left">
-            <span class="header-title">AssignNet</span>
+            <span class="header-title">
+            <img src="../assets/assignnet_logo.png" alt="AssignNet Logo" class="assignnet-logo">    
+            AssignNet</span>
         </div>
         <div class="header-right">
             <?php if (isset($show_add_course_button_on_home) && $show_add_course_button_on_home): ?>

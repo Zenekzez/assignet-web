@@ -1,8 +1,6 @@
-/* public/css/course_view_styles.css */
-
 .course-view-main-content {
     flex-grow: 1;
-    overflow-x: hidden; /* Ключове правило */
+    overflow-x: hidden; 
     box-sizing: border-box;
     width: 100%; 
     display: flex;
@@ -41,14 +39,14 @@
     color: white;
     text-align: left;
     border-radius: 8px;
-    margin-bottom: 25px; /* Узгоджений відступ */
+    margin-bottom: 25px; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     position: relative; 
     min-height: 120px;
     display: flex; 
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start; /* ВАЖЛИВО: для вирівнювання дочірніх елементів по лівому краю */
+    align-items: flex-start; 
     box-sizing: border-box; 
     overflow: hidden; 
 }
@@ -67,7 +65,6 @@
     box-sizing: border-box; 
 }
 
-/* Стилі для контейнера коду курсу та кнопки копіювання в банері */
 .course-join-code-container {
     display: inline-flex; 
     align-items: center; 
@@ -80,7 +77,6 @@
     gap: 8px; 
     position: relative; 
     transition: background-color 0.2s ease;
-    /* align-self: flex-start; -- Це тепер на .course-banner */
 }
 .course-join-code-container:hover {
     background-color: rgba(0,0,0,0.25); 
@@ -149,16 +145,13 @@
     80% { opacity: 1; transform: translateX(-50%) translateY(0); }
     100% { opacity: 0; transform: translateX(-50%) translateY(5px); }
 }
-/* Кінець стилів для коду курсу */
 
-
-/* ОНОВЛЕНО: Стилі для блоку опису курсу (тепер загальний, поза вкладками) */
 .course-description-section { 
     background-color: #fff; 
     padding: 20px 25px; 
     border-radius: 8px; 
-    margin-top: 0; /* Прибрано верхній відступ, банер має margin-bottom */
-    margin-bottom: 25px; /* Відступ перед навігацією по вкладках */
+    margin-top: 0; 
+    margin-bottom: 25px; 
     border: 1px solid #e0e0e0; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.06); 
 }
@@ -166,15 +159,15 @@
 .course-description-section h3 {
     margin-top: 0;
     margin-bottom: 12px;
-    font-size: 1.25em; /* Змінено розмір */
+    font-size: 1.25em; 
     color: #343a40; 
     font-weight: 600; 
     padding-bottom: 8px;
-    border-bottom: 1px solid #e9ecef; /* Світліша лінія */
-    display: flex; /* Для вирівнювання іконки, якщо буде */
-    align-items: center; /* Для вирівнювання іконки, якщо буде */
+    border-bottom: 1px solid #e9ecef; 
+    display: flex; 
+    align-items: center; 
 }
-.course-description-section h3 i.fas { /* Стиль для іконки, якщо додасте її в HTML */
+.course-description-section h3 i.fas { 
     margin-right: 10px;
     color: #007bff; 
 }
@@ -186,13 +179,12 @@
     margin-bottom: 0;
     white-space: pre-wrap; 
 }
-/* Кінець стилів для опису курсу */
 
 .course-tab-navigation {
     display: flex;
     flex-wrap: wrap; 
     border-bottom: 2px solid #dee2e6;
-    margin-bottom: 25px; /* Залишено відступ після навігації */
+    margin-bottom: 25px; 
 }
 
 .course-tab-navigation .tab-link {
@@ -241,7 +233,6 @@
     flex-direction: column; 
     flex-grow: 1; 
 }
-
 
 .tab-pane h2 {
     margin-top: 0;
@@ -775,7 +766,6 @@ textarea.form-control-modal-infield { min-height: 120px; padding-top: 20px; resi
     margin-right: 6px;
 }
 
-/* Загальні правила для запобігання горизонтальному переповненню */
 html, body {
     overflow-x: hidden !important; 
     width: 100%; 
@@ -793,8 +783,6 @@ html, body {
     box-sizing: border-box; 
 }
 
-
-/* Для всіх елементів, які можуть мати довгий текст */
 p, span, div, h1, h2, h3, h4, h5, h6, li, a, label, textarea, input[type="text"] {
     overflow-wrap: break-word; 
     word-wrap: break-word;     
@@ -816,17 +804,16 @@ td, th {
     width: 100%; 
 }
 
-/* СТИЛІ ДЛЯ СЕКЦІЇ ВИДАЛЕННЯ КУРСУ */
 .danger-zone-section {
     margin-top: 20px;
     padding: 20px;
-    border: 2px solid #dc3545; /* Червона рамка */
+    border: 2px solid #dc3545; 
     border-radius: 8px;
-    background-color: #fbeae9; /* Дуже світлий червоний фон */
+    background-color: #fbeae9; 
 }
 
 .danger-zone-section h3 {
-    color: #dc3545; /* Червоний колір заголовка */
+    color: #dc3545; 
     margin-top: 0;
     margin-bottom: 10px;
     font-size: 1.2em;
@@ -834,7 +821,7 @@ td, th {
 
 .danger-zone-section p {
     font-size: 0.9em;
-    color: #58151c; /* Темно-червоний текст */
+    color: #58151c; 
     margin-bottom: 15px;
     line-height: 1.5;
 }
@@ -863,7 +850,6 @@ td, th {
     box-shadow: none;
 }
 
-/* Стилі для модального вікна видалення курсу */
 .modal-content.delete-course-modal-content {
     max-width: 550px; 
     padding: 25px 30px 30px 30px;
@@ -909,7 +895,7 @@ td, th {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 90%; /* Adjust as needed */
+    max-width: 90%; 
 }
 .existing-file-item label i {
     margin-right: 5px;

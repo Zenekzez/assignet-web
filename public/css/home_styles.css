@@ -59,7 +59,7 @@
     flex-grow: 1;
     background-color: #fff;
 }
-.card-body h5 { /* Стиль для заголовка "Опис курсу" якщо він буде відновлений */
+.card-body h5 { 
     margin-top: 0;
     margin-bottom: 8px;
     font-size: 1em;
@@ -101,7 +101,7 @@
     z-index: 1000;
     transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
 }
-.right-sidebar.hidden { /* Цей клас тепер буде керувати видимістю */
+.right-sidebar.hidden { 
     width: 0;
     padding: 0;
     border-left: none;

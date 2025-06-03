@@ -84,7 +84,7 @@ unset($_SESSION['form_data']);
             <input type="checkbox" id="policyAgreement" name="policyAgreement" value="agreed" required
                    <?php echo !empty($formData['policyAgreement']) ? 'checked' : ''; ?>>
             <label for="policyAgreement">
-                Я погоджуюся з <a href="policy.html" target="_blank" rel="noopener noreferrer">політикою конфіденційності компанії</a>. </label>
+                Я погоджуюся з <a href="../../policy.html" target="_blank" rel="noopener noreferrer">політикою конфіденційності компанії</a>. </label>
             <small class="error-message policy-error-message">
                 <?php echo htmlspecialchars($errors['policyAgreement'] ?? ''); ?>
             </small>

@@ -110,11 +110,11 @@ $page_title = "Здані роботи: " . ($assignment_data ? htmlspecialchars
                                     <td data-label="Студент" class="student-name-cell">
                                         <div class="student-name-cell-content-wrapper">
                                             <?php
-                                                $avatar_path_display = $default_avatar_web_path; // ../assets/default_avatar.png
+                                                $avatar_path_display = $default_avatar_web_path; 
                                                 if (!empty($sub['avatar_path'])) {
-                                                    if ($sub['avatar_path'] === 'assets/default_avatar.png') { // Якщо в БД шлях до стандартної
+                                                    if ($sub['avatar_path'] === 'assets/default_avatar.png') { 
                                                         $avatar_path_display = '../' . $sub['avatar_path'];
-                                                    } else { // Кастомна аватарка
+                                                    } else { 
                                                         $avatar_path_display = '../' . htmlspecialchars($sub['avatar_path'], ENT_QUOTES, 'UTF-8');
                                                     }
                                                 }

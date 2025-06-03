@@ -1,5 +1,3 @@
-/* public/css/grades_overview_styles.css */
-
 .grades-overview-page-container {
     padding: 0px 25px 25px 25px;
     max-width: 1200px;
@@ -10,7 +8,7 @@
     font-size: 1.8em;
     color: #333;
     margin-top: 25px;
-    margin-bottom: 25px; /* Збільшено відступ */
+    margin-bottom: 25px; 
     padding-bottom: 15px;
     border-bottom: 1px solid #eee;
     font-weight: 600;
@@ -19,7 +17,7 @@
 }
 .grades-overview-page-container h1 i.fas {
     margin-right: 12px;
-    color: var(--sidebar-link-active-color, #1967d2); /* Колір іконки як у активного меню */
+    color: var(--sidebar-link-active-color, #1967d2);
 }
 
 .course-grades-block {
@@ -28,7 +26,7 @@
     border-radius: 8px;
     margin-bottom: 30px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.07);
-    overflow: hidden; /* Для правильного відображення border-radius з таблицею */
+    overflow: hidden; 
 }
 
 .course-grades-block-header {
@@ -61,34 +59,33 @@
 }
 
 .course-assignments-grades-table {
-    /* Використовуємо стилі, схожі на .my-grades-table з grades_tab_styles.css */
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9em; /* Узгоджуємо з my-grades-table */
+    font-size: 0.9em; 
 }
 
 .course-assignments-grades-table th,
 .course-assignments-grades-table td {
     border-bottom: 1px solid #dee2e6;
-    padding: 10px 15px; /* Трохи менші відступи для компактності */
+    padding: 10px 15px; 
     text-align: left;
     vertical-align: middle;
 }
 
 .course-assignments-grades-table thead th {
-    background-color: #f0f2f5; /* Світліший фон для підзаголовків таблиці */
-    font-weight: 500; /* Менш жирний, ніж головний заголовок таблиці */
+    background-color: #f0f2f5; 
+    font-weight: 500; 
     color: #495057;
-    border-top: none; /* Зазвичай не потрібен, якщо є header блоку */
+    border-top: none; 
 }
-/* Прибираємо останню нижню межу для останнього рядка в таблиці */
+
 .course-assignments-grades-table tbody tr:last-child td {
     border-bottom: none;
 }
 
 
 .course-assignments-grades-table tbody tr:nth-child(even) {
-    background-color: #fcfcfd; /* Дуже світле чергування */
+    background-color: #fcfcfd; 
 }
 
 .course-assignments-grades-table tbody tr:hover {
@@ -105,8 +102,6 @@
     color: #0056b3;
 }
 
-/* Статуси і кнопки-посилання можна запозичити з grades_tab_styles.css або course_view_styles.css */
-/* Наприклад, .submission-status-badge та .button-link-small */
 .loading-grades-overview,
 .no-grades-overview-message {
     padding: 30px 20px;
@@ -122,7 +117,6 @@
     margin-right: 10px;
 }
 
-/* Адаптивність для таблиць всередині блоків курсів */
 @media (max-width: 768px) {
     .course-grades-block-header {
         flex-direction: column;
@@ -146,9 +140,9 @@
     }
     .course-assignments-grades-table td {
         text-align: right; 
-        padding-left: 40%; /* Залишаємо місце для "заголовка" */
+        padding-left: 40%; 
         position: relative;
-        border-bottom: 1px dotted #eee; /* Тонка лінія між "полями" */
+        border-bottom: 1px dotted #eee; 
     }
     .course-assignments-grades-table td:last-child {
         border-bottom: none;

@@ -6,8 +6,8 @@
 
     $current_first_name = htmlspecialchars($_SESSION['db_first_name'] ?? '', ENT_QUOTES, 'UTF-8');
     $current_last_name = htmlspecialchars($_SESSION['db_last_name'] ?? '', ENT_QUOTES, 'UTF-8');
-    $current_username_php = htmlspecialchars($_SESSION['username'] ?? 'Невідомий користувач', ENT_QUOTES, 'UTF-8'); // Змінено назву
-    $current_user_email_php = htmlspecialchars($_SESSION['email'] ?? 'Не вказано', ENT_QUOTES, 'UTF-8'); // Змінено назву
+    $current_username_php = htmlspecialchars($_SESSION['username'] ?? 'Невідомий користувач', ENT_QUOTES, 'UTF-8'); 
+    $current_user_email_php = htmlspecialchars($_SESSION['email'] ?? 'Не вказано', ENT_QUOTES, 'UTF-8');
 
     $default_avatar_web_path = '../assets/default_avatar.png';
     $avatar_display_path = $default_avatar_web_path;
@@ -116,7 +116,7 @@
 
         <section class="settings-section">
             <h2>Вихід з акаунту</h2>
-            <a href="../../src/logout.php" class="logout-button"><i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>Вийти</a>
+            <a href="../../src/auth/logout.php" class="logout-button"><i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>Вийти</a>
         </section>
     </div>
 </main>

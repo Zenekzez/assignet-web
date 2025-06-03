@@ -1,10 +1,4 @@
 <?php
-ini_set('display_errors', 0); // Вимикаємо показ помилок у браузері
-ini_set('log_errors', 1);     // Вмикаємо логування помилок у файл
-error_reporting(E_ALL);     // Встановлюємо рівень звітування про всі помилки
-// Необов'язково: якщо ти хочеш вказати свій файл для логів, розкоментуй та зміни шлях:
-// ini_set('error_log', 'C:/xampp/php/logs/php_error.log'); // Заміни на свій реальний шлях до лог-файлу XAMPP або інший
-ob_start(); // Починаємо буферизацію виводу
 session_start();
 require_once __DIR__ . '/../connect.php';
 header('Content-Type: application/json');
@@ -93,7 +87,5 @@ try {
 }
 
 $conn->close();
-ob_end_clean(); // Очищуємо буфер (видаляємо все, що могло бути виведено до JSON, наприклад, PHP помилки)
 echo json_encode($response);
-exit(); // Зупиняємо виконання скрипта, щоб нічого зайвого не виводилося після JSON
 ?>

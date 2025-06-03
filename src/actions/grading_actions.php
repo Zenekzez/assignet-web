@@ -312,8 +312,6 @@ if ($action === 'get_submission_for_grading') {
         $assignments_list = [];
         $students_grades_list = [];
 
-        // 1. Отримати список завдань курсу (для заголовків таблиці)
-        // ВИПРАВЛЕНО: Додано due_date та created_at до SELECT
         $stmt_assignments = $conn->prepare("SELECT assignment_id, title, max_points, due_date, created_at FROM assignments WHERE course_id = ? ORDER BY ISNULL(due_date), due_date ASC, created_at ASC");
         if ($stmt_assignments) {
             $stmt_assignments->bind_param("i", $course_id);
@@ -330,7 +328,6 @@ if ($action === 'get_submission_for_grading') {
             exit();
         }
 
-        // 2. Отримати список студентів курсу
         $stmt_students = $conn->prepare(
             "SELECT u.user_id, u.first_name, u.last_name, u.username, u.avatar_path
              FROM users u
@@ -369,7 +366,7 @@ if ($action === 'get_submission_for_grading') {
                     'grades_by_assignment_id' => []
                 ];
 
-                foreach ($assignments_list as $assignment) { // $assignment тепер містить 'due_date' та 'created_at'
+                foreach ($assignments_list as $assignment) { 
                     $assignment_id_current = $assignment['assignment_id'];
                     $stmt_submission_grade->bind_param("ii", $assignment_id_current, $student['user_id']);
                     $stmt_submission_grade->execute();
@@ -382,7 +379,6 @@ if ($action === 'get_submission_for_grading') {
                         $grade_info['status'] = $submission['status'];
                     }
 
-                    // Використовуємо $assignment['due_date'] безпосередньо
                     if ($assignment['due_date'] && new DateTime($assignment['due_date']) < new DateTime() &&
                         !in_array($grade_info['status'], ['submitted', 'graded'])) {
                         $grade_info['status'] = 'missed';

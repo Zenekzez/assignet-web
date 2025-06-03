@@ -77,7 +77,7 @@ function handleUploadedAssignmentFiles($conn, $assignment_id, $course_id_for_pat
     }
 
     $allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'zip', 'ppt', 'pptx', 'xls', 'xlsx', 'mp4', 'mov', 'avi', 'mp3', 'wav'];
-    $max_file_size_bytes = 15 * 1024 * 1024; // 15 MB
+    $max_file_size_bytes = 15 * 1024 * 1024; 
 
     if (isset($files_array['name']) && is_array($files_array['name'])) {
         $file_count = count($files_array['name']);
@@ -566,7 +566,7 @@ elseif ($action === 'get_assignment_details_for_edit') {
             exit();
         }
 
-        $stmt_course_id_check = $conn->prepare("SELECT course_id FROM assignments WHERE assignment_id = ?"); // Renamed variable for clarity
+        $stmt_course_id_check = $conn->prepare("SELECT course_id FROM assignments WHERE assignment_id = ?"); 
         if (!$stmt_course_id_check) {
              $response['message'] = 'Помилка підготовки запиту (перевірка ID курсу).';
              error_log("DB prepare error (course_id check for edit assignment): " . $conn->error);
@@ -682,8 +682,8 @@ elseif ($action === 'update_assignment') {
                 
                 $stmt_get_files_to_delete = $conn->prepare("SELECT file_path FROM assignment_files WHERE file_id IN ($placeholders) AND assignment_id = ?");
                 if ($stmt_get_files_to_delete) {
-                    $params_for_get = $files_to_delete_ids; // bind_param needs variables
-                    $params_for_get[] = $assignment_id_edit; // Add assignment_id at the end
+                    $params_for_get = $files_to_delete_ids; 
+                    $params_for_get[] = $assignment_id_edit; 
                     
                     $bind_types = $types . "i";
                     $stmt_get_files_to_delete->bind_param($bind_types, ...$params_for_get);
@@ -695,7 +695,6 @@ elseif ($action === 'update_assignment') {
                         if (file_exists($file_server_path) && is_file($file_server_path)) {
                             if (!unlink($file_server_path)) {
                                 error_log("Could not delete assignment attachment file from server: " . $file_server_path);
-                                // Decide if this is a critical error to rollback
                             }
                         }
                     }
@@ -782,7 +781,6 @@ elseif ($action === 'delete_assignment') {
                 }
             }
             $stmt_get_assignment_files->close();
-            // Записи з assignment_files видаляться через ON DELETE CASCADE при видаленні завдання
 
 
             $stmt_get_submission_files = $conn->prepare("SELECT file_path FROM submissions WHERE assignment_id = ? AND file_path IS NOT NULL");
@@ -802,7 +800,6 @@ elseif ($action === 'delete_assignment') {
             }
             $stmt_get_submission_files->close();
 
-            // Записи з submissions також видаляться через ON DELETE CASCADE при видаленні завдання
 
             $stmt_delete_assignment = $conn->prepare("DELETE FROM assignments WHERE assignment_id = ? AND course_id = ?");
             if (!$stmt_delete_assignment) {
@@ -894,7 +891,6 @@ elseif ($action === 'get_assignment_submission_details') {
             exit();
         }
 
-        // Fetch teacher attachments for the assignment
         $teacher_attached_files = [];
         $stmt_teacher_files = $conn->prepare("SELECT file_id, file_name, file_path FROM assignment_files WHERE assignment_id = ? ORDER BY file_name ASC");
         if($stmt_teacher_files) {
@@ -999,7 +995,7 @@ elseif ($action === 'get_assignment_submission_details') {
                  echo json_encode($response);
                  exit();
             }
-            $base_dir_for_upload = dirname(__DIR__, 2) . '/public/'; // Changed to end with /public/
+            $base_dir_for_upload = dirname(__DIR__, 2) . '/public/'; 
             $course_id_for_path = $assignment_data_for_paths['course_id'];
             $structure = 'uploads/submissions/course_' . $course_id_for_path . '/assignment_' . $assignment_id . '/student_' . $current_user_id . '/';
             $upload_dir_absolute = $base_dir_for_upload . $structure;
@@ -1014,7 +1010,7 @@ elseif ($action === 'get_assignment_submission_details') {
                 }
             }
 
-            $file_name_original_submission = basename($_FILES['submission_file']['name']); // basename for security
+            $file_name_original_submission = basename($_FILES['submission_file']['name']); 
             $file_extension = strtolower(pathinfo($file_name_original_submission, PATHINFO_EXTENSION));
             $allowed_extensions_submission = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'zip']; 
             if (!in_array($file_extension, $allowed_extensions_submission)) {
@@ -1033,7 +1029,7 @@ elseif ($action === 'get_assignment_submission_details') {
             $upload_path_absolute_file = $upload_dir_absolute . $new_filename;
 
             if (move_uploaded_file($_FILES['submission_file']['tmp_name'], $upload_path_absolute_file)) {
-                $file_path_db = $structure . $new_filename; // Path relative to public/
+                $file_path_db = $structure . $new_filename; 
             } else {
                 $response['message'] = 'Помилка переміщення завантаженого файлу. Код помилки: ' . $_FILES['submission_file']['error'];
                 error_log('File move error for submission. Target: ' . $upload_path_absolute_file . '. Error code: ' . $_FILES['submission_file']['error']);
@@ -1147,7 +1143,6 @@ elseif ($action === 'delete_course') {
                 $placeholders = implode(',', array_fill(0, count($assignment_ids), '?'));
                 $types = str_repeat('i', count($assignment_ids));
 
-                // Delete teacher's attachments for assignments
                 $stmt_get_teacher_files = $conn->prepare("SELECT file_path FROM assignment_files WHERE assignment_id IN ($placeholders)");
                 if (!$stmt_get_teacher_files) throw new Exception("Помилка підготовки отримання файлів завдань (викладача): " . $conn->error);
                 $stmt_get_teacher_files->bind_param($types, ...$assignment_ids);
@@ -1161,11 +1156,10 @@ elseif ($action === 'delete_course') {
                              error_log("Could not delete assignment attachment file: " . $file_to_delete_server_path);
                         }
                     }
-                     // Delete parent directories if they become empty (optional, more complex)
+
                     $file_dir = dirname($file_to_delete_server_path);
-                    if (is_dir($file_dir) && count(scandir($file_dir)) == 2) { // . and ..
+                    if (is_dir($file_dir) && count(scandir($file_dir)) == 2) { 
                         rmdir($file_dir);
-                        // Potentially go up further if course/assignment dirs become empty
                         $assignment_dir = dirname($file_dir);
                         if (is_dir($assignment_dir) && count(scandir($assignment_dir)) == 2) rmdir($assignment_dir);
                         $course_dir = dirname($assignment_dir);
@@ -1173,9 +1167,7 @@ elseif ($action === 'delete_course') {
                     }
                 }
                 $stmt_get_teacher_files->close();
-                // Records in assignment_files will be deleted by ON DELETE CASCADE when assignments are deleted
 
-                // Delete students' submission files
                 $stmt_get_submission_files = $conn->prepare("SELECT file_path FROM submissions WHERE assignment_id IN ($placeholders) AND file_path IS NOT NULL");
                 if (!$stmt_get_submission_files) throw new Exception("Помилка підготовки отримання шляхів файлів здач: " . $conn->error);
                 $stmt_get_submission_files->bind_param($types, ...$assignment_ids);
@@ -1188,18 +1180,14 @@ elseif ($action === 'delete_course') {
                              error_log("Could not delete submission file: " . $file_to_delete_server_path);
                         }
                     }
-                     // Delete parent directories for submission files
                     $file_dir = dirname($file_to_delete_server_path);
                     if (is_dir($file_dir) && count(scandir($file_dir)) == 2) { rmdir($file_dir); }
                     $student_dir = dirname($file_dir);
                     if (is_dir($student_dir) && count(scandir($student_dir)) == 2) { rmdir($student_dir); }
-                    // Assignment and course dirs will be handled with teacher attachments or if no attachments existed
                 }
                 $stmt_get_submission_files->close();
-                // Records in submissions will be deleted by ON DELETE CASCADE when assignments are deleted
             }
             
-            // Deleting assignments will cascade to assignment_files and submissions
             $stmt_delete_assignments = $conn->prepare("DELETE FROM assignments WHERE course_id = ?");
             if(!$stmt_delete_assignments) throw new Exception("Помилка підготовки видалення завдань: " . $conn->error);
             $stmt_delete_assignments->bind_param("i", $course_id_to_delete);
@@ -1226,12 +1214,10 @@ elseif ($action === 'delete_course') {
                     $conn->commit();
                     $response['status'] = 'success';
                     $response['message'] = 'Курс та всі пов\'язані дані успішно видалено!';
-                     // Try to remove the main course attachment directory if it's empty
                     $course_attachment_main_dir = dirname(__DIR__, 2) . '/public/uploads/assignments_attachments/course_' . $course_id_to_delete;
-                    if (is_dir($course_attachment_main_dir) && count(scandir($course_attachment_main_dir)) == 2) { // Check if empty (only . and ..)
+                    if (is_dir($course_attachment_main_dir) && count(scandir($course_attachment_main_dir)) == 2) { 
                         rmdir($course_attachment_main_dir);
                     }
-                     // Try to remove the main course submission directory if it's empty
                     $course_submission_main_dir = dirname(__DIR__, 2) . '/public/uploads/submissions/course_' . $course_id_to_delete;
                     if (is_dir($course_submission_main_dir) && count(scandir($course_submission_main_dir)) == 2) {
                         rmdir($course_submission_main_dir);

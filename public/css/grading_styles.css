@@ -1,5 +1,3 @@
-/* public/css/grading_styles.css */
-
 .submission-grading-container {
     background-color: #fff;
     padding: 25px 30px;
@@ -25,7 +23,7 @@
     padding-bottom: 20px;
 }
 .grading-header h1 {
-    font-size: 1.8em; /* Трохи менше, ніж заголовок курсу */
+    font-size: 1.8em; 
     margin-top: 0;
     margin-bottom: 10px;
     color: #333;
@@ -47,7 +45,7 @@
 .student-info-grading strong {
     color: #212529;
 }
-.student-info-grading span + span { /* Відступ для username */
+.student-info-grading span + span { 
     margin-left: 5px;
     color: #6c757d;
     font-size: 0.9em;
@@ -95,8 +93,8 @@
 .text-content-display {
     line-height: 1.6;
     color: #343a40;
-    white-space: pre-wrap; /* Зберігає переноси рядків */
-    max-height: 300px; /* Обмеження висоти, якщо текст дуже довгий */
+    white-space: pre-wrap; 
+    max-height: 300px; 
     overflow-y: auto;
     padding: 10px;
     background-color: #fff;
@@ -104,9 +102,6 @@
     border-radius: 4px;
 }
 
-.grading-form-fields {
-    /* Стилі для самої форми, якщо потрібно */
-}
 .form-group-grading {
     margin-bottom: 20px;
 }
@@ -133,7 +128,7 @@
 .form-control-grading:focus {
     color: #495057;
     background-color: #fff;
-    border-color: #86b7fe; /* Bootstrap focus color */
+    border-color: #86b7fe; 
     outline: 0;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
@@ -142,7 +137,7 @@
     opacity: 0.8;
 }
 input[type="number"].form-control-grading {
-    max-width: 150px; /* Обмеження ширини для поля оцінки */
+    max-width: 150px; 
 }
 textarea.form-control-grading {
     min-height: 100px;
@@ -150,7 +145,7 @@ textarea.form-control-grading {
 }
 
 .button-save-grade {
-    background-color: #198754; /* Bootstrap success green */
+    background-color: #198754; 
     color: white;
     border: none;
     padding: 10px 20px;
@@ -181,17 +176,16 @@ textarea.form-control-grading {
     text-align: center;
 }
 .grading-message.success {
-    background-color: #d1e7dd; /* Bootstrap success alert bg */
-    color: #0f5132; /* Bootstrap success alert text */
-    border: 1px solid #badbcc; /* Bootstrap success alert border */
+    background-color: #d1e7dd; 
+    color: #0f5132; 
+    border: 1px solid #badbcc; 
 }
 .grading-message.error {
-    background-color: #f8d7da; /* Bootstrap danger alert bg */
-    color: #842029; /* Bootstrap danger alert text */
-    border: 1px solid #f5c2c7; /* Bootstrap danger alert border */
+    background-color: #f8d7da; 
+    color: #842029; 
+    border: 1px solid #f5c2c7; 
 }
 
-/* Breadcrumbs adjustments if needed on this specific page */
 #gradingBreadcrumbs {
     margin-bottom: 20px;
 }

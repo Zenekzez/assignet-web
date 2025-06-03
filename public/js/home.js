@@ -1,6 +1,3 @@
-// Глобальна змінна, яка буде визначена в PHP файлі
-// const CURRENT_USER_USERNAME_HOME_JS;
-
 document.addEventListener('DOMContentLoaded', function () {
     const coursesGridContainer = document.getElementById('coursesGridContainer');
     const coursesPlaceholder = document.getElementById('coursesPlaceholder');
@@ -44,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const author = document.createElement('span');
         author.classList.add('course-author');
-        author.textContent = course.author_username || CURRENT_USER_USERNAME_HOME_JS; // Використовуємо глобальну змінну
+        author.textContent = course.author_username || CURRENT_USER_USERNAME_HOME_JS; 
 
         header.appendChild(title);
         header.appendChild(author);
@@ -86,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         addCourseCardToDashboard({
                             id: course.id, name: course.name, description: course.description,
                             color_hex: course.color_hex,
-                            author_username: course.author_username || CURRENT_USER_USERNAME_HOME_JS // Використовуємо глобальну змінну
+                            author_username: course.author_username || CURRENT_USER_USERNAME_HOME_JS 
                         });
                     });
                 }
@@ -170,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     addCourseCardToDashboard({
                         id: data.course.id, name: data.course.name, description: data.course.description,
                         color_hex: data.course.color_hex,
-                        author_username: data.course.author_username || CURRENT_USER_USERNAME_HOME_JS // Використовуємо глобальну змінну
+                        author_username: data.course.author_username || CURRENT_USER_USERNAME_HOME_JS 
                     });
                     updateCoursesPlaceholderVisibility();
                     createCourseModal.style.display = 'none';
@@ -231,10 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const screenWidth = window.innerWidth;
         if (screenWidth <= screenBreakpointRightSidebar) {
             rightSidebar.classList.add('hidden');
-        } else {
-            // Код для показу сайдбару на десктопі, якщо потрібно
-            // rightSidebar.classList.remove('hidden');
-        }
+        } 
     }
     if (rightSidebar) {
         window.addEventListener('resize', applyRightSidebarResponsive);

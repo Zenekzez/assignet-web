@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!IS_TEACHER && studentSubmissionArea) {
             studentSubmissionArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження вашої роботи...</p>';
         } else if (IS_TEACHER && document.getElementById('teacherAssignmentActions')) {
-            // Teacher specific loading indicator could go here if needed
         }
         
         try {
@@ -29,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const assignmentDetails = result.assignment_details; 
                 const assignmentMaxPoints = assignmentDetails ? assignmentDetails.max_points : 'N/A';
 
-                // Display teacher attachments for everyone
                 if (assignmentDetails && assignmentDetails.teacher_attachments && assignmentDetails.teacher_attachments.length > 0) {
                     if (teacherAttachmentsList && teacherAttachmentsArea) {
                         teacherAttachmentsList.innerHTML = ''; 

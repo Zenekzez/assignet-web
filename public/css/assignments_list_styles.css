@@ -1,18 +1,13 @@
-/* public/css/assignments_list_styles.css */
-
 .assignments-list-page-container {
-    padding: 0px 25px 25px 25px; /* Відступи для контенту сторінки, крім breadcrumbs */
-    /* background-color: #fff; */ /* Можна додати фон, якщо потрібно виділити */
-    /* border-radius: 8px; */
-    /* box-shadow: 0 2px 10px rgba(0,0,0,0.07); */
-    max-width: 1200px; /* Обмеження ширини контенту */
-    margin: 0 auto; /* Центрування */
+    padding: 0px 25px 25px 25px; 
+    max-width: 1200px; 
+    margin: 0 auto; 
 }
 
 .assignments-list-page-container h1 {
     font-size: 1.8em;
     color: #333;
-    margin-top: 25px; /* Відступ після breadcrumbs */
+    margin-top: 25px; 
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 1px solid #eee;
@@ -24,7 +19,6 @@
     margin-right: 12px;
     color: #007bff;
 }
-
 
 .assignments-filters {
     display: flex;
@@ -62,17 +56,12 @@
 }
 .assignments-filters .filter-btn.active i.fas,
 .assignments-filters .filter-btn.active i.far {
-    color: white; /* Іконки стають білими на активній кнопці */
+    color: white; 
 }
 .assignments-filters .filter-btn i.fas,
 .assignments-filters .filter-btn i.far {
     font-size: 0.9em;
     color: #5f6368;
-}
-
-
-#allStudentAssignmentsArea {
-    /* Стилі для контейнера карток завдань */
 }
 
 .assignments-grid-student-all {
@@ -81,19 +70,13 @@
     gap: 15px;
 }
 
-/* Використовуємо та адаптуємо стилі для карток з course_view_styles.css */
-/* Можна перевизначити або додати специфічні тут, якщо потрібно */
-.assignment-item-card-compact {
-    /* Спадкує стилі з course_view_styles.css */
-    /* Тут можна додати/перевизначити щось специфічне для цієї сторінки */
-}
 .assignment-course-name {
     font-size: 0.8em;
     color: #555;
     margin-top: 4px;
-    margin-bottom: 2px; /* Зменшено відступ знизу */
+    margin-bottom: 2px; 
     padding: 4px 0;
-    border-top: 1px dashed #eee; /* Розділювач перед назвою курсу */
+    border-top: 1px dashed #eee; 
 }
 .assignment-course-name a {
     color: #0056b3;
@@ -119,7 +102,6 @@
     margin-right: 10px;
 }
 
-/* Адаптація card-meta-line-compact для відображення статусу */
 .card-meta-line-compact .assignment-status-badge {
-    font-size: 0.9em; /* Розмір такий же, як у тексту в .card-meta-line-compact */
+    font-size: 0.9em; 
 }

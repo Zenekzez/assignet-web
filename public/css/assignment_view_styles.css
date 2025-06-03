@@ -1,17 +1,14 @@
-/* public/css/assignment_view_styles.css */
-
-/* Новий стиль для обгортки, що центрує */
 .assignment-detail-wrapper-for-centering {
     display: flex;
-    justify-content: center; /* Горизонтальне центрування дочірнього flex-елемента */
-    width: 100%; /* Обгортка займає всю доступну ширину від .course-view-main-content */
-    padding: 0 15px; /* Додаємо бічні відступи для маленьких екранів */
+    justify-content: center; 
+    width: 100%; 
+    padding: 0 15px; 
     box-sizing: border-box;
 }
 
 .assignment-detail-container {
     background-color: #fff;
-    padding: 20px 25px; /* Трохи зменшено для мобільних */
+    padding: 20px 25px; 
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.07);
     margin-top: 20px;
@@ -21,26 +18,19 @@
     box-sizing: border-box; 
 }
 
-/* Адаптивність для хлібних крихт (успадковується з course_view_styles.css, але можна уточнити) */
-/* Стилі для .course-header-bar та .breadcrumbs краще тримати в course_view_styles.css, 
-   оскільки вони використовуються на обох сторінках. Тут можна лише уточнити, якщо потрібно.
-   Переконайтеся, що в course_view_styles.css .breadcrumbs має flex-wrap: wrap; */
 .course-header-bar .breadcrumbs {
     font-size: 0.9em; 
     line-height: 1.4; 
     word-break: break-word; 
-    /* display: flex; -- якщо ще не встановлено в course_view_styles.css */
-    /* flex-wrap: wrap; -- якщо ще не встановлено в course_view_styles.css */
 }
 .course-header-bar .breadcrumbs span,
 .course-header-bar .breadcrumbs a {
     display: inline; 
-    margin-right: 5px; /* Додамо невеликий відступ між елементами крихт */
+    margin-right: 5px; 
 }
 .course-header-bar .breadcrumbs > span:last-child {
     margin-right: 0;
 }
-
 
 .assignment-header-details h1 {
     font-size: 1.8em; 
@@ -88,7 +78,7 @@
     line-height: 1.7;
     color: #333;
     white-space: pre-wrap; 
-    word-break: break-word; /* Додано для дуже довгих слів без пробілів */
+    word-break: break-word; 
 }
 
 hr.assignment-divider {
@@ -98,10 +88,10 @@ hr.assignment-divider {
     border-top: 1px solid #eee;
 }
 
-#studentSubmissionArea h4, /* Загальний стиль для заголовків в блоках */
+#studentSubmissionArea h4, 
 #teacherAttachmentsArea h4,
-#teacherAssignmentActions h2 { /* Змінено h2 на h4 для консистентності, якщо можливо в HTML */
-    font-size: 1.1em; /* Зробимо трохи меншими для внутрішніх блоків */
+#teacherAssignmentActions h2 { 
+    font-size: 1.1em; 
     margin-top: 0;
     margin-bottom: 12px;
     color: #333;
@@ -160,14 +150,8 @@ hr.assignment-divider {
     word-break: break-word;
 }
 
-#teacherAssignmentActions .view-submissions-link {
-    /* Стилі успадковуються з course_view_styles.css (.button-link) */
-    /* Можна додати специфічні тут, якщо потрібно */
-}
-
-/* Стилі для кнопки "Здати/Змінити роботу" для студента */
 .button-link.submit-assignment-btn-student,
-#submitAssignmentForm .submit-button-modal.submit-assignment-btn-student { /* Для консистентності кнопки в формі */
+#submitAssignmentForm .submit-button-modal.submit-assignment-btn-student { 
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -182,7 +166,7 @@ hr.assignment-divider {
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     min-width: 180px; 
-    margin-top: 10px; /* Додано відступ зверху */
+    margin-top: 10px; 
 }
 
 .button-link.submit-assignment-btn-student:hover,
@@ -203,7 +187,7 @@ hr.assignment-divider {
     border: 1px solid #e9ecef;
     border-radius: 6px;
     margin-bottom: 20px; 
-    margin-top: 20px; /* Додано для відступу від опису */
+    margin-top: 20px; 
 }
 .teacher-attachments-section h4 i.fas {
     margin-right: 8px;
@@ -216,8 +200,8 @@ hr.assignment-divider {
 }
 .attachments-list li {
     margin-bottom: 8px;
-    display: flex; /* Для кращого контролю над елементами всередині */
-    flex-direction: column; /* Розміщуємо посилання і прев'ю одне під одним */
+    display: flex; 
+    flex-direction: column; 
     align-items: flex-start;
 }
 .attachments-list li a {
@@ -225,9 +209,9 @@ hr.assignment-divider {
     text-decoration: none;
     font-weight: 500;
     font-size: 0.95em;
-    display: inline-flex; /* Щоб іконка і текст були в одному рядку */
+    display: inline-flex; 
     align-items: center;
-    word-break: break-all; /* Для дуже довгих імен файлів */
+    word-break: break-all; 
 }
 .attachments-list li a:hover {
     text-decoration: underline;
@@ -236,22 +220,20 @@ hr.assignment-divider {
 .attachments-list li a i.fas {
     margin-right: 6px;
     color: #6c757d;
-    flex-shrink: 0; /* Щоб іконка не стискалася */
+    flex-shrink: 0; 
 }
 .attachments-list img.attachment-thumbnail {
-     max-width: 200px; /* Збільшено максимальну ширину */
-     max-height: 150px; /* Збільшено максимальну висоту */
-     width: auto; /* Дозволяємо автоматичну ширину для збереження пропорцій */
-     height: auto; /* Дозволяємо автоматичну висоту */
+     max-width: 200px; 
+     max-height: 150px; 
+     width: auto; 
+     height: auto; 
      border-radius: 4px;
      border: 1px solid #ddd;
-     margin-top: 8px; /* Відступ від посилання на файл */
+     margin-top: 8px; 
      display: block;
-     cursor: pointer; /* Додаємо курсор, якщо будемо робити відкриття у модальному вікні */
+     cursor: pointer; 
 }
 
-
-/* Загальні медіа-запити для адаптивності сторінки */
 @media (max-width: 768px) {
     .assignment-detail-container {
         padding: 15px 20px;
@@ -306,7 +288,7 @@ hr.assignment-divider {
         font-size: 1.0em;
     }
     .attachments-list img.attachment-thumbnail {
-        max-width: 100%; /* На всю ширину батьківського li */
-        height: auto; /* Автоматична висота */
+        max-width: 100%; 
+        height: auto; 
     }
 }

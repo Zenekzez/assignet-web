@@ -18,8 +18,8 @@ body, html {
     padding: 0;
     font-family: 'Roboto', 'Arial', sans-serif;
     background-color: var(--body-bg);
-    height: 100vh; /* Висота всього вікна */
-    overflow: hidden; /* ЗАБОРОНЯЄМО прокрутку на цьому рівні */
+    height: 100vh; 
+    overflow: hidden; 
 }
 
 .app-header {
@@ -34,7 +34,7 @@ body, html {
     align-items: center;
     padding: 0 20px;
     box-sizing: border-box;
-    z-index: 1005; /* Вищий z-index */
+    z-index: 1005; 
 }
 
 .header-left {
@@ -43,9 +43,12 @@ body, html {
 }
 
 .header-title {
-    font-size: 22px;
+    display: flex;
+    align-items: center;
+    font-size: 1.6em;
+    font-weight: 600;
     color: var(--header-title-color);
-    font-weight: 500;
+    gap: 12px;
 }
 
 .header-right {
@@ -106,11 +109,10 @@ body, html {
 }
 
 .app-body-content {
-    padding-top: 60px; /* Відступ для хедера */
-    height: 100vh;     /* Займає всю висоту вікна (включаючи область під хедером) */
+    padding-top: 60px;
+    height: 100vh;    
     box-sizing: border-box;
-    position: relative; /* Важливо для абсолютного позиціонування .page-content-wrapper */
-    /* display: flex; -- ВИДАЛЕНО */
+    position: relative; 
 }
 
 .left-sidebar {
@@ -119,12 +121,12 @@ body, html {
     padding: 15px 0;
     box-sizing: border-box;
     border-right: 1px solid var(--header-border-color);
-    overflow-y: auto;   /* Скрол для самої бічної панелі */
-    position: fixed;     /* Фіксована позиція */
-    top: 60px;           /* Нижче хедера */
+    overflow-y: auto;   
+    position: fixed;     
+    top: 60px;           
     left: 0;
-    bottom: 0;           /* Розтягується до низу */
-    z-index: 1001;       /* Щоб був над .page-content-wrapper */
+    bottom: 0;          
+    z-index: 1001;       
 }
 
 .left-sidebar ul {
@@ -177,19 +179,16 @@ body, html {
 }
 
 .page-content-wrapper {
-    position: absolute;   /* Абсолютне позиціонування */
-    top: 60px;            /* Відступ для хедера (відносно body/viewport, оскільки .app-body-content має padding-top) */
-                          /* Якщо .app-body-content не мав би padding-top, то тут було б top:0; */
-    left: 260px;          /* Відступ для бічної панелі */
-    right: 0;             /* Розтягується до правого краю */
-    bottom: 0;            /* Розтягується до нижнього краю */
+    position: absolute;   
+    top: 60px;            
+    left: 260px;          
+    right: 0;             
+    bottom: 0;            
     padding: 25px;
     box-sizing: border-box;
-    overflow-y: auto;     /* ОСНОВНА ПРОКРУТКА ДЛЯ ВМІСТУ */
-    /* background-color: lightblue; /* Можеш прибрати, якщо все працює */
+    overflow-y: auto;     /
 }
 
-/* Стилі для модальних вікон залишаються без змін */
 .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.6); z-index: 1010;
@@ -225,3 +224,9 @@ body, html {
     margin: 20px auto 0 auto; transition: background-color 0.2s ease;
 }
 .modal-content .submit-button:hover { background-color: var(--button-primary-hover-bg); }
+
+.assignnet-logo {
+    height: 36px;
+    width: auto;
+    display: block;
+}

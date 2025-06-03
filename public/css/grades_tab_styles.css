@@ -1,10 +1,8 @@
-/* public/css/grades_tab_styles.css */
-
 #myGradesArea {
     margin-top: 15px;
 }
 
-#myGradesArea > p { /* Стиль для повідомлень "Завантаження..." або "Немає оцінок" */
+#myGradesArea > p { 
     padding: 20px;
     text-align: center;
     color: #6c757d;
@@ -22,7 +20,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     background-color: #fff;
     border-radius: 6px;
-    overflow: hidden; /* Щоб border-radius застосовувався до таблиці */
+    overflow: hidden; 
 }
 
 .my-grades-table th,
@@ -37,7 +35,7 @@
     background-color: #f8f9fa;
     font-weight: 600;
     color: #495057;
-    border-top: 1px solid #dee2e6; /* Додаємо верхню межу для заголовків */
+    border-top: 1px solid #dee2e6; 
 }
 
 .my-grades-table tbody tr:nth-child(even) {
@@ -58,7 +56,14 @@
     color: #0056b3;
 }
 
-/* Стилі для статусів, аналогічні до карток завдань */
+.my-grades-table td a.button-link-primary {
+    color: #fff;
+}
+.my-grades-table td a.button-link-primary:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
 .submission-status-badge {
     padding: 5px 10px;
     border-radius: 14px;
@@ -66,30 +71,29 @@
     font-weight: 500;
     display: inline-block;
     text-align: center;
-    min-width: 80px; /* Мінімальна ширина для кращого вигляду */
+    min-width: 80px; 
 }
-.submission-status-pending { /* Для "Не здано" */
+.submission-status-pending { 
     background-color: #fff3cd;
     color: #664d03;
     border: 1px solid #ffeeba;
 }
-.submission-status-submitted { /* Для "Здано" */
+.submission-status-submitted { 
     background-color: #d1e7dd;
     color: #0f5132;
     border: 1px solid #badbcc;
 }
-.submission-status-graded { /* Для "Оцінено" */
+.submission-status-graded { 
     background-color: #cff4fc;
     color: #055160;
     border: 1px solid #b6effb;
 }
-.submission-status-missed { /* Для "Пропущено" */
+.submission-status-missed { 
     background-color: #f8d7da;
     color: #58151c;
     border: 1px solid #f1c0c7;
 }
 
-/* Стилі для маленьких кнопок-посилань в стовпці "Дії" */
 .button-link-small {
     display: inline-flex;
     align-items: center;
@@ -101,14 +105,14 @@
     border-radius: 4px;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     border: 1px solid transparent;
-    margin-right: 5px; /* Невеликий відступ між кнопками */
+    margin-right: 5px; 
 }
 .button-link-small:last-child {
     margin-right: 0;
 }
 
 .view-assignment-details-link {
-    background-color: #6c757d; /* Bootstrap secondary */
+    background-color: #6c757d; 
     color: white;
     border-color: #6c757d;
 }
@@ -119,7 +123,7 @@
 }
 
 .submit-work-link {
-    background-color: #0d6efd; /* Bootstrap primary */
+    background-color: #0d6efd; 
     color: white;
     border-color: #0d6efd;
 }
@@ -130,25 +134,20 @@
 }
 
 .button-link-small i.fas {
-    font-size: 0.9em; /* Трохи менша іконка */
+    font-size: 0.9em; 
 }
 
-/* Загальний заголовок для вкладки "Мої оцінки" */
 #tab-my-grades h2 {
     margin-bottom: 20px;
 }
 
-/* public/css/grades_tab_styles.css */
 
-/* ... (існуючі стилі для .my-grades-table та .submission-status-badge) ... */
-
-/* --- СТИЛІ ДЛЯ ЖУРНАЛУ ОЦІНОК ВИКЛАДАЧА --- */
 .grades-summary-container {
     margin-top: 15px;
-    overflow-x: auto; /* Дозволяє горизонтальний скрол для великих таблиць */
+    overflow-x: auto; 
 }
 
-.grades-summary-container > p { /* Стиль для повідомлень "Завантаження..." або "Немає даних" */
+.grades-summary-container > p { 
     padding: 20px;
     text-align: center;
     color: #6c757d;
@@ -160,37 +159,37 @@
 
 .teacher-grades-summary-table {
     width: 100%;
-    min-width: 800px; /* Мінімальна ширина, щоб уникнути сильного стиснення */
+    min-width: 800px; 
     border-collapse: collapse;
     margin-top: 20px;
-    font-size: 0.85em; /* Трохи менший шрифт для компактності */
+    font-size: 0.85em; 
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     background-color: #fff;
-    border: 1px solid #dee2e6; /* Загальна рамка для таблиці */
+    border: 1px solid #dee2e6; 
 }
 
 .teacher-grades-summary-table th,
 .teacher-grades-summary-table td {
-    border: 1px solid #e0e0e0; /* Рамки для всіх комірок */
-    padding: 8px 10px; /* Компактніші відступи */
+    border: 1px solid #e0e0e0; 
+    padding: 8px 10px; 
     text-align: left;
     vertical-align: middle;
-    white-space: nowrap; /* Запобігає переносу тексту в заголовках завдань */
+    white-space: nowrap; 
 }
 
 .teacher-grades-summary-table thead th {
-    background-color: #f0f2f5; /* Світліший фон для заголовка */
+    background-color: #f0f2f5; 
     font-weight: 600;
     color: #333;
-    position: sticky; /* "Прилипаючий" заголовок при скролі */
+    position: sticky; 
     top: 0;
     z-index: 10;
 }
 .teacher-grades-summary-table thead th.student-name-column {
-    min-width: 180px; /* Ширина стовпця "Студент" */
-    white-space: normal; /* Дозволяємо перенос для ПІБ */
-    left: 0; /* Для "прилипання" першого стовпця при горизонтальному скролі */
-    z-index: 11; /* Поверх інших заголовків */
+    min-width: 180px; 
+    white-space: normal; 
+    left: 0; 
+    z-index: 11; 
 }
 .teacher-grades-summary-table thead th small {
     font-weight: normal;
@@ -200,10 +199,10 @@
 
 .teacher-grades-summary-table tbody td.student-name-cell {
     font-weight: 500;
-    background-color: #fdfdfd; /* Трохи виділяємо стовпець зі студентами */
+    background-color: #fdfdfd; 
     position: sticky;
     left: 0;
-    z-index: 1; /* Під заголовком, але поверх інших комірок */
+    z-index: 1; 
     white-space: normal;
 }
 .teacher-grades-summary-table tbody td.student-name-cell small {
@@ -214,11 +213,11 @@
 }
 
 
-.teacher-grades-summary-table tbody tr:hover td { /* Підсвічування всього рядка */
+.teacher-grades-summary-table tbody tr:hover td { 
     background-color: #e9ecef;
 }
 .teacher-grades-summary-table tbody tr:hover td.student-name-cell {
-    background-color: #e2e6ea; /* Трохи темніше для стовпця студента при ховері */
+    background-color: #e2e6ea;
 }
 
 
@@ -229,9 +228,9 @@
     color: #0056b3;
     text-decoration: none;
     font-weight: bold;
-    display: block; /* Щоб посилання займало всю комірку */
-    padding: 8px 10px; /* Відступи всередині посилання */
-    margin: -8px -10px; /* Компенсуємо відступи комірки, щоб клікабельна область була більшою */
+    display: block; 
+    padding: 8px 10px; 
+    margin: -8px -10px; 
 }
 .teacher-grades-summary-table td.grade-cell a:hover {
     background-color: #d0eaff;
@@ -239,26 +238,28 @@
 }
 
 .teacher-grades-summary-table td.grade-cell.graded a {
-    color: #155724; /* Темно-зелений для оцінених */
+    color: #155724; 
 }
 .teacher-grades-summary-table td.grade-cell.submitted-needs-grading a {
-    color: #0c5460; /* Темно-бірюзовий для зданих, що потребують оцінки */
-    font-style: italic; /* Можна додати курсив */
+    color: #0c5460; 
+    font-style: italic; 
 }
 
-/* Використовуємо ті ж класи для статусів, що й на вкладці студента, якщо це потрібно */
 .teacher-grades-summary-table .submission-status-missed,
 .teacher-grades-summary-table .status-not-submitted {
     color: #6c757d;
     font-style: italic;
 }
 .teacher-grades-summary-table .submission-status-missed {
-    color: #dc3545; /* Червоний для пропущених */
+    color: #dc3545; 
     font-weight: 500;
 }
 
-/* --- СТИЛІ ДЛЯ ЖУРНАЛУ ОЦІНОК ВИКЛАДАЧА --- */
-/* ... (існуючі стилі) ... */
+.teacher-grades-summary-table .status-not-submitted {
+    font-weight: 500;
+    background-color: #fff3cd;
+    color: #664d03;
+}
 
 .teacher-grades-summary-table td.student-name-cell {
     font-weight: 500;
@@ -267,23 +268,21 @@
     left: 0;
     z-index: 1; 
     white-space: normal;
-    /* display: flex; /* Для вирівнювання аватарки та тексту */
-    /* align-items: center; /* Для вирівнювання аватарки та тексту */
 }
 
 .student-info-grades-table {
     display: flex;
     align-items: center;
-    gap: 10px; /* Відстань між аватаркою та текстом */
+    gap: 10px; 
 }
 
 .student-avatar-grades-table {
-    width: 32px; /* Розмір аватарки */
+    width: 32px;
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid #ddd;
-    flex-shrink: 0; /* Щоб аватарка не стискалася */
+    flex-shrink: 0; 
 }
 
 .teacher-grades-summary-table tbody td.student-name-cell small {
@@ -291,4 +290,29 @@
     font-weight: normal;
     color: #777;
     font-size: 0.9em;
+}
+
+.button-link-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #0d6efd;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.button-link-primary:hover {
+    background-color: #0b5ed7;
+    color: #fff;
+    text-decoration: none;
+}
+
+.button-link-primary i {
+    font-size: 0.9em;
+    color: #fff;
 }

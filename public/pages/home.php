@@ -6,7 +6,7 @@
     $show_add_course_button_on_home = true;
     require_once __DIR__ . '/templates/layout.php';
 
-    $current_username_for_js_home_php = htmlspecialchars($_SESSION['username'] ?? 'Автор', ENT_QUOTES, 'UTF-8'); // Змінено назву змінної
+    $current_username_for_js_home_php = htmlspecialchars($_SESSION['username'] ?? 'Автор', ENT_QUOTES, 'UTF-8'); 
 ?>
 
 <title>Головна - AssignNet</title>

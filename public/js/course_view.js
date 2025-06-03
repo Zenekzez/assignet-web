@@ -1,13 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Глобальні змінні, які будуть визначені в PHP файлі
-    // const CURRENT_COURSE_ID_FOR_JS;
-    // const IS_CURRENT_USER_TEACHER_OF_THIS_COURSE;
-    // const CURRENT_USER_ID_PHP;
-    // const WEB_ROOT_REL_FROM_HTML_CV_JS;
-    // const ACTUAL_COURSE_NAME_PHP;
-    // const COURSE_JOIN_CODE_FROM_DB_JS;
-    // const DEFAULT_AVATAR_REL_PATH_JS;
-
     const tabLinks = document.querySelectorAll('.course-tab-navigation .tab-link');
     const tabPanes = document.querySelectorAll('.course-tab-content-area .tab-pane');
     const breadcrumbCurrentTab = document.getElementById('current-tab-breadcrumb');
@@ -401,11 +392,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let originalMinHeight = assignmentsListArea.style.minHeight;
         const currentActualHeight = assignmentsListArea.offsetHeight;
 
-        if (currentActualHeight > 100) { // Only set if there's significant content
+        if (currentActualHeight > 100) { 
             assignmentsListArea.style.minHeight = `${currentActualHeight}px`;
         } else if (!originalMinHeight || parseInt(originalMinHeight) < 200) { 
-            // If no minHeight or it's too small, and current height is also small, set a default
-            assignmentsListArea.style.minHeight = '300px'; // Default minimum height
+
+            assignmentsListArea.style.minHeight = '300px'; 
         }
         
         assignmentsListArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження завдань...</p>';
@@ -418,7 +409,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const result = await response.json();
             
-            // Store current focused element if it's a filter button
             const focusedElement = document.activeElement;
             const isFilterButtonFocused = focusedElement && focusedElement.classList.contains('section-filter-btn');
 
@@ -483,7 +473,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 assignmentsListArea.innerHTML = `<p>Не вдалося завантажити завдання: ${result.message || 'Помилка сервера'}</p>`; 
             }
             
-            // Restore focus if it was on a filter button
             if (isFilterButtonFocused && focusedElement && typeof focusedElement.focus === 'function') {
                 focusedElement.focus({ preventScroll: true });
             }
@@ -497,20 +486,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (BoundingRectTopBeforeLoad !== null && assignmentsListArea.getClientRects().length > 0) {
                         const BoundingRectTopAfterLoad = assignmentsListArea.getBoundingClientRect().top;
                         const scrollDifference = BoundingRectTopAfterLoad - BoundingRectTopBeforeLoad;
-                        // Only scroll if the difference is significant to avoid minor jitters
-                        if (Math.abs(scrollDifference) > 5) { // 5px threshold
+                        if (Math.abs(scrollDifference) > 5) { 
                              window.scrollBy(0, scrollDifference);
                         }
                     }
-                    // We might not need to reset minHeight if CSS min-height is consistently applied.
-                    // If we do, ensure it doesn't cause a jump if content is shorter than originalMinHeight.
                      if (originalMinHeight && assignmentsListArea.scrollHeight < parseInt(originalMinHeight)) {
-                         assignmentsListArea.style.minHeight = ''; // Allow shrinking if new content is shorter
-                     } else if (!originalMinHeight && assignmentsListArea.scrollHeight < 300) { // 300 is default from CSS
+                         assignmentsListArea.style.minHeight = ''; 
+                     } else if (!originalMinHeight && assignmentsListArea.scrollHeight < 300) { 
                          assignmentsListArea.style.minHeight = '';
                      }
-                     // If CSS min-height is set, this JS manipulation of minHeight might not be necessary
-                     // or could be simplified to only remove it: assignmentsListArea.style.minHeight = '';
                 });
             });
         }
@@ -640,8 +624,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedButton = event.currentTarget; 
         const sectionFilterValue = selectedButton.dataset.sectionFilter;
 
-        // Зберігаємо фокус, якщо можливо
-        // selectedButton.focus({ preventScroll: true }); // Може допомогти, якщо браузер підтримує
 
         document.querySelectorAll('#assignmentSectionsFilterContainer .section-filter-btn').forEach(btn => {
             btn.classList.remove('active');

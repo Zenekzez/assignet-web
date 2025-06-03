@@ -21,7 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // 1. Знайти курс за кодом
     $stmt_find_course = $conn->prepare("SELECT course_id, author_id, course_name, description, color FROM courses WHERE join_code = ?");
     if (!$stmt_find_course) {
         $response['message'] = 'Помилка підготовки запиту пошуку курсу: ' . $conn->error;
@@ -41,17 +40,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $course = $result_course->fetch_assoc();
     $course_id = $course['course_id'];
-    $author_id_of_course = $course['author_id']; // Змінено назву змінної для ясності
+    $author_id_of_course = $course['author_id']; 
     $stmt_find_course->close();
 
-    // 2. Перевірка, чи користувач не є автором курсу
     if ($author_id_of_course == $student_id) {
         $response['message'] = 'Ви не можете приєднатися до власного курсу як студент.';
         echo json_encode($response);
         exit();
     }
 
-    // 3. Перевірка, чи користувач вже не приєднаний до цього курсу
     $stmt_check_enrollment = $conn->prepare("SELECT enrollment_id FROM enrollments WHERE course_id = ? AND student_id = ?");
     if (!$stmt_check_enrollment) {
         $response['message'] = 'Помилка підготовки запиту перевірки зарахування: ' . $conn->error;
@@ -70,7 +67,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $stmt_check_enrollment->close();
 
-    // 4. Якщо всі перевірки пройдені, додаємо запис до enrollments
     $stmt_enroll = $conn->prepare("INSERT INTO enrollments (course_id, student_id, enrolled_at) VALUES (?, ?, NOW())");
     if (!$stmt_enroll) {
         $response['message'] = 'Помилка підготовки запиту зарахування: ' . $conn->error;
@@ -80,9 +76,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt_enroll->bind_param("ii", $course_id, $student_id);
 
     if ($stmt_enroll->execute()) {
-        // Отримаємо ім'я автора для відображення на картці
         $stmt_get_author = $conn->prepare("SELECT username FROM users WHERE user_id = ?");
-        $author_username_for_course = 'Автор невідомий'; // Змінено назву змінної
+        $author_username_for_course = 'Автор невідомий'; 
         if ($stmt_get_author) {
             $stmt_get_author->bind_param("i", $author_id_of_course);
             $stmt_get_author->execute();
@@ -93,7 +88,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_get_author->close();
         }
 
-        // Визначення CSS-класу для кольору (аналогічно до get_user_courses.php)
         $default_colors_hex = ['#f0ad4e', '#5cb85c', '#5bc0de', '#d9534f', '#ba68c8', '#7986cb', '#4db6ac', '#a1887f', '#ff8a65', '#9575cd'];
         $color_classes = ['course-color-orange', 'course-color-green', 'course-color-lblue', 'course-color-red', 'course-color-purple', 'course-color-indigo', 'course-color-teal', 'course-color-brown', 'course-color-deeporange', 'course-color-deeppurple'];
         $color_hex = $course['color'];

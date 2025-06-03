@@ -61,12 +61,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($errors)) {
         $_SESSION['errors'] = $errors;
         $_SESSION['form_data'] = $formData;
-        header("Location: ../public/pages/login.php");
+        header("Location: /assignet/public/pages/login.php");
         exit();
     }
 
 } else {
-    header("Location: ../public/pages/login.php");
+    header("Location: /assignet/public/pages/login.php");
     exit();
 }
 

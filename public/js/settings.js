@@ -1,7 +1,3 @@
-// Глобальні змінні, які будуть визначені в PHP файлі
-// const BASE_AVATAR_URL_SETTINGS_JS;
-// const CURRENT_USER_EMAIL_PHP_JS;
-
 document.addEventListener('DOMContentLoaded', function() {
     const messageContainer = document.getElementById('messageContainer');
     const avatarForm = document.getElementById('avatarForm');
@@ -19,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const displayLastName = document.getElementById('displayLastName');
     const displayUsername = document.getElementById('displayUsername');
 
-    // Використовуємо глобальну змінну BASE_AVATAR_URL_SETTINGS_JS
     const baseAvatarUrlSettings = BASE_AVATAR_URL_SETTINGS_JS;
 
 
@@ -99,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (result.status === 'success') {
                     showMessage('success', result.message);
                     if (result.new_avatar_url) {
-                        // Використовуємо глобальну змінну baseAvatarUrlSettings
                         const newAvatarDisplayUrl = baseAvatarUrlSettings + result.new_avatar_url + `?t=${new Date().getTime()}`;
                         avatarPreview.style.backgroundImage = `url(${newAvatarDisplayUrl})`;
                     }
@@ -205,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
             newEmailError.style.display = 'none';
             newEmailError.textContent = '';
             const emailValue = this.value.trim();
-            // Використовуємо глобальну змінну CURRENT_USER_EMAIL_PHP_JS
             const currentSessionEmail = CURRENT_USER_EMAIL_PHP_JS;
 
             if (!emailValue) return;
@@ -282,9 +275,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     showMessage('success', result.message);
                     if (result.new_email_for_display && currentEmailDisplayField) {
                         currentEmailDisplayField.value = result.new_email_for_display;
-                        // Оновлюємо глобальну змінну з поточним email, якщо вона використовується десь ще
-                        // (якщо ця змінна динамічно не оновлюється з сесії на стороні PHP при перезавантаженні)
-                        // CURRENT_USER_EMAIL_PHP_JS = result.new_email_for_display; // Можливо, це не потрібно, якщо сторінка перезавантажиться
                     }
                     this.reset();
                     newEmailInput.value = '';

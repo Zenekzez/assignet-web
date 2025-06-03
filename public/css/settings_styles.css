@@ -1,22 +1,14 @@
-/* public/css/settings_styles.css */
-
-/* Main content area for settings page, assumes it's inside .page-content-wrapper from header.php */
-.settings-main-content {
-    /* This class is on the <main> tag in settings.php */
-    /* page-content-wrapper will handle margins and flex behavior if needed */
-}
-
 .settings-container {
     background-color: #fff;
-    padding: 25px 35px; /* Increased padding */
+    padding: 25px 35px; 
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.08); /* Softer shadow */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.08); 
     max-width: 750px; 
     margin: 0 auto; 
 }
 
 .settings-container h1 {
-    font-size: 1.8em; /* Slightly smaller h1 */
+    font-size: 1.8em; 
     color: #202124;
     margin-bottom: 30px;
     padding-bottom: 15px;
@@ -25,12 +17,11 @@
 }
 
 .settings-section {
-    margin-bottom: 35px; /* Increased spacing */
-    padding-bottom: 0; /* Прибираємо нижній відступ, щоб не було зайвого простору, якщо HR має свій margin */
-    /* border-bottom: 1px solid #f0f0f0; */ /* ВИДАЛЕНО ЦЕЙ РЯДОК, щоб не було подвійної лінії */
+    margin-bottom: 35px; 
+    padding-bottom: 0; 
 }
+
 .settings-section:last-child {
-    /* border-bottom: none; вже не потрібен, якщо видалили основний border-bottom */
     margin-bottom: 0;
     padding-bottom: 0;
 }
@@ -38,48 +29,46 @@
 .settings-section h2 {
     margin-top: 0;
     margin-bottom: 20px;
-    font-size: 1.4em; /* Adjusted size */
+    font-size: 1.4em; 
     color: #3c4043;
-    font-weight: bold; /* ЗМІНЕНО на bold для більш виразного жирного шрифту */
+    font-weight: bold; 
 }
 
 .form-group {
-    margin-bottom: 20px; /* Increased spacing */
+    margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px; /* Increased space */
+    margin-bottom: 8px; 
     font-weight: 500;
     color: #5f6368;
-    font-size: 0.9em; /* Slightly smaller label */
+    font-size: 0.9em; 
 }
 
 .form-group input[type="text"],
 .form-group input[type="password"],
-.form-group input[type="email"], /* Додано input[type="email"] сюди */
+.form-group input[type="email"], 
 .form-group input[type="file"] {
-    width: 100%; /* Full width */
-    padding: 10px 12px; /* Comfortable padding */
-    border: 1px solid #dadce0; /* Standard border */
+    width: 100%; 
+    padding: 10px 12px; 
+    border: 1px solid #dadce0; 
     border-radius: 4px;
     font-size: 1em;
-    box-sizing: border-box; /* Include padding and border in width */
+    box-sizing: border-box; 
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Стилі для стану :disabled, щоб поточна пошта виглядала відповідно */
 .form-group input[type="email"]:disabled {
-    background-color: #f0f2f5; /* Світліший фон для неактивного поля */
-    color: #5f6368; /* Колір тексту для неактивного поля */
-    cursor: not-allowed; /* Вказує, що поле не можна редагувати */
-    border-color: #dadce0; /* Стандартний колір рамки */
+    background-color: #f0f2f5; 
+    color: #5f6368;
+    cursor: not-allowed; 
+    border-color: #dadce0; 
 }
-
 
 .form-group input[type="text"]:focus,
 .form-group input[type="password"]:focus,
-.form-group input[type="email"]:focus { /* Додано input[type="email"]:focus сюди */
+.form-group input[type="email"]:focus { 
     border-color: var(--button-primary-bg, #1a73e8);
     outline: none;
     box-shadow: 0 0 0 1px var(--button-primary-bg, #1a73e8);
@@ -87,7 +76,7 @@
 
 .form-group input[type="file"] {
     padding: 8px 10px; 
-    border: 1px solid #ccc; /* Keep it simple for file input */
+    border: 1px solid #ccc; 
 }
 .form-group input[type="file"]::-webkit-file-upload-button {
     background-color: #f8f9fa;
@@ -107,32 +96,29 @@
 
 .form-group small {
     display: block;
-    font-size: 0.8em; /* Smaller helper text */
+    font-size: 0.8em; 
     color: #5f6368;
     margin-top: 6px;
 }
 
-/* Стиль для повідомлень про помилки під полями (якщо використовується newEmailError) */
-.form-group small.error-message { /* */
-    color: #d93025; /* Червоний колір для помилок */
-    font-size: 0.8em; /* Розмір як у звичайного small, але можна змінити */
-    /* style="display: none;" буде керуватися JavaScript */
+.form-group small.error-message { 
+    color: #d93025; 
+    font-size: 0.8em; 
 }
-
 
 .settings-button, .logout-button {
     background-color: var(--button-primary-bg, #1a73e8);
     color: white;
     border: none;
     padding: 10px 20px;
-    font-size: 0.95em; /* Standard button font size */
+    font-size: 0.95em; 
     font-weight: 500;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     margin-top: 10px;
     text-decoration: none;
-    display: inline-flex; /* For icon alignment if needed */
+    display: inline-flex; 
     align-items: center;
     justify-content: center;
 }
@@ -142,7 +128,7 @@
 }
 
 .logout-button {
-    background-color: #d9534f; /* Red for logout/destructive actions */
+    background-color: #d9534f; 
 }
 .logout-button:hover {
     background-color: #c9302c;
@@ -150,14 +136,14 @@
 }
 
 .avatar-preview {
-    width: 120px; /* Larger preview */
+    width: 120px; 
     height: 120px;
     border-radius: 50%;
-    background-color: #f0f2f5; /* Match body background */
+    background-color: #f0f2f5; 
     background-size: cover;
     background-position: center;
-    margin-bottom: 15px; /* More space */
-    border: 3px solid #fff; /* White border for a cleaner look */
+    margin-bottom: 15px; 
+    border: 3px solid #fff; 
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
@@ -172,17 +158,17 @@
     border: 1px solid transparent;
 }
 .message.success {
-    background-color: #e6f4ea; /* Softer green */
+    background-color: #e6f4ea; 
     color: #1e8e3e;
     border-color: #a8d8b6;
 }
 .message.error {
-    background-color: #fce8e6; /* Softer red */
+    background-color: #fce8e6; 
     color: #d93025;
     border-color: #f5c1bc;
 }
 .message.loading {
-    background-color: #e8f0fe; /* Softer blue for loading */
+    background-color: #e8f0fe; 
     color: #1967d2;
     border-color: #c4d8fc;
 }
@@ -202,6 +188,6 @@
 hr {
     border: 0;
     height: 1px;
-    background-color: #e0e0e0; /* Колір лінії, можна змінити на #f0f0f0, якщо потрібна світліша */
-    margin: 35px 0; /* Залишаємо поточні відступи для HR */
+    background-color: #e0e0e0;
+    margin: 35px 0; 
 }

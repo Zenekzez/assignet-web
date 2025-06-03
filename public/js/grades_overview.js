@@ -1,4 +1,3 @@
-// File: public/js/grades_overview.js
 document.addEventListener('DOMContentLoaded', function() {
     const gradesOverviewArea = document.getElementById('gradesOverviewArea');
     const loadingMessage = document.querySelector('.loading-grades-overview');
@@ -10,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return str.replace(/[&<>"']/g, m => map[m]);
     }
 
-    // Функція для отримання тексту та класу статусу (аналогічна до інших файлів)
     function getStatusTextAndClass(statusCode, dueDateStr) {
         let statusText = 'Не здано'; 
         let statusClass = 'pending';
@@ -29,13 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 break;
         }
-        return { text: statusText, class: `submission-status-${statusClass}` }; // Використовуємо той же клас, що й на сторінці курсу
+        return { text: statusText, class: `submission-status-${statusClass}` }; 
     }
 
 
     function renderGradesOverview(coursesGrades) {
         if (loadingMessage) loadingMessage.style.display = 'none';
-        gradesOverviewArea.innerHTML = ''; // Очищуємо область перед рендерингом
+        gradesOverviewArea.innerHTML = ''; 
 
         if (!coursesGrades || coursesGrades.length === 0) {
             if (noGradesMessage) noGradesMessage.style.display = 'block';
@@ -125,6 +123,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Початкове завантаження даних
     loadUserGradesOverview();
 });
