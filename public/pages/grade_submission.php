@@ -1,10 +1,9 @@
 <?php
-// File: public/html/grade_submission.php
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../../src/connect.php';
-require_once __DIR__ . '/templates/header.php';
+require_once __DIR__ . '/templates/layout.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -12,17 +11,17 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $current_user_id = $_SESSION['user_id'];
-$submission_id_get_php = filter_input(INPUT_GET, 'submission_id', FILTER_VALIDATE_INT); // Змінено назву
+$submission_id_get_php = filter_input(INPUT_GET, 'submission_id', FILTER_VALIDATE_INT); 
 $page_title = "Оцінювання роботи";
 
-// Визначаємо константу для шляху тут, вона буде використана для JS
 if (!defined('WEB_ROOT_REL_FROM_HTML_GRADE_SUBMISSION')) {
     define('WEB_ROOT_REL_FROM_HTML_GRADE_SUBMISSION', '../');
 }
-$default_avatar_web_path_php = WEB_ROOT_REL_FROM_HTML_GRADE_SUBMISSION . 'assets/default_avatar.png'; // Змінено назву
+$default_avatar_web_path_php = WEB_ROOT_REL_FROM_HTML_GRADE_SUBMISSION . 'assets/default_avatar.png'; 
 
 ?>
-<title><?php echo htmlspecialchars($page_title); ?> - Assignet</title>
+<title><?php echo htmlspecialchars($page_title); ?> - AssignNet</title>
+<link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_GRADE_SUBMISSION; ?>css/course_view_styles.css">
 <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_GRADE_SUBMISSION; ?>css/grading_styles.css">
@@ -41,7 +40,7 @@ $default_avatar_web_path_php = WEB_ROOT_REL_FROM_HTML_GRADE_SUBMISSION . 'assets
 
         <div id="submissionDetailArea" class="submission-grading-container">
             <p class="loading-text"><i class="fas fa-spinner fa-spin"></i> Завантаження даних роботи...</p>
-            <?php if (!$submission_id_get_php): // Використовуємо оновлену назву змінної ?>
+            <?php if (!$submission_id_get_php): ?>
                 <p class="error-text">Помилка: ID зданої роботи не було передано.</p>
             <?php endif; ?>
         </div>

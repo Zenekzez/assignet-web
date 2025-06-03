@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('course_id', CURRENT_COURSE_ID_FOR_JS);
 
             try {
-                const response = await fetch('../../src/course_actions.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/actions/course_actions.php', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.status === 'success' && result.new_join_code) {
                     alert(result.message || 'Новий код приєднання згенеровано!');
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (courseIdToDeleteInput) formData.append('course_id', courseIdToDeleteInput.value);
 
             try {
-                const response = await fetch('../../src/course_actions.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/actions/course_actions.php', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.status === 'success') {
                     alert(result.message || 'Курс успішно видалено!');
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!datalistCreate || !datalistEdit) return;
 
         try {
-            const response = await fetch(`../../src/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=created_at_asc`);
+            const response = await fetch(`../../src/actions/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=created_at_asc`);
             if (!response.ok) { console.error("Could not fetch assignments to get sections"); return; }
             const result = await response.json();
             if (result.status === 'success' && result.assignments) {
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!courseId || !myGradesArea) return;
         myGradesArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження ваших оцінок...</p>';
         try {
-            const response = await fetch(`../../src/grading_actions.php?action=get_my_grades_for_course&course_id=${courseId}`);
+            const response = await fetch(`../../src/actions/grading_actions.php?action=get_my_grades_for_course&course_id=${courseId}`);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
                 throw new Error(errorData.message);
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!courseId || !teacherGradesSummaryArea || !IS_CURRENT_USER_TEACHER_OF_THIS_COURSE) return;
         teacherGradesSummaryArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження журналу оцінок...</p>';
         try {
-            const response = await fetch(`../../src/grading_actions.php?action=get_course_grades_summary&course_id=${courseId}`);
+            const response = await fetch(`../../src/actions/grading_actions.php?action=get_course_grades_summary&course_id=${courseId}`);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
                 throw new Error(errorData.message);
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!courseId || !announcementsArea) return;
         announcementsArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження оголошень...</p>';
         try {
-            const response = await fetch(`../../src/course_actions.php?action=get_announcements&course_id=${courseId}`);
+            const response = await fetch(`../../src/actions/course_actions.php?action=get_announcements&course_id=${courseId}`);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
                 throw new Error(errorData.message);
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
             await fetchAndPopulateExistingSections(courseId);
         }
         try {
-            const response = await fetch(`../../src/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=${sortBy}`);
+            const response = await fetch(`../../src/actions/course_actions.php?action=get_assignments&course_id=${courseId}&sort_by=${sortBy}`);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
                 throw new Error(errorData.message);
@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
             editAssignmentFormInternal.reset();
             if (CURRENT_COURSE_ID_FOR_JS) { await fetchAndPopulateExistingSections(CURRENT_COURSE_ID_FOR_JS); }
             try {
-                const response = await fetch(`../../src/course_actions.php?action=get_assignment_details_for_edit&assignment_id=${assignmentId}`);
+                const response = await fetch(`../../src/actions/course_actions.php?action=get_assignment_details_for_edit&assignment_id=${assignmentId}`);
                 if (!response.ok) throw new Error('Failed to fetch assignment details.');
                 const result = await response.json();
                 if (result.status === 'success' && result.assignment) {
@@ -571,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const formData = new FormData(); formData.append('action', 'delete_assignment'); formData.append('assignment_id', assignmentId); formData.append('course_id', CURRENT_COURSE_ID_FOR_JS);
         try {
-            const response = await fetch('../../src/course_actions.php', { method: 'POST', body: formData });
+            const response = await fetch('../../src/actions/course_actions.php', { method: 'POST', body: formData });
             const result = await response.json();
             if (result.status === 'success') {
                 alert(result.message);
@@ -622,7 +622,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Публікація...';
             try {
-                const response = await fetch('../../src/course_actions.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/actions/course_actions.php', { method: 'POST', body: formData });
                 if (!response.ok) { const errorData = await response.json().catch(() => ({ message: 'Невідома помилка сервера' })); throw new Error(errorData.message || `HTTP помилка! Статус: ${response.status}`); }
                 const result = await response.json();
                 if (result.status === 'success') { this.reset(); if (CURRENT_COURSE_ID_FOR_JS) { loadAnnouncements(CURRENT_COURSE_ID_FOR_JS); } }
@@ -653,7 +653,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Збереження...';
 
             try {
-                const response = await fetch('../../src/course_actions.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/actions/course_actions.php', { method: 'POST', body: formData });
                 if (!response.ok) { const errorData = await response.json().catch(() => ({ message: 'Невідома помилка сервера' })); throw new Error(errorData.message || `HTTP помилка! Статус: ${response.status}`);}
                 const result = await response.json();
                 if (result.status === 'success' && result.updated_data) {
@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Створення...';
             try {
-                const response = await fetch('../../src/course_actions.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/actions/course_actions.php', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.status === 'success') {
                     alert(result.message);
@@ -811,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Збереження...';
             try {
-                const response = await fetch('../../src/course_actions.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/actions/course_actions.php', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.status === 'success') {
                     alert(result.message || 'Завдання успішно оновлено!');
@@ -855,7 +855,7 @@ document.addEventListener('DOMContentLoaded', function() {
         studentsListArea.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Завантаження списку студентів...</p>';
         studentCountBadge.textContent = '0';
         try {
-            const response = await fetch(`../../src/course_participants_actions.php?action=get_course_participants&course_id=${courseId}`);
+            const response = await fetch(`../../src/actions/course_participants_actions.php?action=get_course_participants&course_id=${courseId}`);
             if (!response.ok) { throw new Error(`HTTP помилка! Статус: ${response.status}`);}
             const result = await response.json();
             if (result.status === 'success') {
@@ -897,7 +897,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('course_id', CURRENT_COURSE_ID_FOR_JS);
         formData.append('student_id', studentId);
         try {
-            const response = await fetch('../../src/course_participants_actions.php', { method: 'POST', body: formData });
+            const response = await fetch('../../src/actions/course_participants_actions.php', { method: 'POST', body: formData });
             const result = await response.json();
             if (result.status === 'success') {
                 alert(result.message);

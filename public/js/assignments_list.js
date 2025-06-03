@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         assignmentsArea.innerHTML = ''; // Очищаємо, поки завантажується
 
         try {
-            const response = await fetch('../../src/get_student_all_assignments.php');
+            const response = await fetch('../../src/get/get_student_all_assignments.php');
             if (!response.ok) {
                 throw new Error(`HTTP помилка! Статус: ${response.status}`);
             }

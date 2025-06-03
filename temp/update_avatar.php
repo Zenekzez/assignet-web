@@ -1,5 +1,5 @@
 <?php
-
+/*
 session_start();
 require_once 'connect.php'; 
 header('Content-Type: application/json'); 
@@ -112,4 +112,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $conn->close();
 echo json_encode($response);
-?>
+*/
+?> 

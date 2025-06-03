@@ -1,9 +1,8 @@
 <?php
-    // File: public/html/settings.php
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
-    require_once __DIR__ . '/templates/header.php';
+    require_once __DIR__ . '/templates/layout.php';
 
     $current_first_name = htmlspecialchars($_SESSION['db_first_name'] ?? '', ENT_QUOTES, 'UTF-8');
     $current_last_name = htmlspecialchars($_SESSION['db_last_name'] ?? '', ENT_QUOTES, 'UTF-8');
@@ -19,10 +18,11 @@
         $avatar_display_path = '../' . htmlspecialchars($_SESSION['db_avatar_path'], ENT_QUOTES, 'UTF-8');
     }
 
-    // Визначаємо базовий URL для аватарів, який буде передано в JS
     $base_avatar_url_for_js = '../';
 ?>
-<title>Налаштування - Assignet</title>
+
+<title>Налаштування - AssignNet</title>
+<link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
 <link rel="stylesheet" href="../css/settings_styles.css">
 <main class="page-content-wrapper settings-main-content">
     <div class="settings-container">

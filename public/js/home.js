@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function loadUserCourses() {
         try {
-            const response = await fetch('../../src/get_user_courses.php', {
+            const response = await fetch('../../src/get/get_user_courses.php', {
                 method: 'GET',
                 headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
             });
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('description', courseDescription);
 
             try {
-                const response = await fetch('../../src/create_course_process.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/actions/create_course_process.php', { method: 'POST', body: formData });
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => null);
                     throw new Error(errorData?.message || `Помилка сервера: ${response.statusText}`);
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('course_code', courseCode);
 
             try {
-                const response = await fetch('../../src/join_course_process.php', { method: 'POST', body: formData });
+                const response = await fetch('../../src/actions/join_course_process.php', { method: 'POST', body: formData });
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => null);
                     throw new Error(errorData?.message || `Помилка сервера: ${response.statusText}`);

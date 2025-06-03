@@ -245,7 +245,7 @@ async function checkAvailability(field, value) {
             const formData = new FormData();
             formData.append(field, value);
 
-            const response = await fetch('../../src/check_availability.php', {
+            const response = await fetch('../../src/auth/check_availability.php', {
                 method: 'POST',
                 body: formData
             });

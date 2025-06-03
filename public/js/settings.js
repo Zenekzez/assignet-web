@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showMessage('loading', 'Зміна пароля...');
 
             try {
-                const response = await fetch('../../src/change_password.php', {
+                const response = await fetch('../../src/update/update_password.php', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ currentPassword, newPassword })
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const formData = new FormData();
                 formData.append('email', emailValue);
-                const response = await fetch('../../src/check_availability.php', {
+                const response = await fetch('../../src/auth/check_availability.php', {
                     method: 'POST',
                     body: formData
                 });

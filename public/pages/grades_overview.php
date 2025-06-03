@@ -4,7 +4,7 @@
     }
  
     $current_page_header = basename($_SERVER['PHP_SELF']); 
-    require_once __DIR__ . '/templates/header.php'; 
+    require_once __DIR__ . '/templates/layout.php'; 
 
     if (!isset($_SESSION['user_id'])) {
         header("Location: login.php");
@@ -12,7 +12,11 @@
     }
 ?>
 <title>Мої Оцінки - AssignNet</title>
-<link rel="stylesheet" href="../css/grades_tab_styles.css"> <link rel="stylesheet" href="../css/course_view_styles.css"> <link rel="stylesheet" href="../css/grades_overview_styles.css"> <main class="page-content-wrapper">
+<link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
+<link rel="stylesheet" href="../css/grades_tab_styles.css">
+<link rel="stylesheet" href="../css/course_view_styles.css"> 
+<link rel="stylesheet" href="../css/grades_overview_styles.css">
+<main class="page-content-wrapper">
     <div class="grades-overview-page-container">
         <div class="course-header-bar">
              <div class="breadcrumbs">

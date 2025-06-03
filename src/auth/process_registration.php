@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($stmt_insert_user->execute()) {
                 $_SESSION['user_id'] = $stmt_insert_user->insert_id;
                 $_SESSION['username'] = $username;
-                header("Location: ../public/html/login.php?registration=success");
+                header("Location: ../public/pages/login.php?registration=success");
                 exit();
             } else {
                 $errors['db_error'] = "Помилка реєстрації: " . $stmt_insert_user->error;
@@ -130,12 +130,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($errors)) {
         $_SESSION['errors'] = $errors;
         $_SESSION['form_data'] = $_POST; 
-        header("Location: ../public/html/reg.php"); 
+        header("Location: ../public/pages/reg.php"); 
         exit();
     }
 
 } else {
-    header("Location: ../public/html/reg.php"); 
+    header("Location: ../public/pages/reg.php"); 
     exit();
 }
 

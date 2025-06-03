@@ -12,7 +12,9 @@ unset($_SESSION['form_data']);
 <html lang="uk"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реєстрація - AssignNet</title> <link rel="stylesheet" href="../css/styles.css"> </head>
+    <title>Реєстрація - AssignNet</title> 
+    <link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="../css/styles.css"> </head>
 <body>
 
 <div class="container">

@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['db_avatar_path'] = $user['avatar_path'];
                     $_SESSION['email'] = $user['email'];
 
-                    header("Location: ../public/html/home.php");
+                    header("Location: ../public/pages/home.php");
                     exit();
                 } else {
                     $errors['login_error'] = "Неправильна пошта/юзернейм або пароль.";
@@ -61,12 +61,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($errors)) {
         $_SESSION['errors'] = $errors;
         $_SESSION['form_data'] = $formData;
-        header("Location: ../public/html/login.php");
+        header("Location: ../public/pages/login.php");
         exit();
     }
 
 } else {
-    header("Location: ../public/html/login.php");
+    header("Location: ../public/pages/login.php");
     exit();
 }
 

@@ -1,35 +1,33 @@
 <?php
-// File: public/html/course_view.php
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-require_once __DIR__ . '/templates/header.php';
+require_once __DIR__ . '/templates/layout.php';
 require_once __DIR__ . '/../../src/connect.php';
 
 $course_id_get = filter_input(INPUT_GET, 'course_id', FILTER_VALIDATE_INT);
-$current_user_id_php = $_SESSION['user_id'] ?? null; // Змінено назву, щоб не конфліктувати з JS
+$current_user_id_php = $_SESSION['user_id'] ?? null; 
 $course_data = null;
 $author_username = 'Невідомий';
-$is_teacher_php = false; // Змінено назву
+$is_teacher_php = false; 
 $banner_color_hex = '#007bff';
 $page_title_course = 'Курс не знайдено';
 $join_code_visible_db = true;
-$course_join_code_from_db_php = null; // Змінено назву
-$actual_course_name_php = ''; // Для модального вікна видалення
+$course_join_code_from_db_php = null; 
+$actual_course_name_php = ''; 
 
 if (!$current_user_id_php) {
     header("Location: login.php");
     exit();
 }
 
-if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) { // Змінено назву константи, щоб не було конфлікту
+if (!defined('WEB_ROOT_REL_FROM_HTML_CV')) { 
     define('WEB_ROOT_REL_FROM_HTML_CV_PHP', '../');
 }
 $default_avatar_rel_path_php = 'assets/default_avatar.png';
 
 
 if (!$course_id_get) {
-    // $course_data залишиться null
 } else {
     $stmt_course = $conn->prepare("SELECT course_name, author_id, color, join_code, description, join_code_visible FROM courses WHERE course_id = ?");
     if ($stmt_course) {
@@ -39,7 +37,7 @@ if (!$course_id_get) {
         if ($course_data_row = $result_course->fetch_assoc()) {
             $course_data = $course_data_row;
             $page_title_course = htmlspecialchars($course_data['course_name']);
-            $actual_course_name_php = $course_data['course_name']; // Зберігаємо не-htmlspecialchars для порівняння
+            $actual_course_name_php = $course_data['course_name']; 
             $banner_color_hex = (!empty($course_data['color'])) ? htmlspecialchars($course_data['color']) : '#007bff';
             $join_code_visible_db = (bool)$course_data['join_code_visible'];
             $course_join_code_from_db_php = $course_data['join_code'];
@@ -85,7 +83,8 @@ if (!$course_id_get) {
 }
 ?>
 
-<title><?php echo $page_title_course; ?> - Assignet</title>
+<title><?php echo $page_title_course; ?> - AssignNet</title>
+<link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
 <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV_PHP; ?>css/course_view_styles.css">
 <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV_PHP; ?>css/course_people_styles.css">
 <link rel="stylesheet" href="<?php echo WEB_ROOT_REL_FROM_HTML_CV_PHP; ?>css/grades_tab_styles.css">

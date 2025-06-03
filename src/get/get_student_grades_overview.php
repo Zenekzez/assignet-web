@@ -1,5 +1,4 @@
 <?php
-// File: src/get_student_grades_overview.php
 session_start();
 require_once 'connect.php';
 header('Content-Type: application/json');
@@ -16,7 +15,6 @@ $student_id = $_SESSION['user_id'];
 $courses_grades_data = [];
 
 try {
-    // 1. Отримати всі курси, на які записаний студент
     $stmt_courses = $conn->prepare("
         SELECT 
             c.course_id, 
@@ -46,7 +44,6 @@ try {
             'teacher_display_name' => htmlspecialchars(trim($course_row['teacher_first_name'] . ' ' . $course_row['teacher_last_name'])),
             'teacher_username' => htmlspecialchars($course_row['teacher_username']),
             'assignments' => []
-            // Можна додати поле для загальної оцінки за курс, якщо така логіка буде
         ];
     }
     $stmt_courses->close();
@@ -54,13 +51,10 @@ try {
     if (empty($course_ids)) {
         $response['status'] = 'success';
         $response['message'] = 'Ви ще не записані на жоден курс.';
-        // courses_grades залишається порожнім
         echo json_encode($response);
         exit();
     }
 
-    // 2. Отримати всі завдання та оцінки для цих курсів для даного студента
-    // Використовуємо IN для ефективного запиту по всім потрібним курсам
     $course_ids_placeholders = implode(',', array_fill(0, count($course_ids), '?'));
     
     $sql_assignments = "
@@ -93,29 +87,26 @@ try {
         ORDER BY a.course_id, ISNULL(a.due_date), a.due_date ASC, a.created_at ASC
     ";
 
-    // Типи для bind_param: спочатку два 'i' для student_id, потім 'i' для кожного course_id
     $types = str_repeat('i', count($course_ids));
     $stmt_assignments = $conn->prepare($sql_assignments);
     if (!$stmt_assignments) {
         throw new Exception("Помилка підготовки запиту завдань: " . $conn->error);
     }
     
-    $bind_params = [$student_id, $student_id]; // student_id для підзапиту та зовнішнього student_id (якщо потрібен)
+    $bind_params = [$student_id, $student_id]; 
     foreach ($course_ids as $cid) {
         $bind_params[] = $cid;
     }
-    // Розпаковуємо масив параметрів для bind_param
     $stmt_assignments->bind_param("ii" . $types, ...$bind_params);
     
     $stmt_assignments->execute();
     $result_assignments = $stmt_assignments->get_result();
 
-    $now = new DateTime(); // Поточний час для визначення статусу "пропущено"
+    $now = new DateTime(); 
 
     while ($assignment_row = $result_assignments->fetch_assoc()) {
         $current_course_id = $assignment_row['course_id'];
         
-        // Визначення статусу, якщо він не встановлений явно
         if (is_null($assignment_row['submission_status'])) {
             if ($assignment_row['due_date'] && new DateTime($assignment_row['due_date']) < $now) {
                 $assignment_row['submission_status'] = 'missed';
@@ -124,7 +115,6 @@ try {
             }
         }
         
-        // Додаємо оброблене завдання до відповідного курсу
         if (isset($courses_grades_data[$current_course_id])) {
             $courses_grades_data[$current_course_id]['assignments'][] = [
                 'assignment_id' => $assignment_row['assignment_id'],
@@ -141,7 +131,6 @@ try {
 
     $response['status'] = 'success';
     $response['message'] = 'Огляд оцінок успішно завантажено.';
-    // Перетворюємо асоціативний масив курсів на індексований для JSON
     $response['courses_grades'] = array_values($courses_grades_data);
 
 } catch (Exception $e) {

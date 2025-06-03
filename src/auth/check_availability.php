@@ -1,6 +1,6 @@
 <?php
-header('Content-Type: application/json'); // Повідомляємо клієнту, що відповідь буде у форматі JSON
-require_once 'connect.php'; // Підключення до бази даних
+header('Content-Type: application/json'); 
+require_once 'connect.php'; 
 
 $response = ['available' => false, 'message' => ''];
 
@@ -26,12 +26,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif (!empty($email)) {
             $response['message'] = "Некоректний формат електронної пошти.";
         }
-        // Якщо email порожній, нічого не робимо, available залишається false, message порожнім
-        // Клієнтська сторона має обробити порожнє поле окремо
 
     } elseif (isset($_POST['username'])) {
         $username = trim($_POST['username']);
-        // Додамо базову перевірку формату юзернейма, аналогічну до reg.js/process_registration.php
         if (!empty($username) && preg_match("/^[a-zA-Z0-9_]{3,20}$/", $username)) {
             $sql = "SELECT user_id FROM users WHERE username = ?";
             $stmt = $conn->prepare($sql);
@@ -51,7 +48,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif (!empty($username)) {
              $response['message'] = "Юзернейм: 3-20 символів (літери, цифри, '_').";
         }
-        // Якщо username порожній, нічого не робимо
     } else {
         $response['message'] = "Не вказано тип перевірки (email/username).";
     }

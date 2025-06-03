@@ -1,20 +1,19 @@
 <?php
-    // File: public/html/assignments_list.php
     if (session_status() == PHP_SESSION_NONE) { 
         session_start();
     }
-    // Переконайтеся, що в templates/header.php $tasks_link веде на 'assignments_list.php'
-    // $tasks_link = 'assignments_list.php'; // Це має бути встановлено в header.php або тут для активного меню
-    require_once __DIR__ . '/templates/header.php'; 
+    require_once __DIR__ . '/templates/layout.php'; 
 
-    if (!isset($_SESSION['user_id'])) { // Додаткова перевірка, хоча header.php вже має це робити
+    if (!isset($_SESSION['user_id'])) { 
         header("Location: login.php");
         exit();
     }
 ?>
-<title>Мої Завдання - Assignet</title>
+<title>Мої Завдання - AssignNet</title>
+<link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
 <link rel="stylesheet" href="../css/course_view_styles.css"> 
-<link rel="stylesheet" href="../css/assignments_list_styles.css"> <main class="page-content-wrapper">
+<link rel="stylesheet" href="../css/assignments_list_styles.css">
+<main class="page-content-wrapper">
     <div class="assignments-list-page-container"> <div class="course-header-bar"> <div class="breadcrumbs">
                 <a href="home.php">Головна</a> &gt;
                 <span>Мої завдання</span>

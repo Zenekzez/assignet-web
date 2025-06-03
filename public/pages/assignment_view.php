@@ -3,7 +3,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../../src/connect.php';
-require_once __DIR__ . '/templates/header.php'; // Підключаємо загальний хедер
+require_once __DIR__ . '/templates/layout.php'; // Підключаємо загальний хедер
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -54,7 +54,8 @@ $page_title = $assignment_data ? htmlspecialchars($assignment_data['title']) : '
 
 ?>
 
-<title><?php echo $page_title; ?> - Assignet</title>
+<title><?php echo $page_title; ?> - AssignNet</title>
+<link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
 <link rel="stylesheet" href="../css/assignment_view_styles.css">
 <div class="course-view-main-content">
     <?php if ($assignment_data): ?>

@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
         gradesOverviewArea.innerHTML = '';
 
         try {
-            const response = await fetch('../../src/get_student_grades_overview.php');
+            const response = await fetch('../../src/get/get_student_grades_overview.php');
             if (!response.ok) {
                 throw new Error(`HTTP помилка! Статус: ${response.status}`);
             }

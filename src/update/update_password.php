@@ -23,22 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Перевірка поточного пароля
     $stmt_user = $conn->prepare("SELECT password_hash FROM users WHERE user_id = ?");
     $stmt_user->bind_param("i", $user_id);
     $stmt_user->execute();
     $result_user = $stmt_user->get_result();
     if ($user_db_data = $result_user->fetch_assoc()) {
         if (password_verify($currentPassword, $user_db_data['password_hash'])) {
-            // Валідація нового пароля (серверна)
-            // Цей регулярний вираз тут правильний для PHP
             if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/", $newPassword)) {
                 $response['message'] = 'Новий пароль не відповідає вимогам безпеки.';
                 echo json_encode($response);
                 exit();
             }
 
-            // Хешування та оновлення пароля
             $newPasswordHash = password_hash($newPassword, PASSWORD_DEFAULT);
             $stmt_update = $conn->prepare("UPDATE users SET password_hash = ? WHERE user_id = ?");
             $stmt_update->bind_param("si", $newPasswordHash, $user_id);

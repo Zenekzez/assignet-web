@@ -20,7 +20,7 @@ function getColorClass($hex_color) {
     $color_classes = ['course-color-orange', 'course-color-green', 'course-color-lblue', 'course-color-red', 'course-color-purple', 'course-color-indigo', 'course-color-teal', 'course-color-brown', 'course-color-deeporange', 'course-color-deeppurple'];
     
     $color_class = 'course-color-default';
-    if ($hex_color) { // Перевірка, чи колір не NULL
+    if ($hex_color) { 
         $hex_index = array_search(strtolower($hex_color), array_map('strtolower', $default_colors_hex));
         if ($hex_index !== false && isset($color_classes[$hex_index])) {
             $color_class = $color_classes[$hex_index];
@@ -30,7 +30,7 @@ function getColorClass($hex_color) {
 }
 
 try {
-    // 1. Отримуємо курси, де користувач є автором
+    
     $sql_teaching = "SELECT c.course_id, c.course_name, c.description, c.color, u.username AS author_username
                      FROM courses c
                      JOIN users u ON c.author_id = u.user_id
@@ -46,8 +46,8 @@ try {
                 'id' => $row['course_id'],
                 'name' => $row['course_name'],
                 'description' => $row['description'],
-                'color_hex' => $row['color'], // <--- ДОДАЙ ЦЕЙ РЯДОК
-                'color_class' => getColorClass($row['color']), // Цей рядок можна залишити, якщо він потрібен для чогось іншого, або видалити, якщо ні
+                'color_hex' => $row['color'], 
+                'color_class' => getColorClass($row['color']), 
                 'author_username' => $row['author_username']
             ];
         }
@@ -57,7 +57,6 @@ try {
     }
 
 
-    // 2. Отримуємо курси, до яких користувач приєднаний (є студентом)
     $sql_enrolled = "SELECT c.course_id, c.course_name, c.description, c.color, u_author.username AS author_username
                      FROM enrollments e
                      JOIN courses c ON e.course_id = c.course_id
@@ -74,8 +73,8 @@ try {
                 'id' => $row['course_id'],
                 'name' => $row['course_name'],
                 'description' => $row['description'],
-                'color_hex' => $row['color'], // <--- ДОДАЙ ЦЕЙ РЯДОК
-                'color_class' => getColorClass($row['color']), // Аналогічно
+                'color_hex' => $row['color'],
+                'color_class' => getColorClass($row['color']), 
                 'author_username' => $row['author_username']
             ];
         }

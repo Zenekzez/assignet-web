@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const response = await fetch(`../../src/grading_actions.php?action=get_submission_for_grading&submission_id=${CURRENT_SUBMISSION_ID_JS}`); // Використовуємо глобальну змінну
+            const response = await fetch(`../../src/actions/grading_actions.php?action=get_submission_for_grading&submission_id=${CURRENT_SUBMISSION_ID_JS}`); // Використовуємо глобальну змінну
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: `HTTP помилка! Статус: ${response.status}` }));
                 throw new Error(errorData.message);
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const response = await fetch('../../src/grading_actions.php', {
+            const response = await fetch('../../src/actions/grading_actions.php', {
                 method: 'POST',
                 body: formData
             });

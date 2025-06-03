@@ -1,5 +1,4 @@
 <?php
-// File: src/get_student_all_assignments.php
 session_start();
 require_once 'connect.php';
 header('Content-Type: application/json');
@@ -16,9 +15,6 @@ $user_id = $_SESSION['user_id'];
 $all_uncompleted_assignments = [];
 
 try {
-    // Отримуємо всі завдання для курсів, на які записаний студент,
-    // разом зі статусом останньої здачі для кожного завдання цим студентом.
-    // Фільтруємо лише ті, де статус НЕ 'submitted' і НЕ 'graded', або де здачі немає.
     $stmt = $conn->prepare("
         SELECT
             a.assignment_id, a.title AS assignment_title, a.description AS assignment_description,
@@ -56,30 +52,27 @@ try {
     $result = $stmt->get_result();
 
     $now = new DateTime();
-    $urgent_threshold_days = 3; // Кількість днів для визначення "термінових" завдань
+    $urgent_threshold_days = 3; 
 
     while ($assignment = $result->fetch_assoc()) {
         $due_date_obj = $assignment['due_date'] ? new DateTime($assignment['due_date']) : null;
-        $category = 'pending'; // "Невиконані (не термінові)" - за замовчуванням
+        $category = 'pending'; 
 
         if ($due_date_obj) {
             if ($due_date_obj < $now) {
-                // Перевіряємо, чи статус вже "missed" з БД (якщо такий є), інакше ставимо "overdue"
-                $assignment['submission_status'] = $assignment['submission_status'] ?: 'missed'; // Якщо NULL, то точно пропущено
-                $category = 'overdue'; // "Прострочені"
+                $assignment['submission_status'] = $assignment['submission_status'] ?: 'missed';
+                $category = 'overdue'; 
             } else {
                 $interval = $now->diff($due_date_obj);
                 if (!$interval->invert && $interval->days <= $urgent_threshold_days) {
-                    $category = 'urgent'; // "Термінові"
+                    $category = 'urgent'; 
                 }
-                // Якщо не "overdue" і не "urgent", залишається "pending"
             }
         } else {
-            // Завдання без дати здачі також вважаємо "pending"
             $assignment['submission_status'] = $assignment['submission_status'] ?: 'pending_submission';
         }
         
-        $assignment['category_slug'] = $category; // Для фільтрації на клієнті
+        $assignment['category_slug'] = $category; 
         $all_uncompleted_assignments[] = $assignment;
     }
     $stmt->close();

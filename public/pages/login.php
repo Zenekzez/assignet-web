@@ -19,6 +19,7 @@ if (isset($_GET['registration']) && $_GET['registration'] === 'success') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вхід - AssignNet</title>
+    <link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>

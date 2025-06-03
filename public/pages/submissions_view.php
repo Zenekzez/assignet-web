@@ -3,7 +3,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../../src/connect.php';
-require_once __DIR__ . '/templates/header.php';
+require_once __DIR__ . '/templates/layout.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -17,12 +17,10 @@ $course_id_for_breadcrumb = null;
 $course_name_for_breadcrumb = 'Курс';
 $submissions = [];
 $is_teacher_of_this_course = false;
-$default_avatar_web_path = '../assets/default_avatar.png'; // Шлях до стандартної аватарки
+$default_avatar_web_path = '../assets/default_avatar.png'; 
 
 if (!$assignment_id_get) {
-    // Обробка помилки: ID завдання не надано
 } else {
-    // Отримати дані завдання та курсу
     $stmt_assignment = $conn->prepare(
         "SELECT a.assignment_id, a.title as assignment_title, a.course_id, a.due_date, c.course_name, c.author_id as course_author_id
          FROM assignments a
@@ -49,7 +47,6 @@ if (!$assignment_id_get) {
         exit();
     }
 
-    // Оновити SQL-запит для отримання avatar_path
     $stmt_submissions = $conn->prepare(
         "SELECT u.user_id as student_id, u.username as student_username, u.first_name, u.last_name, u.avatar_path,
                 s.submission_id, s.submission_date, s.file_path, s.submission_text, s.status, s.grade, s.graded_at
@@ -74,7 +71,8 @@ if (!$assignment_id_get) {
 $page_title = "Здані роботи: " . ($assignment_data ? htmlspecialchars($assignment_data['assignment_title']) : 'Завдання');
 ?>
 
-<title><?php echo $page_title; ?> - Assignet</title>
+<title><?php echo $page_title; ?> - AssignNet</title>
+<link rel="icon" href="public/assets/assignnet_logo.png" type="image/x-icon">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link rel="stylesheet" href="../css/course_view_styles.css">
 <link rel="stylesheet" href="../css/submissions_view.css">
